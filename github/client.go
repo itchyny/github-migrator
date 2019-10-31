@@ -13,6 +13,7 @@ type Client interface {
 	GetRepo(string) (*Repo, error)
 	ListIssues(string, *ListIssuesParams) Issues
 	ListComments(string, int) Comments
+	ListPullReqs(string, *ListPullReqsParams) PullReqs
 	Import(string, *Import) error
 }
 
