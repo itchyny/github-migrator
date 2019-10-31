@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/itchyny/github-migrator/github"
 )
@@ -30,6 +31,7 @@ func (m *migrator) migrateIssues() error {
 		if err := m.migrateIssue(sourceRepo, targetRepo, issue, targetIssuesBuffer); err != nil {
 			return err
 		}
+		time.Sleep(time.Second)
 	}
 	return nil
 }
@@ -48,10 +50,21 @@ func (m *migrator) migrateIssue(sourceRepo, targetRepo *github.Repo, sourceIssue
 	if err != nil {
 		return err
 	}
-	return m.target.Import(buildImport(sourceRepo, targetRepo, sourceIssue, comments))
+	var reviewComments []*github.ReviewComment
+	if sourceIssue.PullRequest != nil {
+		reviewComments, err = github.ReviewCommentsToSlice(m.source.ListReviewComments(sourceIssue.Number))
+		if err != nil {
+			return err
+		}
+	}
+	return m.target.Import(buildImport(sourceRepo, targetRepo, sourceIssue, comments, reviewComments))
 }
 
-func buildImport(sourceRepo, targetRepo *github.Repo, issue *github.Issue, comments []*github.Comment) *github.Import {
+func buildImport(
+	sourceRepo, targetRepo *github.Repo,
+	issue *github.Issue,
+	comments []*github.Comment, reviewComments []*github.ReviewComment,
+) *github.Import {
 	importIssue := &github.ImportIssue{
 		Title:     issue.Title,
 		Body:      buildImportBody(sourceRepo, targetRepo, issue),
@@ -66,7 +79,7 @@ func buildImport(sourceRepo, targetRepo *github.Repo, issue *github.Issue, comme
 	}
 	return &github.Import{
 		Issue:    importIssue,
-		Comments: buildImportComments(sourceRepo, targetRepo, comments),
+		Comments: buildImportComments(sourceRepo, targetRepo, comments, reviewComments),
 	}
 }
 
@@ -74,26 +87,58 @@ func buildImportBody(sourceRepo, targetRepo *github.Repo, issue *github.Issue) s
 	return buildTable(
 		buildImageTag(issue.User),
 		fmt.Sprintf(
-			"Original %s by @%s - imported from %s",
-			issue.Type(),
-			issue.User.Login,
+			"@%s created the original %s at %s<br>imported from %s",
+			issue.User.Login, issue.Type(), formatTimestamp(issue.CreatedAt),
 			buildIssueLinkTag(sourceRepo, issue),
 		),
 	) + "\n\n" + strings.ReplaceAll(issue.Body, sourceRepo.HTMLURL, targetRepo.HTMLURL)
 }
 
-func buildImportComments(sourceRepo, targetRepo *github.Repo, comments []*github.Comment) []*github.ImportComment {
+func buildImportComments(
+	sourceRepo, targetRepo *github.Repo,
+	comments []*github.Comment, reviewComments []*github.ReviewComment,
+) []*github.ImportComment {
 	xs := make([]*github.ImportComment, len(comments))
 	for i, c := range comments {
 		xs[i] = &github.ImportComment{
 			Body: buildTable(
 				buildImageTag(c.User),
-				fmt.Sprintf("@%s commented", c.User.Login),
+				fmt.Sprintf("@%s commented at %s", c.User.Login, formatTimestamp(c.CreatedAt)),
 			) + "\n\n" + strings.ReplaceAll(c.Body, sourceRepo.HTMLURL, targetRepo.HTMLURL),
 			CreatedAt: c.CreatedAt,
 		}
 	}
+	reviewCommentsIDToIndex := make(map[int]int)
+	for _, c := range reviewComments {
+		if i, ok := reviewCommentsIDToIndex[c.InReplyToID]; ok {
+			reviewCommentsIDToIndex[c.ID] = i
+			xs[i].Body += "\n\n" + buildTable(
+				buildImageTag(c.User),
+				fmt.Sprintf("@%s commented at %s", c.User.Login, formatTimestamp(c.CreatedAt)),
+			) + "\n\n" +
+				strings.ReplaceAll(c.Body, sourceRepo.HTMLURL, targetRepo.HTMLURL)
+			continue
+		}
+		reviewCommentsIDToIndex[c.ID] = len(xs)
+		xs = append(xs, &github.ImportComment{
+			Body: strings.Join([]string{"```diff", fmt.Sprintf("# %s:%d", c.Path, c.Line), c.DiffHunk, "```\n\n"}, "\n") +
+				buildTable(
+					buildImageTag(c.User),
+					fmt.Sprintf("@%s commented at %s", c.User.Login, formatTimestamp(c.CreatedAt)),
+				) + "\n\n" +
+				strings.ReplaceAll(c.Body, sourceRepo.HTMLURL, targetRepo.HTMLURL),
+			CreatedAt: c.CreatedAt,
+		})
+	}
 	return xs
+}
+
+func formatTimestamp(src string) string {
+	t, err := time.Parse(time.RFC3339, src)
+	if err != nil {
+		return ""
+	}
+	return t.Local().String()
 }
 
 func buildImageTag(user *github.User) string {

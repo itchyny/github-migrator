@@ -19,7 +19,7 @@ Be sure to use this tool before pushing the git tree to the new origin (otherwis
   - Issue numbers are same as the original repository
 - Pull requests
   - A pull request is converted to an issue
-  - Comments (not review comments) are migrated as issue comments
+  - Comments and review comments are migrated as issue comments
   - Created dates, Labels
   - Pull request numbers (issue numbers) are same as the original repository
 - Repository information
@@ -28,7 +28,7 @@ Be sure to use this tool before pushing the git tree to the new origin (otherwis
   - Label name, description and colors
 - All the other things will be lost
   - Issue and pull request reactions
-  - Diffs view and review comments in pull requests
+  - Diffs (split) view of pull requests
   - Wiki
   - Projects, Milestones (will be implemented in the near future)
   - Default branch, Protection rules

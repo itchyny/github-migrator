@@ -114,7 +114,29 @@ func TestMigratorMigrate(t *testing.T) {
 		github.MockListReviewComments(func(path string, pullNumber int) github.ReviewComments {
 			assert.Equal(t, path, "/repos/example/source/pulls/3/comments")
 			assert.Equal(t, pullNumber, 3)
-			return github.ReviewCommentsFromSlice(nil)
+			return github.ReviewCommentsFromSlice([]*github.ReviewComment{
+				{
+					ID:       100,
+					Path:     "sample.txt",
+					Line:     20,
+					DiffHunk: "@@ -0,0 +1 @@\n+foo",
+					Body:     "Nice catch.",
+					User: &github.User{
+						Login: "sample-user-2",
+					},
+				},
+				{
+					ID:          200,
+					Path:        "sample.txt",
+					Line:        20,
+					DiffHunk:    "@@ -0,0 +1 @@\n+foo",
+					Body:        "Thanks.",
+					InReplyToID: 100,
+					User: &github.User{
+						Login: "sample-user-3",
+					},
+				},
+			})
 		}),
 	), "example/source")
 
@@ -186,7 +208,8 @@ func TestMigratorMigrate(t *testing.T) {
 			assert.Equal(t, path, "/repos/example/target/import/issues")
 			assert.Equal(t, x.Issue.Title, "Example title 2")
 			assert.Contains(t, x.Issue.Body, `<img src="https://github.com/sample-user-2.png" width="35">`)
-			assert.Contains(t, x.Issue.Body, `Original issue by @sample-user-2 - imported from <a href="http://localhost/example/source/issues/2">example/source#2</a>`)
+			assert.Contains(t, x.Issue.Body, `@sample-user-2 created the original issue`)
+			assert.Contains(t, x.Issue.Body, `imported from <a href="http://localhost/example/source/issues/2">example/source#2</a>`)
 			assert.Contains(t, x.Issue.Body, `Example body 2`)
 			assert.Contains(t, x.Issue.Body, `See http://localhost/example/target/issues/1.`)
 			assert.Equal(t, x.Issue.Assignee, "sample-user-2")
@@ -204,11 +227,17 @@ func TestMigratorMigrate(t *testing.T) {
 			assert.Equal(t, path, "/repos/example/target/import/issues")
 			assert.Equal(t, x.Issue.Title, "Example title 3")
 			assert.Contains(t, x.Issue.Body, `<img src="https://github.com/sample-user-3.png" width="35">`)
-			assert.Contains(t, x.Issue.Body, `Original pull request by @sample-user-3 - imported from <a href="http://localhost/example/source/pull/3">example/source#3</a>`)
+			assert.Contains(t, x.Issue.Body, `@sample-user-3 created the original pull request`)
+			assert.Contains(t, x.Issue.Body, `imported from <a href="http://localhost/example/source/pull/3">example/source#3</a>`)
 			assert.Contains(t, x.Issue.Body, `Example body 3`)
 			assert.Equal(t, x.Issue.Assignee, "")
 			assert.Equal(t, x.Issue.Labels, []string{})
-			assert.Len(t, x.Comments, 0)
+			assert.Len(t, x.Comments, 1)
+			assert.Contains(t, x.Comments[0].Body, "```diff\n# sample.txt:20\n@@ -0,0 +1 @@\n+foo\n```\n")
+			assert.Contains(t, x.Comments[0].Body, "@sample-user-2 commented")
+			assert.Contains(t, x.Comments[0].Body, "Nice catch.\n")
+			assert.Contains(t, x.Comments[0].Body, "@sample-user-3 commented")
+			assert.Contains(t, x.Comments[0].Body, "Thanks.")
 		}
 		importCount++
 	}
