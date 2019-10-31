@@ -18,6 +18,7 @@ type Client interface {
 	ListIssues(string, *ListIssuesParams) Issues
 	ListComments(string, int) Comments
 	ListPullReqs(string, *ListPullReqsParams) PullReqs
+	ListReviewComments(string, int) ReviewComments
 	Import(string, *Import) error
 }
 
@@ -75,6 +76,7 @@ func (c *client) request(method, path string, body io.Reader) (*http.Request, er
 	req.Header.Add("Authorization", "token "+c.token)
 	req.Header.Add("Accept", "application/vnd.github.golden-comet-preview+json")
 	req.Header.Add("Accept", "application/vnd.github.symmetra-preview+json")
+	req.Header.Add("Accept", "application/vnd.github.comfort-fade-preview+json")
 	req.Header.Add("User-Agent", "github-migrator")
 	return req, nil
 }

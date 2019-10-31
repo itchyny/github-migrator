@@ -2,16 +2,17 @@ package github
 
 // MockClient represents a mock for GitHub client.
 type MockClient struct {
-	getUserCallback      func() (*User, error)
-	getRepoCallback      func(string) (*Repo, error)
-	updateRepoCallback   func(string, *UpdateRepoParams) (*Repo, error)
-	listLabelsCallback   func(string) Labels
-	createLabelCallback  func(string, *CreateLabelParams) (*Label, error)
-	updateLabelCallback  func(string, string, *UpdateLabelParams) (*Label, error)
-	listIssuesCallback   func(string, *ListIssuesParams) Issues
-	listCommentsCallback func(string, int) Comments
-	listPullReqsCallback func(string, *ListPullReqsParams) PullReqs
-	importCallback       func(string, *Import) error
+	getUserCallback            func() (*User, error)
+	getRepoCallback            func(string) (*Repo, error)
+	updateRepoCallback         func(string, *UpdateRepoParams) (*Repo, error)
+	listLabelsCallback         func(string) Labels
+	createLabelCallback        func(string, *CreateLabelParams) (*Label, error)
+	updateLabelCallback        func(string, string, *UpdateLabelParams) (*Label, error)
+	listIssuesCallback         func(string, *ListIssuesParams) Issues
+	listCommentsCallback       func(string, int) Comments
+	listPullReqsCallback       func(string, *ListPullReqsParams) PullReqs
+	listReviewCommentsCallback func(string, int) ReviewComments
+	importCallback             func(string, *Import) error
 }
 
 // MockClientOption is an option of mock client.
@@ -158,6 +159,21 @@ func (c *MockClient) ListPullReqs(repo string, params *ListPullReqsParams) PullR
 func MockListPullReqs(callback func(string, *ListPullReqsParams) PullReqs) MockClientOption {
 	return func(c *MockClient) {
 		c.listPullReqsCallback = callback
+	}
+}
+
+// ListReviewComments ...
+func (c *MockClient) ListReviewComments(repo string, pullNumber int) ReviewComments {
+	if c.listReviewCommentsCallback != nil {
+		return c.listReviewCommentsCallback(listReviewCommentsPath(repo, pullNumber), pullNumber)
+	}
+	panic("MockClient#ListReviewComments")
+}
+
+// MockListReviewComments ...
+func MockListReviewComments(callback func(string, int) ReviewComments) MockClientOption {
+	return func(c *MockClient) {
+		c.listReviewCommentsCallback = callback
 	}
 }
 
