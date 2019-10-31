@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/itchyny/github-migrator/github"
+	"github.com/itchyny/github-migrator/repo"
 )
 
 const name = "github-migrator"
@@ -20,7 +21,7 @@ func run(args []string) error {
 	if len(args) != 2 {
 		return fmt.Errorf("usage: %s <source> <target>", name)
 	}
-	source, target := args[0], args[1]
+	sourcePath, targetPath := args[0], args[1]
 	sourceCli, err := createGitHubClient(
 		"GITHUB_MIGRATOR_SOURCE_TOKEN",
 		"GITHUB_MIGRATOR_SOURCE_API_ENDPOINT",
@@ -35,7 +36,9 @@ func run(args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("[%s] %s => [%s] %s\n", sourceCli.Hostname(), source, targetCli.Hostname(), target)
+	source := repo.New(sourceCli, sourcePath)
+	target := repo.New(targetCli, targetPath)
+	fmt.Printf("%s => %s\n", source.Name(), target.Name())
 	return err
 }
 
