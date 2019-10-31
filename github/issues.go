@@ -40,7 +40,7 @@ func (is Issues) Next() (*Issue, error) {
 
 // IssuesFromSlice creates Issues from a slice.
 func IssuesFromSlice(xs []*Issue) Issues {
-	is := make(chan interface{}, 1)
+	is := make(chan interface{})
 	go func() {
 		defer close(is)
 		for _, i := range xs {

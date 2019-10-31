@@ -34,7 +34,7 @@ func (cs Comments) Next() (*Comment, error) {
 
 // CommentsFromSlice creates Comments from a slice.
 func CommentsFromSlice(xs []*Comment) Comments {
-	cs := make(chan interface{}, 1)
+	cs := make(chan interface{})
 	go func() {
 		defer close(cs)
 		for _, i := range xs {
