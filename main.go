@@ -49,14 +49,14 @@ func createGitHubClient(tokenEnv, endpointEnv string) (github.Client, error) {
 
 func createMigrator(sourcePath, targetPath string) (migrator.Migrator, error) {
 	sourceCli, err := createGitHubClient(
-		"GITHUB_MIGRATOR_SOURCE_TOKEN",
+		"GITHUB_MIGRATOR_SOURCE_API_TOKEN",
 		"GITHUB_MIGRATOR_SOURCE_API_ENDPOINT",
 	)
 	if err != nil {
 		return nil, err
 	}
 	targetCli, err := createGitHubClient(
-		"GITHUB_MIGRATOR_TARGET_TOKEN",
+		"GITHUB_MIGRATOR_TARGET_API_TOKEN",
 		"GITHUB_MIGRATOR_TARGET_API_ENDPOINT",
 	)
 	if err != nil {
