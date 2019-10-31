@@ -13,6 +13,7 @@ type Client interface {
 	GetRepo(string) (*Repo, error)
 	ListIssues(string, *ListIssuesParams) Issues
 	ListComments(string, int) Comments
+	Import(string, *Import) error
 }
 
 // New creates a new GitHub client.
@@ -39,11 +40,26 @@ func (c *client) get(path string) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Authorization", "token "+c.token)
 	fmt.Printf("fetching: %s\n", req.URL)
 	return c.client.Do(req)
 }
 
+func (c *client) post(path string, body io.Reader) (*http.Response, error) {
+	req, err := c.request("POST", path, body)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("posting: %s\n", req.URL)
+	return c.client.Do(req)
+}
+
 func (c *client) request(method, path string, body io.Reader) (*http.Request, error) {
-	return http.NewRequest(method, path, body)
+	req, err := http.NewRequest(method, path, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", "token "+c.token)
+	req.Header.Add("Accept", "application/vnd.github.golden-comet-preview+json")
+	req.Header.Add("User-Agent", "github-migrator")
+	return req, nil
 }

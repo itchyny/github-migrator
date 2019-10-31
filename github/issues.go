@@ -7,18 +7,34 @@ import (
 
 // Issue represents an issue.
 type Issue struct {
-	Number    int      `json:"number"`
-	Title     string   `json:"title"`
-	State     string   `json:"state"`
-	Body      string   `json:"body"`
-	HTMLURL   string   `json:"html_url"`
-	User      *User    `json:"user"`
-	Assignee  *User    `json:"assignee"`
-	CreatedAt string   `json:"created_at"`
-	UpdatedAt string   `json:"updated_at"`
-	ClosedAt  string   `json:"closed_at,omitempty"`
-	Labels    []*Label `json:"labels"`
-	Repo      *Repo    `json:"repository"`
+	Number      int               `json:"number"`
+	Title       string            `json:"title"`
+	State       string            `json:"state"`
+	Body        string            `json:"body"`
+	HTMLURL     string            `json:"html_url"`
+	User        *User             `json:"user"`
+	Assignee    *User             `json:"assignee"`
+	CreatedAt   string            `json:"created_at"`
+	UpdatedAt   string            `json:"updated_at"`
+	ClosedAt    string            `json:"closed_at,omitempty"`
+	Labels      []*Label          `json:"labels"`
+	PullRequest *IssuePullRequest `json:"pull_request"`
+}
+
+// Type returns "pull request" or "issue"
+func (i *Issue) Type() string {
+	if i.PullRequest != nil {
+		return "pull request"
+	}
+	return "issue"
+}
+
+// IssuePullRequest represents the pull request information of an issue.
+type IssuePullRequest struct {
+	URL      string `json:"URL"`
+	HTMLURL  string `json:"html_URL"`
+	DiffURL  string `json:"diff_URL"`
+	PatchURL string `json:"patch_URL"`
 }
 
 // Issues represents a collection of issues.

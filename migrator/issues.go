@@ -3,11 +3,16 @@ package migrator
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/itchyny/github-migrator/github"
 )
 
 func (m *migrator) migrateIssues() error {
+	repo, err := m.source.Get()
+	if err != nil {
+		return err
+	}
 	sourceIssues := m.source.ListIssues()
 	targetIssuesBuffer := newIssuesBuffer(m.target.ListIssues())
 	for {
@@ -18,15 +23,15 @@ func (m *migrator) migrateIssues() error {
 			}
 			break
 		}
-		if err := m.migrateIssue(issue, targetIssuesBuffer); err != nil {
+		if err := m.migrateIssue(repo, issue, targetIssuesBuffer); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (m *migrator) migrateIssue(sourceIssue *github.Issue, targetIssuesBuffer *issuesBuffer) error {
-	fmt.Printf("importing: %s\n", sourceIssue.HTMLURL)
+func (m *migrator) migrateIssue(sourceRepo *github.Repo, sourceIssue *github.Issue, targetIssuesBuffer *issuesBuffer) error {
+	fmt.Printf("migrating: %s\n", sourceIssue.HTMLURL)
 	targetIssue, err := targetIssuesBuffer.get(sourceIssue.Number)
 	if err != nil {
 		return err
@@ -39,9 +44,72 @@ func (m *migrator) migrateIssue(sourceIssue *github.Issue, targetIssuesBuffer *i
 	if err != nil {
 		return err
 	}
-	for _, c := range comments {
-		fmt.Printf("%#v\n", c)
-		fmt.Printf("%#v\n", c.User)
+	return m.target.Import(&github.Import{
+		Issue: &github.ImportIssue{
+			Title:     sourceIssue.Title,
+			Body:      buildImportBody(sourceRepo, sourceIssue),
+			CreatedAt: sourceIssue.CreatedAt,
+			UpdatedAt: sourceIssue.UpdatedAt,
+			Closed:    sourceIssue.State != "open",
+			ClosedAt:  sourceIssue.ClosedAt,
+			Labels:    buildImportLabels(sourceIssue),
+		},
+		Comments: buildImportComments(comments),
+	})
+}
+
+func buildImportBody(repo *github.Repo, issue *github.Issue) string {
+	return buildTable(
+		buildImageTag(issue.User),
+		fmt.Sprintf(
+			"Original %s by @%s - imported from %s",
+			issue.Type(),
+			issue.User.Login,
+			buildIssueLinkTag(repo, issue),
+		),
+	) + "\n\n" + issue.Body
+}
+
+func buildImportComments(comments []*github.Comment) []*github.ImportComment {
+	xs := make([]*github.ImportComment, len(comments))
+	for i, c := range comments {
+		xs[i] = &github.ImportComment{
+			Body: buildTable(
+				buildImageTag(c.User),
+				fmt.Sprintf("@%s commented", c.User.Login),
+			) + "\n\n" + c.Body,
+			CreatedAt: c.CreatedAt,
+		}
 	}
-	return nil
+	return xs
+}
+
+func buildImageTag(user *github.User) string {
+	return fmt.Sprintf(`<img src="https://github.com/%s.png" width="35">`, user.Login)
+}
+
+func buildTable(xs ...string) string {
+	s := new(strings.Builder)
+	s.WriteString("<table>\n")
+	s.WriteString("  <tr>\n")
+	for _, x := range xs {
+		s.WriteString("    <td>\n")
+		s.WriteString("      " + x + "\n")
+		s.WriteString("    </td>\n")
+	}
+	s.WriteString("  </tr>\n")
+	s.WriteString("</table>\n")
+	return s.String()
+}
+
+func buildIssueLinkTag(repo *github.Repo, issue *github.Issue) string {
+	return fmt.Sprintf(`<a href="%s">%s#%d</a>`, issue.HTMLURL, repo.FullName, issue.Number)
+}
+
+func buildImportLabels(issue *github.Issue) []string {
+	xs := []string{}
+	for _, l := range issue.Labels {
+		xs = append(xs, l.Name)
+	}
+	return xs
 }

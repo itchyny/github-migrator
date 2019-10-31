@@ -1,14 +1,13 @@
 package repo
 
-import (
-	"github.com/itchyny/github-migrator/github"
-)
+import "github.com/itchyny/github-migrator/github"
 
 // Repo represents a GitHub repository.
 type Repo interface {
 	Get() (*github.Repo, error)
 	ListIssues() github.Issues
 	ListComments(int) github.Comments
+	Import(*github.Import) error
 }
 
 // New creates a new Repo.
