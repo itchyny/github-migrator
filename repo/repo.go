@@ -6,11 +6,13 @@ import (
 	"github.com/itchyny/github-migrator/github"
 )
 
+// Repo represents a GitHub repository.
 type Repo interface {
 	Name() string
 }
 
-func New(cli github.Client, path string) *repo {
+// New creates a new Repo.
+func New(cli github.Client, path string) Repo {
 	return &repo{cli: cli, path: path}
 }
 
@@ -19,6 +21,7 @@ type repo struct {
 	path string
 }
 
+// Name ...
 func (r *repo) Name() string {
 	return fmt.Sprintf("%s:%s", r.cli.Hostname(), r.path)
 }

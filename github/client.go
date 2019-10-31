@@ -6,12 +6,14 @@ import (
 	"net/http"
 )
 
+// Client represents a GitHub client.
 type Client interface {
 	Login() (string, error)
 	Hostname() string
 }
 
-func New(token, root string) *client {
+// New creates a new GitHub client.
+func New(token, root string) Client {
 	cli := &http.Client{Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: true,
