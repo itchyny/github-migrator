@@ -31,6 +31,7 @@ func TestRepoListIssues(t *testing.T) {
 			assert.Contains(t, path, "filter=all")
 			assert.Contains(t, path, "state=all")
 			assert.Contains(t, path, "direction=asc")
+			assert.Contains(t, path, "per_page=100")
 			return expected, nil
 		}),
 	), "example/test")

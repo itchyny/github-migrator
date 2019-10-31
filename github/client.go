@@ -42,5 +42,5 @@ func (c *client) get(path string) (*http.Response, error) {
 }
 
 func (c *client) request(method, path string, body io.Reader) (*http.Request, error) {
-	return http.NewRequest(method, c.url(path), body)
+	return http.NewRequest(method, path, body)
 }

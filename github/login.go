@@ -11,7 +11,7 @@ type loginResponse struct {
 }
 
 func (c *client) Login() (string, error) {
-	res, err := c.get("/user")
+	res, err := c.get(c.url("/user"))
 	if err != nil {
 		return "", err
 	}

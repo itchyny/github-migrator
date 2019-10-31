@@ -124,21 +124,39 @@ func listIssuesPath(repo string, params *ListIssuesParams) string {
 		query("state", params.State.String()).
 		query("sort", params.Sort.String()).
 		query("direction", params.Direction.String()).
+		query("per_page", "100").
 		String()
 }
 
 // ListIssues lists the issues.
 func (c *client) ListIssues(repo string, params *ListIssuesParams) ([]*Issue, error) {
-	res, err := c.get(listIssuesPath(repo, params))
+	var is []*Issue
+	path := c.url(listIssuesPath(repo, params))
+	for {
+		xs, next, err := c.listIssues(path, params)
+		if err != nil {
+			return nil, err
+		}
+		is = append(is, xs...)
+		if next == "" {
+			break
+		}
+		path = next
+	}
+	return is, nil
+}
+
+func (c *client) listIssues(path string, params *ListIssuesParams) ([]*Issue, string, error) {
+	res, err := c.get(path)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	defer res.Body.Close()
 
 	var r []*Issue
 	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return r, nil
+	return r, getNext(res.Header), nil
 }
