@@ -18,7 +18,7 @@ type Client interface {
 func New(token, endpoint string) Client {
 	cli := &http.Client{Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: true,
+			InsecureSkipVerify: endpoint != "https://api.github.com",
 		},
 	}}
 	return &client{token: token, endpoint: endpoint, client: cli}
