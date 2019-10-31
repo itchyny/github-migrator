@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/itchyny/github-migrator/github"
+	"github.com/itchyny/github-migrator/migrator"
 	"github.com/itchyny/github-migrator/repo"
 )
 
@@ -21,25 +22,11 @@ func run(args []string) error {
 	if len(args) != 2 {
 		return fmt.Errorf("usage: %s <source> <target>", name)
 	}
-	sourcePath, targetPath := args[0], args[1]
-	sourceCli, err := createGitHubClient(
-		"GITHUB_MIGRATOR_SOURCE_TOKEN",
-		"GITHUB_MIGRATOR_SOURCE_API_ENDPOINT",
-	)
+	mig, err := createMigrator(args[0], args[1])
 	if err != nil {
 		return err
 	}
-	targetCli, err := createGitHubClient(
-		"GITHUB_MIGRATOR_TARGET_TOKEN",
-		"GITHUB_MIGRATOR_TARGET_API_ENDPOINT",
-	)
-	if err != nil {
-		return err
-	}
-	source := repo.New(sourceCli, sourcePath)
-	target := repo.New(targetCli, targetPath)
-	fmt.Printf("%s => %s\n", source.Name(), target.Name())
-	return err
+	return mig.Migrate()
 }
 
 func createGitHubClient(tokenEnv, endpointEnv string) (github.Client, error) {
@@ -58,4 +45,24 @@ func createGitHubClient(tokenEnv, endpointEnv string) (github.Client, error) {
 	}
 	fmt.Printf("login succeeded: %s\n", name)
 	return cli, nil
+}
+
+func createMigrator(sourcePath, targetPath string) (migrator.Migrator, error) {
+	sourceCli, err := createGitHubClient(
+		"GITHUB_MIGRATOR_SOURCE_TOKEN",
+		"GITHUB_MIGRATOR_SOURCE_API_ENDPOINT",
+	)
+	if err != nil {
+		return nil, err
+	}
+	targetCli, err := createGitHubClient(
+		"GITHUB_MIGRATOR_TARGET_TOKEN",
+		"GITHUB_MIGRATOR_TARGET_API_ENDPOINT",
+	)
+	if err != nil {
+		return nil, err
+	}
+	source := repo.New(sourceCli, sourcePath)
+	target := repo.New(targetCli, targetPath)
+	return migrator.New(source, target), nil
 }
