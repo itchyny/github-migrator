@@ -1,6 +1,7 @@
 package github
 
 import (
+	"crypto/tls"
 	"io"
 	"net/http"
 )
@@ -10,7 +11,11 @@ type Client interface {
 }
 
 func New(token, root string) *client {
-	cli := &http.Client{}
+	cli := &http.Client{Transport: &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}}
 	return &client{token: token, root: root, client: cli}
 }
 
