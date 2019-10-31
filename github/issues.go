@@ -7,11 +7,18 @@ import (
 
 // Issue represents an issue.
 type Issue struct {
-	Number  int    `json:"number"`
-	Title   string `json:"title"`
-	State   string `json:"state"`
-	Body    string `json:"body"`
-	HTMLURL string `json:"html_url"`
+	Number    int      `json:"number"`
+	Title     string   `json:"title"`
+	State     string   `json:"state"`
+	Body      string   `json:"body"`
+	HTMLURL   string   `json:"html_url"`
+	User      *User    `json:"user"`
+	Assignee  *User    `json:"assignee"`
+	CreatedAt string   `json:"created_at"`
+	UpdatedAt string   `json:"updated_at"`
+	ClosedAt  string   `json:"closed_at,omitempty"`
+	Labels    []*Label `json:"labels"`
+	Repo      *Repo    `json:"repository"`
 }
 
 // Issues represents a collection of issues.

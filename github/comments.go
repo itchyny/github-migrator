@@ -8,9 +8,11 @@ import (
 
 // Comment represents a comment.
 type Comment struct {
-	Body    string `json:"body"`
-	HTMLURL string `json:"html_url"`
-	User    *User  `json:"user"`
+	Body      string `json:"body"`
+	HTMLURL   string `json:"html_url"`
+	User      *User  `json:"user"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
 }
 
 // Comments represents a collection of comments.
