@@ -9,6 +9,7 @@ import (
 // Repo represents a GitHub repository.
 type Repo interface {
 	Name() string
+	ListIssues() ([]*github.Issue, error)
 }
 
 // New creates a new Repo.

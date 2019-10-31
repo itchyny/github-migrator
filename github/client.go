@@ -10,6 +10,7 @@ import (
 type Client interface {
 	Login() (string, error)
 	Hostname() string
+	ListIssues(string, *ListIssuesParams) ([]*Issue, error)
 }
 
 // New creates a new GitHub client.

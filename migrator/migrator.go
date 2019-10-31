@@ -22,5 +22,12 @@ type migrator struct {
 }
 
 func (m *migrator) Migrate() error {
+	is, err := m.source.ListIssues()
+	if err != nil {
+		return err
+	}
+	for _, i := range is {
+		fmt.Printf("%#v\n", i)
+	}
 	return nil
 }
