@@ -36,7 +36,7 @@ func TestMigratorMigrate(t *testing.T) {
 					Number:  2,
 					Title:   "Example title 2",
 					State:   "open",
-					Body:    "Example body 2",
+					Body:    "Example body 2\nSee http://localhost/example/source/issues/1.",
 					HTMLURL: "http://localhost/example/source/issues/2",
 					User: &github.User{
 						Login: "sample-user-2",
@@ -77,7 +77,7 @@ func TestMigratorMigrate(t *testing.T) {
 						},
 					},
 					{
-						Body:    "Example comment body 2",
+						Body:    "Example comment body 2\nRef: http://localhost/example/source/issues/1.",
 						HTMLURL: "http://localhost/example/source/issues/1#issuecomment-2",
 						User: &github.User{
 							Login: "sample-user-2",
@@ -131,6 +131,7 @@ func TestMigratorMigrate(t *testing.T) {
 			assert.Contains(t, x.Issue.Body, `<img src="https://github.com/sample-user-2.png" width="35">`)
 			assert.Contains(t, x.Issue.Body, `Original issue by @sample-user-2 - imported from <a href="http://localhost/example/source/issues/2">example/source#2</a>`)
 			assert.Contains(t, x.Issue.Body, `Example body 2`)
+			assert.Contains(t, x.Issue.Body, `See http://localhost/example/target/issues/1.`)
 			assert.Equal(t, x.Issue.Assignee, "sample-user-2")
 			assert.Equal(t, x.Issue.Labels, []string{"label1", "label2"})
 
@@ -141,6 +142,7 @@ func TestMigratorMigrate(t *testing.T) {
 			assert.Contains(t, x.Comments[1].Body, `<img src="https://github.com/sample-user-2.png" width="35">`)
 			assert.Contains(t, x.Comments[1].Body, `@sample-user-2 commented`)
 			assert.Contains(t, x.Comments[1].Body, `Example comment body 2`)
+			assert.Contains(t, x.Comments[1].Body, `Ref: http://localhost/example/target/issues/1.`)
 		case 1:
 			assert.Equal(t, path, "/repos/example/target/import/issues")
 			assert.Equal(t, x.Issue.Title, "Example title 3")

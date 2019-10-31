@@ -13,6 +13,10 @@ func (m *migrator) migrateIssues() error {
 	if err != nil {
 		return err
 	}
+	targetRepo, err := m.getTargetRepo()
+	if err != nil {
+		return err
+	}
 	sourceIssues := m.source.ListIssues()
 	targetIssuesBuffer := newIssuesBuffer(m.target.ListIssues())
 	for {
@@ -23,14 +27,14 @@ func (m *migrator) migrateIssues() error {
 			}
 			break
 		}
-		if err := m.migrateIssue(sourceRepo, issue, targetIssuesBuffer); err != nil {
+		if err := m.migrateIssue(sourceRepo, targetRepo, issue, targetIssuesBuffer); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (m *migrator) migrateIssue(sourceRepo *github.Repo, sourceIssue *github.Issue, targetIssuesBuffer *issuesBuffer) error {
+func (m *migrator) migrateIssue(sourceRepo, targetRepo *github.Repo, sourceIssue *github.Issue, targetIssuesBuffer *issuesBuffer) error {
 	fmt.Printf("migrating: %s\n", sourceIssue.HTMLURL)
 	targetIssue, err := targetIssuesBuffer.get(sourceIssue.Number)
 	if err != nil {
@@ -44,13 +48,13 @@ func (m *migrator) migrateIssue(sourceRepo *github.Repo, sourceIssue *github.Iss
 	if err != nil {
 		return err
 	}
-	return m.target.Import(buildImport(sourceRepo, sourceIssue, comments))
+	return m.target.Import(buildImport(sourceRepo, targetRepo, sourceIssue, comments))
 }
 
-func buildImport(repo *github.Repo, issue *github.Issue, comments []*github.Comment) *github.Import {
+func buildImport(sourceRepo, targetRepo *github.Repo, issue *github.Issue, comments []*github.Comment) *github.Import {
 	importIssue := &github.ImportIssue{
 		Title:     issue.Title,
-		Body:      buildImportBody(repo, issue),
+		Body:      buildImportBody(sourceRepo, targetRepo, issue),
 		CreatedAt: issue.CreatedAt,
 		UpdatedAt: issue.UpdatedAt,
 		Closed:    issue.State != "open",
@@ -62,30 +66,30 @@ func buildImport(repo *github.Repo, issue *github.Issue, comments []*github.Comm
 	}
 	return &github.Import{
 		Issue:    importIssue,
-		Comments: buildImportComments(comments),
+		Comments: buildImportComments(sourceRepo, targetRepo, comments),
 	}
 }
 
-func buildImportBody(repo *github.Repo, issue *github.Issue) string {
+func buildImportBody(sourceRepo, targetRepo *github.Repo, issue *github.Issue) string {
 	return buildTable(
 		buildImageTag(issue.User),
 		fmt.Sprintf(
 			"Original %s by @%s - imported from %s",
 			issue.Type(),
 			issue.User.Login,
-			buildIssueLinkTag(repo, issue),
+			buildIssueLinkTag(sourceRepo, issue),
 		),
-	) + "\n\n" + issue.Body
+	) + "\n\n" + strings.ReplaceAll(issue.Body, sourceRepo.HTMLURL, targetRepo.HTMLURL)
 }
 
-func buildImportComments(comments []*github.Comment) []*github.ImportComment {
+func buildImportComments(sourceRepo, targetRepo *github.Repo, comments []*github.Comment) []*github.ImportComment {
 	xs := make([]*github.ImportComment, len(comments))
 	for i, c := range comments {
 		xs[i] = &github.ImportComment{
 			Body: buildTable(
 				buildImageTag(c.User),
 				fmt.Sprintf("@%s commented", c.User.Login),
-			) + "\n\n" + c.Body,
+			) + "\n\n" + strings.ReplaceAll(c.Body, sourceRepo.HTMLURL, targetRepo.HTMLURL),
 			CreatedAt: c.CreatedAt,
 		}
 	}
