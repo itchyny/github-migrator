@@ -7,6 +7,7 @@ type Repo interface {
 	Get() (*github.Repo, error)
 	Update(*github.UpdateRepoParams) (*github.Repo, error)
 	ListLabels() github.Labels
+	CreateLabel(*github.CreateLabelParams) (*github.Label, error)
 	ListIssues() github.Issues
 	ListComments(int) github.Comments
 	ListPullReqs() github.PullReqs

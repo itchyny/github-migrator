@@ -35,3 +35,26 @@ func TestRepoListLabels(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, got, expected)
 }
+
+func TestRepoCreateLabel(t *testing.T) {
+	expected := &github.Label{
+		ID:          1,
+		Name:        "bug",
+		Description: "This is a bug.",
+		Color:       "fc2929",
+		Default:     false,
+	}
+	repo := New(github.NewMockClient(
+		github.MockCreateLabel(func(path string, params *github.CreateLabelParams) (*github.Label, error) {
+			assert.Equal(t, path, "/repos/example/test/labels")
+			return expected, nil
+		}),
+	), "example/test")
+	got, err := repo.CreateLabel(&github.CreateLabelParams{
+		Name:        "bug",
+		Description: "This is a bug.",
+		Color:       "fc2929",
+	})
+	assert.Nil(t, err)
+	assert.Equal(t, got, expected)
+}

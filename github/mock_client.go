@@ -6,6 +6,7 @@ type MockClient struct {
 	getRepoCallback      func(string) (*Repo, error)
 	updateRepoCallback   func(string, *UpdateRepoParams) (*Repo, error)
 	listLabelsCallback   func(string) Labels
+	createLabelCallback  func(string, *CreateLabelParams) (*Label, error)
 	listIssuesCallback   func(string, *ListIssuesParams) Issues
 	listCommentsCallback func(string, int) Comments
 	listPullReqsCallback func(string, *ListPullReqsParams) PullReqs
@@ -81,6 +82,21 @@ func (c *MockClient) ListLabels(repo string) Labels {
 func MockListLabels(callback func(string) Labels) MockClientOption {
 	return func(c *MockClient) {
 		c.listLabelsCallback = callback
+	}
+}
+
+// CreateLabel ...
+func (c *MockClient) CreateLabel(repo string, params *CreateLabelParams) (*Label, error) {
+	if c.createLabelCallback != nil {
+		return c.createLabelCallback(createLabelsPath(repo), params)
+	}
+	panic("MockClient#CreateLabel")
+}
+
+// MockCreateLabel ...
+func MockCreateLabel(callback func(string, *CreateLabelParams) (*Label, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.createLabelCallback = callback
 	}
 }
 

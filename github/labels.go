@@ -1,6 +1,7 @@
 package github
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -101,4 +102,36 @@ func (c *client) listLabels(path string) ([]*Label, string, error) {
 	}
 
 	return r, getNext(res.Header), nil
+}
+
+// CreateLabelParams represents the paramter for CreateLabel API.
+type CreateLabelParams struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Color       string `json:"color"`
+}
+
+func createLabelsPath(repo string) string {
+	return newPath(fmt.Sprintf("/repos/%s/labels", repo)).
+		String()
+}
+
+func (c *client) CreateLabel(repo string, params *CreateLabelParams) (*Label, error) {
+	bs, err := json.Marshal(params)
+	if err != nil {
+		return nil, err
+	}
+	body := bytes.NewReader(bs)
+	res, err := c.post(c.url(createLabelsPath(repo)), body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	var r Label
+	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+		return nil, err
+	}
+
+	return &r, nil
 }
