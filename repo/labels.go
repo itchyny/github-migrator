@@ -11,3 +11,8 @@ func (r *repo) ListLabels() github.Labels {
 func (r *repo) CreateLabel(param *github.CreateLabelParams) (*github.Label, error) {
 	return r.cli.CreateLabel(r.path, param)
 }
+
+// UpdateLabel creates a new label.
+func (r *repo) UpdateLabel(name string, param *github.UpdateLabelParams) (*github.Label, error) {
+	return r.cli.UpdateLabel(r.path, name, param)
+}

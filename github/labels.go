@@ -135,3 +135,35 @@ func (c *client) CreateLabel(repo string, params *CreateLabelParams) (*Label, er
 
 	return &r, nil
 }
+
+// UpdateLabelParams represents the paramter for UpdateLabel API.
+type UpdateLabelParams struct {
+	Name        string `json:"new_name"`
+	Description string `json:"description"`
+	Color       string `json:"color"`
+}
+
+func updateLabelsPath(repo, name string) string {
+	return newPath(fmt.Sprintf("/repos/%s/labels/%s", repo, name)).
+		String()
+}
+
+func (c *client) UpdateLabel(repo, name string, params *UpdateLabelParams) (*Label, error) {
+	bs, err := json.Marshal(params)
+	if err != nil {
+		return nil, err
+	}
+	body := bytes.NewReader(bs)
+	res, err := c.patch(c.url(updateLabelsPath(repo, name)), body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	var r Label
+	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+		return nil, err
+	}
+
+	return &r, nil
+}

@@ -14,6 +14,7 @@ type Client interface {
 	UpdateRepo(string, *UpdateRepoParams) (*Repo, error)
 	ListLabels(string) Labels
 	CreateLabel(string, *CreateLabelParams) (*Label, error)
+	UpdateLabel(string, string, *UpdateLabelParams) (*Label, error)
 	ListIssues(string, *ListIssuesParams) Issues
 	ListComments(string, int) Comments
 	ListPullReqs(string, *ListPullReqsParams) PullReqs
