@@ -39,11 +39,11 @@ func createGitHubClient(tokenEnv, endpointEnv string) (github.Client, error) {
 		endpoint = "https://api.github.com"
 	}
 	cli := github.New(token, endpoint)
-	name, err := cli.Login()
+	user, err := cli.GetUser()
 	if err != nil {
 		return nil, fmt.Errorf("%s (or you may want to set %s)", err, endpointEnv)
 	}
-	fmt.Printf("login succeeded: %s\n", name)
+	fmt.Printf("login succeeded: %s\n", user.Login)
 	return cli, nil
 }
 

@@ -5,26 +5,32 @@ import (
 	"errors"
 )
 
-type loginResponse struct {
+// User represents a user.
+type User struct {
 	Login   string `json:"login"`
+	HTMLURL string `json:"html_url"`
+}
+
+type userOrError struct {
+	User
 	Message string `json:"message"`
 }
 
-func (c *client) Login() (string, error) {
+func (c *client) GetUser() (*User, error) {
 	res, err := c.get(c.url("/user"))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer res.Body.Close()
 
-	var r loginResponse
+	var r userOrError
 	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if r.Message != "" {
-		return "", errors.New(r.Message)
+		return nil, errors.New(r.Message)
 	}
 
-	return r.Login, nil
+	return &r.User, nil
 }
