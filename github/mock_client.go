@@ -4,6 +4,7 @@ package github
 type MockClient struct {
 	getUserCallback      func() (*User, error)
 	getRepoCallback      func(string) (*Repo, error)
+	updateRepoCallback   func(string, *UpdateRepoParams) (*Repo, error)
 	listIssuesCallback   func(string, *ListIssuesParams) Issues
 	listCommentsCallback func(string, int) Comments
 	listPullReqsCallback func(string, *ListPullReqsParams) PullReqs
@@ -49,6 +50,21 @@ func (c *MockClient) GetRepo(repo string) (*Repo, error) {
 func MockGetRepo(callback func(string) (*Repo, error)) MockClientOption {
 	return func(c *MockClient) {
 		c.getRepoCallback = callback
+	}
+}
+
+// UpdateRepo ...
+func (c *MockClient) UpdateRepo(repo string, params *UpdateRepoParams) (*Repo, error) {
+	if c.updateRepoCallback != nil {
+		return c.updateRepoCallback(updateRepoPath(repo), params)
+	}
+	panic("MockClient#UpdateRepo")
+}
+
+// MockUpdateRepo ...
+func MockUpdateRepo(callback func(string, *UpdateRepoParams) (*Repo, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.updateRepoCallback = callback
 	}
 }
 

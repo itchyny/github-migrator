@@ -22,6 +22,8 @@ Be sure to use this tool before pushing the git tree to the new origin (otherwis
   - Comments (not review comments) are migrated as issue comments
   - Created dates, Labels
   - Pull request numbers (issue numbers) are same as the original repository
+- Repository information
+  - Description, Homepage (only when the target repository has blank description, homepage)
 - All the other things will be lost
   - Issue and pull request reactions
   - Diffs view and review comments in pull requests

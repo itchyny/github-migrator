@@ -6,7 +6,7 @@ import (
 	"github.com/itchyny/github-migrator/github"
 )
 
-func (m *migrator) checkRepos() error {
+func (m *migrator) migrateRepo() error {
 	sourceRepo, err := m.getSourceRepo()
 	if err != nil {
 		return err
@@ -23,6 +23,10 @@ func (m *migrator) checkRepos() error {
 		targetRepo.Name, targetRepo.HTMLURL,
 	)
 
+	_, err = m.target.Update(buildUpdateRepoParams(sourceRepo, targetRepo))
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -48,4 +52,22 @@ func (m *migrator) getTargetRepo() (*github.Repo, error) {
 	}
 	m.targetRepo = repo
 	return repo, nil
+}
+
+func buildUpdateRepoParams(sourceRepo, targetRepo *github.Repo) *github.UpdateRepoParams {
+	params := &github.UpdateRepoParams{
+		Name:          targetRepo.Name,
+		Description:   targetRepo.Description,
+		Homepage:      targetRepo.Homepage,
+		Private:       targetRepo.Private,
+		DefaultBranch: targetRepo.DefaultBranch,
+	}
+	if params.Description == "" {
+		params.Description = sourceRepo.Description
+	}
+	if params.Homepage == "" {
+		params.Homepage = sourceRepo.Homepage
+	}
+	// other fields should not be overwritten unless examined carefully
+	return params
 }

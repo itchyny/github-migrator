@@ -22,7 +22,7 @@ type migrator struct {
 
 // Migrate the repository.
 func (m *migrator) Migrate() error {
-	if err := m.checkRepos(); err != nil {
+	if err := m.migrateRepo(); err != nil {
 		return err
 	}
 	if err := m.migrateIssues(); err != nil {

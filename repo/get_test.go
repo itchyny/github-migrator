@@ -16,7 +16,7 @@ func TestRepoGet(t *testing.T) {
 	}
 	repo := New(github.NewMockClient(
 		github.MockGetRepo(func(path string) (*github.Repo, error) {
-			assert.Contains(t, path, "/repos/example/test")
+			assert.Equal(t, path, "/repos/example/test")
 			return expected, nil
 		}),
 	), "example/test")

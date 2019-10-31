@@ -14,10 +14,13 @@ func TestMigratorMigrate(t *testing.T) {
 	source := repo.New(github.NewMockClient(
 		github.MockGetRepo(func(path string) (*github.Repo, error) {
 			return &github.Repo{
-				Name:        "source",
-				FullName:    "example/source",
-				Description: "Source repository.",
-				HTMLURL:     "http://localhost/example/source",
+				Name:          "source",
+				FullName:      "example/source",
+				Description:   "Source repository.",
+				HTMLURL:       "http://localhost/example/source",
+				Homepage:      "http://localhost/",
+				Private:       false,
+				DefaultBranch: "staging",
 			}, nil
 		}),
 		github.MockListIssues(func(path string, _ *github.ListIssuesParams) github.Issues {
@@ -97,10 +100,21 @@ func TestMigratorMigrate(t *testing.T) {
 	target := repo.New(github.NewMockClient(
 		github.MockGetRepo(func(path string) (*github.Repo, error) {
 			return &github.Repo{
-				Name:        "target",
-				Description: "target repository.",
-				HTMLURL:     "http://localhost/example/target",
+				Name:          "target",
+				Description:   "Target repository.",
+				HTMLURL:       "http://localhost/example/target",
+				Private:       true,
+				DefaultBranch: "master",
 			}, nil
+		}),
+		github.MockUpdateRepo(func(path string, params *github.UpdateRepoParams) (*github.Repo, error) {
+			assert.Equal(t, path, "/repos/example/target")
+			assert.Equal(t, params.Name, "target")
+			assert.Equal(t, params.Description, "Target repository.")
+			assert.Equal(t, params.Homepage, "http://localhost/")
+			assert.Equal(t, params.DefaultBranch, "master")
+			assert.Equal(t, params.Private, true)
+			return &github.Repo{}, nil
 		}),
 		github.MockListIssues(func(path string, _ *github.ListIssuesParams) github.Issues {
 			return github.IssuesFromSlice([]*github.Issue{

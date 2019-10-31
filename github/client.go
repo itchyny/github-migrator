@@ -11,6 +11,7 @@ import (
 type Client interface {
 	GetUser() (*User, error)
 	GetRepo(string) (*Repo, error)
+	UpdateRepo(string, *UpdateRepoParams) (*Repo, error)
 	ListIssues(string, *ListIssuesParams) Issues
 	ListComments(string, int) Comments
 	ListPullReqs(string, *ListPullReqsParams) PullReqs
@@ -51,6 +52,15 @@ func (c *client) post(path string, body io.Reader) (*http.Response, error) {
 		return nil, err
 	}
 	fmt.Printf("posting: %s\n", req.URL)
+	return c.client.Do(req)
+}
+
+func (c *client) patch(path string, body io.Reader) (*http.Response, error) {
+	req, err := c.request("PATCH", path, body)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("updating: %s\n", req.URL)
 	return c.client.Do(req)
 }
 
