@@ -21,12 +21,32 @@ type Issue struct {
 	PullRequest *IssuePullRequest `json:"pull_request"`
 }
 
-// Type returns "pull request" or "issue"
-func (i *Issue) Type() string {
-	if i.PullRequest != nil {
+// IssueType ...
+type IssueType int
+
+// IssueType ...
+const (
+	IssueTypeIssue IssueType = iota
+	IssueTypePullReq
+)
+
+func (t IssueType) String() string {
+	switch t {
+	case IssueTypeIssue:
+		return "issue"
+	case IssueTypePullReq:
 		return "pull request"
+	default:
+		return ""
 	}
-	return "issue"
+}
+
+// Type returns IssueTypePullReq ("pull request") or IssueTypeIssue ("issue").
+func (i *Issue) Type() IssueType {
+	if i.PullRequest != nil {
+		return IssueTypePullReq
+	}
+	return IssueTypeIssue
 }
 
 // IssuePullRequest represents the pull request information of an issue.
