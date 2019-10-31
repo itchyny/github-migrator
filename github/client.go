@@ -12,6 +12,7 @@ type Client interface {
 	GetUser() (*User, error)
 	GetRepo(string) (*Repo, error)
 	UpdateRepo(string, *UpdateRepoParams) (*Repo, error)
+	ListLabels(string) Labels
 	ListIssues(string, *ListIssuesParams) Issues
 	ListComments(string, int) Comments
 	ListPullReqs(string, *ListPullReqsParams) PullReqs

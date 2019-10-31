@@ -5,6 +5,7 @@ type MockClient struct {
 	getUserCallback      func() (*User, error)
 	getRepoCallback      func(string) (*Repo, error)
 	updateRepoCallback   func(string, *UpdateRepoParams) (*Repo, error)
+	listLabelsCallback   func(string) Labels
 	listIssuesCallback   func(string, *ListIssuesParams) Issues
 	listCommentsCallback func(string, int) Comments
 	listPullReqsCallback func(string, *ListPullReqsParams) PullReqs
@@ -65,6 +66,21 @@ func (c *MockClient) UpdateRepo(repo string, params *UpdateRepoParams) (*Repo, e
 func MockUpdateRepo(callback func(string, *UpdateRepoParams) (*Repo, error)) MockClientOption {
 	return func(c *MockClient) {
 		c.updateRepoCallback = callback
+	}
+}
+
+// ListLabels ...
+func (c *MockClient) ListLabels(repo string) Labels {
+	if c.listLabelsCallback != nil {
+		return c.listLabelsCallback(listLabelsPath(repo))
+	}
+	panic("MockClient#ListLabels")
+}
+
+// MockListLabels ...
+func MockListLabels(callback func(string) Labels) MockClientOption {
+	return func(c *MockClient) {
+		c.listLabelsCallback = callback
 	}
 }
 
