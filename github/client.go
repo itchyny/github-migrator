@@ -8,6 +8,7 @@ import (
 
 type Client interface {
 	Login() (string, error)
+	Hostname() string
 }
 
 func New(token, root string) *client {

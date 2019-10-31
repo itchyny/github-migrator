@@ -45,6 +45,7 @@ func run(args []string) error {
 		return err
 	}
 	fmt.Printf("%s\n", targetName)
+	fmt.Printf("[%s] %s => [%s] %s\n", sourceCli.Hostname(), source, targetCli.Hostname(), target)
 	return err
 }
 
