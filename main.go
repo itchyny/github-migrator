@@ -28,11 +28,6 @@ func run(args []string) error {
 	if err != nil {
 		return err
 	}
-	sourceName, err := sourceCli.Login()
-	if err != nil {
-		return err
-	}
-	fmt.Printf("%s\n", sourceName)
 	targetCli, err := createGitHubClient(
 		"GITHUB_MIGRATOR_TARGET_TOKEN",
 		"GITHUB_MIGRATOR_TARGET_API_ENDPOINT",
@@ -40,11 +35,6 @@ func run(args []string) error {
 	if err != nil {
 		return err
 	}
-	targetName, err := targetCli.Login()
-	if err != nil {
-		return err
-	}
-	fmt.Printf("%s\n", targetName)
 	fmt.Printf("[%s] %s => [%s] %s\n", sourceCli.Hostname(), source, targetCli.Hostname(), target)
 	return err
 }
@@ -56,7 +46,13 @@ func createGitHubClient(tokenEnv, endpointEnv string) (github.Client, error) {
 	}
 	endpoint := os.Getenv(endpointEnv)
 	if endpoint == "" {
-		return nil, fmt.Errorf("GitHub endpoint not found (specify %s)", endpointEnv)
+		endpoint = "https://api.github.com"
 	}
-	return github.New(token, endpoint), nil
+	cli := github.New(token, endpoint)
+	name, err := cli.Login()
+	if err != nil {
+		return nil, fmt.Errorf("%s (or you may want to set %s)", err, endpointEnv)
+	}
+	fmt.Printf("login succeeded: %s\n", name)
+	return cli, nil
 }
