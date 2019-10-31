@@ -2,7 +2,7 @@ package github
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 )
 
 // User represents a user.
@@ -29,7 +29,7 @@ func (c *client) GetUser() (*User, error) {
 	}
 
 	if r.Message != "" {
-		return nil, errors.New(r.Message)
+		return nil, fmt.Errorf("%s: %s", r.Message, "/user")
 	}
 
 	return &r.User, nil

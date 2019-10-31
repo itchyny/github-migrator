@@ -2,7 +2,7 @@ package github
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 )
 
 // Repo represents a repository.
@@ -36,7 +36,7 @@ func (c *client) GetRepo(path string) (*Repo, error) {
 	}
 
 	if r.Message != "" {
-		return nil, errors.New(r.Message)
+		return nil, fmt.Errorf("%s: %s", r.Message, path)
 	}
 
 	return &r.Repo, nil
