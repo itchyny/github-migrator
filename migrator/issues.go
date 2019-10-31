@@ -9,7 +9,7 @@ import (
 )
 
 func (m *migrator) migrateIssues() error {
-	repo, err := m.source.Get()
+	sourceRepo, err := m.getSourceRepo()
 	if err != nil {
 		return err
 	}
@@ -23,7 +23,7 @@ func (m *migrator) migrateIssues() error {
 			}
 			break
 		}
-		if err := m.migrateIssue(repo, issue, targetIssuesBuffer); err != nil {
+		if err := m.migrateIssue(sourceRepo, issue, targetIssuesBuffer); err != nil {
 			return err
 		}
 	}

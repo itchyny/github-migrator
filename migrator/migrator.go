@@ -1,6 +1,9 @@
 package migrator
 
-import "github.com/itchyny/github-migrator/repo"
+import (
+	"github.com/itchyny/github-migrator/github"
+	"github.com/itchyny/github-migrator/repo"
+)
 
 // Migrator represents a GitHub migrator.
 type Migrator interface {
@@ -13,7 +16,8 @@ func New(source, target repo.Repo) Migrator {
 }
 
 type migrator struct {
-	source, target repo.Repo
+	source, target         repo.Repo
+	sourceRepo, targetRepo *github.Repo
 }
 
 // Migrate the repository.
