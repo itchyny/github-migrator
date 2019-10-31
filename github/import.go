@@ -21,6 +21,7 @@ type ImportIssue struct {
 	Closed    bool     `json:"closed"`
 	ClosedAt  string   `json:"closed_at,omitempty"`
 	Labels    []string `json:"labels,omitempty"`
+	Assignee  string   `json:"assignee,omitempty"`
 }
 
 // ImportComment represents an importing comment.

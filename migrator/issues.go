@@ -44,18 +44,26 @@ func (m *migrator) migrateIssue(sourceRepo *github.Repo, sourceIssue *github.Iss
 	if err != nil {
 		return err
 	}
-	return m.target.Import(&github.Import{
-		Issue: &github.ImportIssue{
-			Title:     sourceIssue.Title,
-			Body:      buildImportBody(sourceRepo, sourceIssue),
-			CreatedAt: sourceIssue.CreatedAt,
-			UpdatedAt: sourceIssue.UpdatedAt,
-			Closed:    sourceIssue.State != "open",
-			ClosedAt:  sourceIssue.ClosedAt,
-			Labels:    buildImportLabels(sourceIssue),
-		},
+	return m.target.Import(buildImport(sourceRepo, sourceIssue, comments))
+}
+
+func buildImport(repo *github.Repo, issue *github.Issue, comments []*github.Comment) *github.Import {
+	importIssue := &github.ImportIssue{
+		Title:     issue.Title,
+		Body:      buildImportBody(repo, issue),
+		CreatedAt: issue.CreatedAt,
+		UpdatedAt: issue.UpdatedAt,
+		Closed:    issue.State != "open",
+		ClosedAt:  issue.ClosedAt,
+		Labels:    buildImportLabels(issue),
+	}
+	if issue.Assignee != nil {
+		importIssue.Assignee = issue.Assignee.Login
+	}
+	return &github.Import{
+		Issue:    importIssue,
 		Comments: buildImportComments(comments),
-	})
+	}
 }
 
 func buildImportBody(repo *github.Repo, issue *github.Issue) string {

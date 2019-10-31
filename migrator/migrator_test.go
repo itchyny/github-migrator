@@ -41,6 +41,9 @@ func TestMigratorMigrate(t *testing.T) {
 					User: &github.User{
 						Login: "sample-user-2",
 					},
+					Assignee: &github.User{
+						Login: "sample-user-2",
+					},
 					Labels: []*github.Label{
 						{Name: "label1"},
 						{Name: "label2"},
@@ -128,6 +131,7 @@ func TestMigratorMigrate(t *testing.T) {
 			assert.Contains(t, x.Issue.Body, `<img src="https://github.com/sample-user-2.png" width="35">`)
 			assert.Contains(t, x.Issue.Body, `Original issue by @sample-user-2 - imported from <a href="http://localhost/example/source/issues/2">example/source#2</a>`)
 			assert.Contains(t, x.Issue.Body, `Example body 2`)
+			assert.Equal(t, x.Issue.Assignee, "sample-user-2")
 			assert.Equal(t, x.Issue.Labels, []string{"label1", "label2"})
 
 			assert.Len(t, x.Comments, 2)
@@ -143,6 +147,7 @@ func TestMigratorMigrate(t *testing.T) {
 			assert.Contains(t, x.Issue.Body, `<img src="https://github.com/sample-user-3.png" width="35">`)
 			assert.Contains(t, x.Issue.Body, `Original pull request by @sample-user-3 - imported from <a href="http://localhost/example/source/pull/3">example/source#3</a>`)
 			assert.Contains(t, x.Issue.Body, `Example body 3`)
+			assert.Equal(t, x.Issue.Assignee, "")
 			assert.Equal(t, x.Issue.Labels, []string{})
 			assert.Len(t, x.Comments, 0)
 		}
