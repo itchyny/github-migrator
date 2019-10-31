@@ -10,28 +10,27 @@ import (
 // Client represents a GitHub client.
 type Client interface {
 	Login() (string, error)
-	Hostname() string
 	GetRepo(string) (*Repo, error)
 	ListIssues(string, *ListIssuesParams) Issues
 }
 
 // New creates a new GitHub client.
-func New(token, root string) Client {
+func New(token, endpoint string) Client {
 	cli := &http.Client{Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: true,
 		},
 	}}
-	return &client{token: token, root: root, client: cli}
+	return &client{token: token, endpoint: endpoint, client: cli}
 }
 
 type client struct {
-	token, root string
-	client      *http.Client
+	token, endpoint string
+	client          *http.Client
 }
 
 func (c *client) url(path string) string {
-	return c.root + path
+	return c.endpoint + path
 }
 
 func (c *client) get(path string) (*http.Response, error) {

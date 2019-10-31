@@ -23,11 +23,6 @@ func (c *MockClient) Login() (string, error) {
 	return "mock", nil
 }
 
-// Hostname ...
-func (c *MockClient) Hostname() string {
-	return "api.github.com"
-}
-
 // GetRepo ...
 func (c *MockClient) GetRepo(repo string) (*Repo, error) {
 	if c.getRepoCallback != nil {

@@ -1,14 +1,11 @@
 package repo
 
 import (
-	"fmt"
-
 	"github.com/itchyny/github-migrator/github"
 )
 
 // Repo represents a GitHub repository.
 type Repo interface {
-	Name() string
 	Get() (*github.Repo, error)
 	ListIssues() github.Issues
 }
@@ -21,9 +18,4 @@ func New(cli github.Client, path string) Repo {
 type repo struct {
 	cli  github.Client
 	path string
-}
-
-// Name ...
-func (r *repo) Name() string {
-	return fmt.Sprintf("%s:%s", r.cli.Hostname(), r.path)
 }
