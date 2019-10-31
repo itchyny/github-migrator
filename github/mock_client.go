@@ -2,7 +2,7 @@ package github
 
 // MockClient represents a mock for GitHub client.
 type MockClient struct {
-	listIssuesCallback func(string, *ListIssuesParams) ([]*Issue, error)
+	listIssuesCallback func(string, *ListIssuesParams) Issues
 }
 
 // MockClientOption is an option of mock client.
@@ -28,7 +28,7 @@ func (c *MockClient) Hostname() string {
 }
 
 // ListIssues ...
-func (c *MockClient) ListIssues(repo string, params *ListIssuesParams) ([]*Issue, error) {
+func (c *MockClient) ListIssues(repo string, params *ListIssuesParams) Issues {
 	if c.listIssuesCallback != nil {
 		return c.listIssuesCallback(listIssuesPath(repo, params), params)
 	}
@@ -36,7 +36,7 @@ func (c *MockClient) ListIssues(repo string, params *ListIssuesParams) ([]*Issue
 }
 
 // MockListIssues ...
-func MockListIssues(callback func(string, *ListIssuesParams) ([]*Issue, error)) MockClientOption {
+func MockListIssues(callback func(string, *ListIssuesParams) Issues) MockClientOption {
 	return func(c *MockClient) {
 		c.listIssuesCallback = callback
 	}

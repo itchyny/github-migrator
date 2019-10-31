@@ -1,6 +1,9 @@
 package github
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"io"
+)
 
 // Issue represents an issue.
 type Issue struct {
@@ -9,6 +12,50 @@ type Issue struct {
 	State   string `json:"state"`
 	Body    string `json:"body"`
 	HTMLURL string `json:"html_url"`
+}
+
+// Issues represents a collection of issues.
+type Issues <-chan interface{}
+
+// Next emits the next Issue.
+func (is Issues) Next() (*Issue, error) {
+	for x := range is {
+		switch x := x.(type) {
+		case error:
+			return nil, x
+		case *Issue:
+			return x, nil
+		}
+		break
+	}
+	return nil, io.EOF
+}
+
+// IssuesFromSlice creates Issues from a slice.
+func IssuesFromSlice(xs []*Issue) Issues {
+	is := make(chan interface{}, 1)
+	go func() {
+		defer close(is)
+		for _, i := range xs {
+			is <- i
+		}
+	}()
+	return is
+}
+
+// IssuesToSlice collects Issues.
+func IssuesToSlice(is Issues) ([]*Issue, error) {
+	var xs []*Issue
+	for {
+		i, err := is.Next()
+		if err != nil {
+			if err != io.EOF {
+				return nil, err
+			}
+			return xs, nil
+		}
+		xs = append(xs, i)
+	}
 }
 
 // ListIssuesParams represents the paramter for ListIssues API.
@@ -129,21 +176,27 @@ func listIssuesPath(repo string, params *ListIssuesParams) string {
 }
 
 // ListIssues lists the issues.
-func (c *client) ListIssues(repo string, params *ListIssuesParams) ([]*Issue, error) {
-	var is []*Issue
-	path := c.url(listIssuesPath(repo, params))
-	for {
-		xs, next, err := c.listIssues(path, params)
-		if err != nil {
-			return nil, err
+func (c *client) ListIssues(repo string, params *ListIssuesParams) Issues {
+	is := make(chan interface{})
+	go func() {
+		defer close(is)
+		path := c.url(listIssuesPath(repo, params))
+		for {
+			xs, next, err := c.listIssues(path, params)
+			if err != nil {
+				is <- err
+				break
+			}
+			for _, x := range xs {
+				is <- x
+			}
+			if next == "" {
+				break
+			}
+			path = next
 		}
-		is = append(is, xs...)
-		if next == "" {
-			break
-		}
-		path = next
-	}
-	return is, nil
+	}()
+	return Issues(is)
 }
 
 func (c *client) listIssues(path string, params *ListIssuesParams) ([]*Issue, string, error) {

@@ -2,6 +2,7 @@ package migrator
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/itchyny/github-migrator/repo"
 )
@@ -22,11 +23,15 @@ type migrator struct {
 }
 
 func (m *migrator) Migrate() error {
-	is, err := m.source.ListIssues()
-	if err != nil {
-		return err
-	}
-	for _, i := range is {
+	is := m.source.ListIssues()
+	for {
+		i, err := is.Next()
+		if err != nil {
+			if err != io.EOF {
+				return err
+			}
+			break
+		}
 		fmt.Printf("%#v\n", i)
 	}
 	return nil
