@@ -11,6 +11,7 @@ import (
 type Client interface {
 	Login() (string, error)
 	Hostname() string
+	GetRepo(string) (*Repo, error)
 	ListIssues(string, *ListIssuesParams) Issues
 }
 

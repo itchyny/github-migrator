@@ -9,6 +9,7 @@ import (
 // Repo represents a GitHub repository.
 type Repo interface {
 	Name() string
+	Get() (*github.Repo, error)
 	ListIssues() github.Issues
 }
 
