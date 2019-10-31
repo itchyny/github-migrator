@@ -2,6 +2,7 @@ package github
 
 import (
 	"crypto/tls"
+	"fmt"
 	"io"
 	"net/http"
 )
@@ -38,6 +39,7 @@ func (c *client) get(path string) (*http.Response, error) {
 		return nil, err
 	}
 	req.Header.Add("Authorization", "token "+c.token)
+	fmt.Printf("fetching: %s\n", req.URL)
 	return c.client.Do(req)
 }
 
