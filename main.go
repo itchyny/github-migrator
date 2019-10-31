@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/url"
 	"os"
 
 	"github.com/itchyny/github-migrator/github"
@@ -21,15 +20,11 @@ func run(args []string) error {
 	if len(args) != 2 {
 		return fmt.Errorf("usage: %s <source> <target>", name)
 	}
-	source, err := url.Parse(args[0])
-	if err != nil {
-		return err
-	}
-	target, err := url.Parse(args[1])
-	if err != nil {
-		return err
-	}
-	sourceCli, err := createGitHubClient("GITHUB_MIGRATOR_SOURCE_TOKEN", urlToRoot(source))
+	source, target := args[0], args[1]
+	sourceCli, err := createGitHubClient(
+		"GITHUB_MIGRATOR_SOURCE_TOKEN",
+		"GITHUB_MIGRATOR_SOURCE_API_ENDPOINT",
+	)
 	if err != nil {
 		return err
 	}
@@ -37,8 +32,11 @@ func run(args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%#v\n", sourceName)
-	targetCli, err := createGitHubClient("GITHUB_MIGRATOR_TARGET_TOKEN", urlToRoot(target))
+	fmt.Printf("%s\n", sourceName)
+	targetCli, err := createGitHubClient(
+		"GITHUB_MIGRATOR_TARGET_TOKEN",
+		"GITHUB_MIGRATOR_TARGET_API_ENDPOINT",
+	)
 	if err != nil {
 		return err
 	}
@@ -46,23 +44,18 @@ func run(args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%#v\n", targetName)
+	fmt.Printf("%s\n", targetName)
 	return err
 }
 
-func urlToRoot(u *url.URL) string {
-	var userinfo string
-	if u.User != nil {
-		userinfo = u.User.String() + "@"
-	}
-	return fmt.Sprintf("%s://%s%s", u.Scheme, userinfo, u.Host)
-}
-
-func createGitHubClient(envName, root string) (github.Client, error) {
-	token := os.Getenv(envName)
+func createGitHubClient(tokenEnv, endpointEnv string) (github.Client, error) {
+	token := os.Getenv(tokenEnv)
 	if token == "" {
-		return nil, fmt.Errorf("GitHub token not found (specify %s)", envName)
+		return nil, fmt.Errorf("GitHub token not found (specify %s)", tokenEnv)
 	}
-	client := github.New(token, root)
-	return client, nil
+	endpoint := os.Getenv(endpointEnv)
+	if endpoint == "" {
+		return nil, fmt.Errorf("GitHub endpoint not found (specify %s)", endpointEnv)
+	}
+	return github.New(token, endpoint), nil
 }
