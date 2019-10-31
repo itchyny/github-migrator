@@ -33,12 +33,20 @@ func run(args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%#v\n", sourceCli)
+	sourceName, err := sourceCli.Login()
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%#v\n", sourceName)
 	targetCli, err := createGitHubClient("GITHUB_MIGRATOR_TARGET_TOKEN", urlToRoot(target))
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%#v\n", targetCli)
+	targetName, err := targetCli.Login()
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%#v\n", targetName)
 	return err
 }
 
