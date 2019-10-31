@@ -14,13 +14,12 @@ func TestMigratorMigrate(t *testing.T) {
 	source := repo.New(github.NewMockClient(
 		github.MockGetRepo(func(path string) (*github.Repo, error) {
 			return &github.Repo{
-				Name:          "source",
-				FullName:      "example/source",
-				Description:   "Source repository.",
-				HTMLURL:       "http://localhost/example/source",
-				Homepage:      "http://localhost/",
-				Private:       false,
-				DefaultBranch: "staging",
+				Name:        "source",
+				FullName:    "example/source",
+				Description: "Source repository.",
+				HTMLURL:     "http://localhost/example/source",
+				Homepage:    "http://localhost/",
+				Private:     false,
 			}, nil
 		}),
 		github.MockListLabels(func(path string) github.Labels {
@@ -112,17 +111,21 @@ func TestMigratorMigrate(t *testing.T) {
 				return nil
 			}
 		}),
+		github.MockListReviewComments(func(path string, pullNumber int) github.ReviewComments {
+			assert.Equal(t, path, "/repos/example/source/pulls/3/comments")
+			assert.Equal(t, pullNumber, 3)
+			return github.ReviewCommentsFromSlice(nil)
+		}),
 	), "example/source")
 
 	var assertImport func(string, *github.Import)
 	target := repo.New(github.NewMockClient(
 		github.MockGetRepo(func(path string) (*github.Repo, error) {
 			return &github.Repo{
-				Name:          "target",
-				Description:   "Target repository.",
-				HTMLURL:       "http://localhost/example/target",
-				Private:       true,
-				DefaultBranch: "master",
+				Name:        "target",
+				Description: "Target repository.",
+				HTMLURL:     "http://localhost/example/target",
+				Private:     true,
 			}, nil
 		}),
 		github.MockUpdateRepo(func(path string, params *github.UpdateRepoParams) (*github.Repo, error) {
@@ -130,7 +133,6 @@ func TestMigratorMigrate(t *testing.T) {
 			assert.Equal(t, params.Name, "target")
 			assert.Equal(t, params.Description, "Target repository.")
 			assert.Equal(t, params.Homepage, "http://localhost/")
-			assert.Equal(t, params.DefaultBranch, "master")
 			assert.Equal(t, params.Private, true)
 			return &github.Repo{}, nil
 		}),

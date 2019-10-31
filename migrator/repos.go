@@ -56,11 +56,10 @@ func (m *migrator) getTargetRepo() (*github.Repo, error) {
 
 func buildUpdateRepoParams(sourceRepo, targetRepo *github.Repo) *github.UpdateRepoParams {
 	params := &github.UpdateRepoParams{
-		Name:          targetRepo.Name,
-		Description:   targetRepo.Description,
-		Homepage:      targetRepo.Homepage,
-		Private:       targetRepo.Private,
-		DefaultBranch: targetRepo.DefaultBranch,
+		Name:        targetRepo.Name,
+		Description: targetRepo.Description,
+		Homepage:    targetRepo.Homepage,
+		Private:     targetRepo.Private,
 	}
 	if params.Description == "" {
 		params.Description = sourceRepo.Description

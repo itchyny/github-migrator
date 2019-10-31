@@ -8,13 +8,12 @@ import (
 
 // Repo represents a repository.
 type Repo struct {
-	Name          string `json:"name"`
-	FullName      string `json:"full_name"`
-	Description   string `json:"description"`
-	Homepage      string `json:"homepage"`
-	HTMLURL       string `json:"html_url"`
-	Private       bool   `json:"private"`
-	DefaultBranch string `json:"default_branch"`
+	Name        string `json:"name"`
+	FullName    string `json:"full_name"`
+	Description string `json:"description"`
+	Homepage    string `json:"homepage"`
+	HTMLURL     string `json:"html_url"`
+	Private     bool   `json:"private"`
 }
 
 type repoOrError struct {
@@ -48,11 +47,10 @@ func (c *client) GetRepo(path string) (*Repo, error) {
 
 // UpdateRepoParams represents a parameter on updating a repository.
 type UpdateRepoParams struct {
-	Name          string `json:"name"`
-	Description   string `json:"description"`
-	Homepage      string `json:"homepage"`
-	Private       bool   `json:"private"`
-	DefaultBranch string `json:"default_branch"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Homepage    string `json:"homepage"`
+	Private     bool   `json:"private"`
 }
 
 func updateRepoPath(repo string) string {
