@@ -35,5 +35,13 @@ func (m *migrator) migrateIssue(sourceIssue *github.Issue, targetIssuesBuffer *i
 		fmt.Printf("skipping: %s (already exists)\n", targetIssue.HTMLURL)
 		return nil
 	}
+	comments, err := github.CommentsToSlice(m.source.ListComments(sourceIssue.Number))
+	if err != nil {
+		return err
+	}
+	for _, c := range comments {
+		fmt.Printf("%#v\n", c)
+		fmt.Printf("%#v\n", c.User)
+	}
 	return nil
 }

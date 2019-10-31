@@ -8,6 +8,7 @@ import (
 type Repo interface {
 	Get() (*github.Repo, error)
 	ListIssues() github.Issues
+	ListComments(int) github.Comments
 }
 
 // New creates a new Repo.

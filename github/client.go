@@ -12,6 +12,7 @@ type Client interface {
 	GetUser() (*User, error)
 	GetRepo(string) (*Repo, error)
 	ListIssues(string, *ListIssuesParams) Issues
+	ListComments(string, int) Comments
 }
 
 // New creates a new GitHub client.

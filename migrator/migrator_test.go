@@ -36,6 +36,19 @@ func TestMigratorMigrate(t *testing.T) {
 				},
 			})
 		}),
+		github.MockListComments(func(path string, issueNumber int) github.Comments {
+			assert.Equal(t, issueNumber, 2)
+			return github.CommentsFromSlice([]*github.Comment{
+				{
+					Body:    "Example body 1",
+					HTMLURL: "http://localhost/example/source/issues/1#issuecomment-1",
+				},
+				{
+					Body:    "Example body 2",
+					HTMLURL: "http://localhost/example/source/issues/1#issuecomment-2",
+				},
+			})
+		}),
 	), "example/source")
 
 	target := repo.New(github.NewMockClient(
