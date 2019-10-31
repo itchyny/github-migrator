@@ -23,6 +23,24 @@ func TestMigratorMigrate(t *testing.T) {
 				DefaultBranch: "staging",
 			}, nil
 		}),
+		github.MockListLabels(func(path string) github.Labels {
+			return github.LabelsFromSlice([]*github.Label{
+				{
+					ID:          1,
+					Name:        "bug",
+					Description: "This is a bug.",
+					Color:       "fc2929",
+					Default:     false,
+				},
+				{
+					ID:          2,
+					Name:        "design",
+					Description: "This is a design issue.",
+					Color:       "bfdadc",
+					Default:     false,
+				},
+			})
+		}),
 		github.MockListIssues(func(path string, _ *github.ListIssuesParams) github.Issues {
 			return github.IssuesFromSlice([]*github.Issue{
 				{
@@ -115,6 +133,29 @@ func TestMigratorMigrate(t *testing.T) {
 			assert.Equal(t, params.DefaultBranch, "master")
 			assert.Equal(t, params.Private, true)
 			return &github.Repo{}, nil
+		}),
+		github.MockListLabels(func(path string) github.Labels {
+			return github.LabelsFromSlice([]*github.Label{
+				{
+					ID:          1,
+					Name:        "bug",
+					Description: "This is a bug.",
+					Color:       "292929",
+					Default:     false,
+				},
+			})
+		}),
+		github.MockCreateLabel(func(path string, params *github.CreateLabelParams) (*github.Label, error) {
+			assert.Equal(t, path, "/repos/example/target/labels")
+			assert.Equal(t, params.Name, "design")
+			return nil, nil
+		}),
+		github.MockUpdateLabel(func(path, name string, params *github.UpdateLabelParams) (*github.Label, error) {
+			assert.Equal(t, path, "/repos/example/target/labels/"+name)
+			assert.Equal(t, params.Name, name)
+			assert.Equal(t, params.Name, "bug")
+			assert.Equal(t, params.Color, "fc2929")
+			return nil, nil
 		}),
 		github.MockListIssues(func(path string, _ *github.ListIssuesParams) github.Issues {
 			return github.IssuesFromSlice([]*github.Issue{

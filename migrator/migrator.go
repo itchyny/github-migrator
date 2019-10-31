@@ -25,6 +25,9 @@ func (m *migrator) Migrate() error {
 	if err := m.migrateRepo(); err != nil {
 		return err
 	}
+	if err := m.migrateLabels(); err != nil {
+		return err
+	}
 	if err := m.migrateIssues(); err != nil {
 		return err
 	}
