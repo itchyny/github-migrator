@@ -182,7 +182,7 @@ func (c *client) ListIssues(repo string, params *ListIssuesParams) Issues {
 		defer close(is)
 		path := c.url(listIssuesPath(repo, params))
 		for {
-			xs, next, err := c.listIssues(path, params)
+			xs, next, err := c.listIssues(path)
 			if err != nil {
 				is <- err
 				break
@@ -199,7 +199,7 @@ func (c *client) ListIssues(repo string, params *ListIssuesParams) Issues {
 	return Issues(is)
 }
 
-func (c *client) listIssues(path string, params *ListIssuesParams) ([]*Issue, string, error) {
+func (c *client) listIssues(path string) ([]*Issue, string, error) {
 	res, err := c.get(path)
 	if err != nil {
 		return nil, "", err
