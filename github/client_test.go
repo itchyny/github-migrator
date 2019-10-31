@@ -5,5 +5,5 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	var _ Client = New("token", "https://github.com")
+	var _ Client = New("token", "http://localhost")
 }

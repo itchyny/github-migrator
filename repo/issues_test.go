@@ -15,14 +15,14 @@ func TestRepoListIssues(t *testing.T) {
 			Title:   "Example title 1",
 			State:   "closed",
 			Body:    "Example body 1",
-			HTMLURL: "https://github.com/example/test/issues/1",
+			HTMLURL: "http://localhost/example/test/issues/1",
 		},
 		{
 			Number:  2,
 			Title:   "Example title 2",
 			State:   "open",
 			Body:    "Example body 2",
-			HTMLURL: "https://github.com/example/test/issues/2",
+			HTMLURL: "http://localhost/example/test/issues/2",
 		},
 	}
 	repo := New(github.NewMockClient(

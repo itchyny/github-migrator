@@ -12,7 +12,7 @@ func TestRepoGet(t *testing.T) {
 	expected := &github.Repo{
 		Name:        "test",
 		Description: "Test repository.",
-		HTMLURL:     "https://github.com/example/test",
+		HTMLURL:     "http://localhost/example/test",
 	}
 	repo := New(github.NewMockClient(
 		github.MockGetRepo(func(path string) (*github.Repo, error) {

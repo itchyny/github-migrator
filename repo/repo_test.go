@@ -7,6 +7,6 @@ import (
 )
 
 func TestRepo(t *testing.T) {
-	cli := github.New("token", "https://github.com")
+	cli := github.New("token", "http://localhost")
 	var _ Repo = New(cli, "example/test")
 }
