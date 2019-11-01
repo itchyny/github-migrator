@@ -56,49 +56,62 @@ func (b *builder) build() *github.Import {
 }
 
 func (b *builder) buildImportBody() string {
-	img := b.buildImageTag(b.issue.User)
 	return b.buildTable(
-		img,
+		b.buildImageTag(b.issue.User),
 		fmt.Sprintf(
 			"@%s created the original %s<br>imported from %s",
-			b.commentFilters.apply(b.issue.User.Login), b.issue.Type(),
+			b.commentFilters.apply(b.issue.User.Login),
+			b.issue.Type(),
 			b.buildIssueLinkTag(b.source, b.issue),
 		),
 	) + "\n\n" + b.commentFilters.apply(b.issue.Body)
 }
 
 func (b *builder) buildImportComments() []*github.ImportComment {
+	xs := append(
+		b.buildImportIssueComments(),
+		b.buildImportReviewComments()...,
+	)
+	for _, x := range xs {
+		x.Body = b.commentFilters.apply(x.Body)
+	}
+	return xs
+}
+
+func (b *builder) buildImportIssueComments() []*github.ImportComment {
 	xs := make([]*github.ImportComment, len(b.comments))
 	for i, c := range b.comments {
 		xs[i] = &github.ImportComment{
-			Body: b.buildTable(
-				b.buildImageTag(c.User),
-				fmt.Sprintf("@%s commented", b.commentFilters.apply(c.User.Login)),
-			) + "\n\n" + b.commentFilters.apply(c.Body),
+			Body:      b.buildCommentedTable(c.User, c.Body),
 			CreatedAt: c.CreatedAt,
 		}
 	}
-	reviewCommentsIDToIndex := make(map[int]int)
+	return xs
+}
+
+func (b *builder) buildImportReviewComments() []*github.ImportComment {
+	var xs []*github.ImportComment
+	indexByID := make(map[int]int)
 	for _, c := range b.reviewComments {
-		if i, ok := reviewCommentsIDToIndex[c.InReplyToID]; ok {
-			reviewCommentsIDToIndex[c.ID] = i
-			xs[i].Body += "\n\n" + b.buildTable(
-				b.buildImageTag(c.User),
-				fmt.Sprintf("@%s commented", b.commentFilters.apply(c.User.Login)),
-			) + "\n\n" + b.commentFilters.apply(c.Body)
+		if i, ok := indexByID[c.InReplyToID]; ok {
+			indexByID[c.ID] = i
+			xs[i].Body += "\n\n" + b.buildCommentedTable(c.User, c.Body)
 			continue
 		}
-		reviewCommentsIDToIndex[c.ID] = len(xs)
+		indexByID[c.ID] = len(xs)
 		xs = append(xs, &github.ImportComment{
 			Body: strings.Join([]string{"```diff", fmt.Sprintf("# %s:%d", c.Path, c.Line), c.DiffHunk, "```\n\n"}, "\n") +
-				b.buildTable(
-					b.buildImageTag(c.User),
-					fmt.Sprintf("@%s commented", b.commentFilters.apply(c.User.Login)),
-				) + "\n\n" + b.commentFilters.apply(c.Body),
+				b.buildCommentedTable(c.User, c.Body),
 			CreatedAt: c.CreatedAt,
 		})
 	}
 	return xs
+}
+
+func (b *builder) buildCommentedTable(user *github.User, body string) string {
+	return b.buildTable(
+		b.buildImageTag(user), fmt.Sprintf("@%s commented", user.Login),
+	) + "\n\n" + body
 }
 
 func (b *builder) buildImageTag(user *github.User) string {
