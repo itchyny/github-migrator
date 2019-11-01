@@ -227,7 +227,7 @@ func TestMigratorMigrate(t *testing.T) {
 			assert.Equal(t, x.Issue.Labels, []string{"label1", "label2"})
 
 			assert.Len(t, x.Comments, 2)
-			assert.Contains(t, x.Comments[0].Body, `<img src="https://github.com/sample-user-1.png" width="35">`)
+			assert.Contains(t, x.Comments[0].Body, `<img src="https://github.com/github.png" width="35">`)
 			assert.Contains(t, x.Comments[0].Body, `@sample-user-1 commented`)
 			assert.Contains(t, x.Comments[0].Body, `Example comment body 1`)
 			assert.Contains(t, x.Comments[1].Body, `<img src="https://github.com/sample-user-2.png" width="35">`)
@@ -237,7 +237,7 @@ func TestMigratorMigrate(t *testing.T) {
 		case 1:
 			assert.Equal(t, path, "/repos/example/target/import/issues")
 			assert.Equal(t, x.Issue.Title, "Example title 3")
-			assert.Contains(t, x.Issue.Body, `<img src="https://github.com/charlie.png" width="35">`)
+			assert.Contains(t, x.Issue.Body, `<img src="https://github.com/github.png" width="35">`)
 			assert.Contains(t, x.Issue.Body, `@charlie created the original pull request`)
 			assert.Contains(t, x.Issue.Body, `imported from <a href="http://localhost/example/source/pull/3">example/source#3</a>`)
 			assert.Contains(t, x.Issue.Body, `Example body 3`)

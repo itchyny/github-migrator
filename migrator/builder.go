@@ -111,10 +111,11 @@ func formatTimestamp(src string) string {
 }
 
 func (b *builder) buildImageTag(user *github.User) string {
-	return fmt.Sprintf(
-		`<img src="https://github.com/%s.png" width="35">`,
-		b.commentFilters.apply(user.Login),
-	)
+	target := b.commentFilters.apply(user.Login)
+	if !b.isTargetMember(target) {
+		target = "github"
+	}
+	return fmt.Sprintf(`<img src="https://github.com/%s.png" width="35">`, target)
 }
 
 func (b *builder) buildTable(xs ...string) string {
