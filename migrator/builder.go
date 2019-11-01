@@ -3,7 +3,6 @@ package migrator
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/itchyny/github-migrator/github"
 )
@@ -61,8 +60,8 @@ func (b *builder) buildImportBody() string {
 	return b.buildTable(
 		img,
 		fmt.Sprintf(
-			"@%s created the original %s at %s<br>imported from %s",
-			b.commentFilters.apply(b.issue.User.Login), b.issue.Type(), formatTimestamp(b.issue.CreatedAt),
+			"@%s created the original %s<br>imported from %s",
+			b.commentFilters.apply(b.issue.User.Login), b.issue.Type(),
 			b.buildIssueLinkTag(b.source, b.issue),
 		),
 	) + "\n\n" + b.commentFilters.apply(b.issue.Body)
@@ -74,7 +73,7 @@ func (b *builder) buildImportComments() []*github.ImportComment {
 		xs[i] = &github.ImportComment{
 			Body: b.buildTable(
 				b.buildImageTag(c.User),
-				fmt.Sprintf("@%s commented at %s", b.commentFilters.apply(c.User.Login), formatTimestamp(c.CreatedAt)),
+				fmt.Sprintf("@%s commented", b.commentFilters.apply(c.User.Login)),
 			) + "\n\n" + b.commentFilters.apply(c.Body),
 			CreatedAt: c.CreatedAt,
 		}
@@ -85,7 +84,7 @@ func (b *builder) buildImportComments() []*github.ImportComment {
 			reviewCommentsIDToIndex[c.ID] = i
 			xs[i].Body += "\n\n" + b.buildTable(
 				b.buildImageTag(c.User),
-				fmt.Sprintf("@%s commented at %s", b.commentFilters.apply(c.User.Login), formatTimestamp(c.CreatedAt)),
+				fmt.Sprintf("@%s commented", b.commentFilters.apply(c.User.Login)),
 			) + "\n\n" + b.commentFilters.apply(c.Body)
 			continue
 		}
@@ -94,20 +93,12 @@ func (b *builder) buildImportComments() []*github.ImportComment {
 			Body: strings.Join([]string{"```diff", fmt.Sprintf("# %s:%d", c.Path, c.Line), c.DiffHunk, "```\n\n"}, "\n") +
 				b.buildTable(
 					b.buildImageTag(c.User),
-					fmt.Sprintf("@%s commented at %s", b.commentFilters.apply(c.User.Login), formatTimestamp(c.CreatedAt)),
+					fmt.Sprintf("@%s commented", b.commentFilters.apply(c.User.Login)),
 				) + "\n\n" + b.commentFilters.apply(c.Body),
 			CreatedAt: c.CreatedAt,
 		})
 	}
 	return xs
-}
-
-func formatTimestamp(src string) string {
-	t, err := time.Parse(time.RFC3339, src)
-	if err != nil {
-		return src
-	}
-	return t.Local().String()
 }
 
 func (b *builder) buildImageTag(user *github.User) string {
