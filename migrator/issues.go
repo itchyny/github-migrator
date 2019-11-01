@@ -64,18 +64,17 @@ func (m *migrator) migrateIssue(
 			return err
 		}
 	}
-	members, err := m.listTargetMembers()
+	im, err := m.buildImport(sourceRepo, fs, sourceIssue, comments, reviewComments)
 	if err != nil {
 		return err
 	}
-	return m.target.Import(buildImport(sourceRepo, fs, sourceIssue, comments, reviewComments, members))
+	return m.target.Import(im)
 }
 
-func buildImport(
+func (m *migrator) buildImport(
 	sourceRepo *github.Repo, fs commentFilters, issue *github.Issue,
 	comments []*github.Comment, reviewComments []*github.ReviewComment,
-	members []*github.Member,
-) *github.Import {
+) (*github.Import, error) {
 	importIssue := &github.ImportIssue{
 		Title:     issue.Title,
 		Body:      buildImportBody(sourceRepo, fs, issue),
@@ -87,17 +86,18 @@ func buildImport(
 	}
 	if issue.Assignee != nil {
 		target := fs.apply(issue.Assignee.Login)
-		for _, m := range members {
-			if m.Login == target {
-				importIssue.Assignee = target
-				break
-			}
+		ok, err := m.isTargetMember(target)
+		if err != nil {
+			return nil, err
+		}
+		if ok {
+			importIssue.Assignee = target
 		}
 	}
 	return &github.Import{
 		Issue:    importIssue,
 		Comments: buildImportComments(fs, comments, reviewComments),
-	}
+	}, nil
 }
 
 func buildImportBody(sourceRepo *github.Repo, fs commentFilters, issue *github.Issue) string {
