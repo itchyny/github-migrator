@@ -20,6 +20,9 @@ func (m *migrator) migrateIssues() error {
 	}
 	sourceIssues := m.source.ListIssues()
 	targetIssuesBuffer := newIssuesBuffer(m.target.ListIssues())
+	commentFilters := []commentFilter{
+		newRepoUrlFilter(sourceRepo, targetRepo),
+	}
 	for {
 		issue, err := sourceIssues.Next()
 		if err != nil {
@@ -28,7 +31,7 @@ func (m *migrator) migrateIssues() error {
 			}
 			break
 		}
-		if err := m.migrateIssue(sourceRepo, targetRepo, issue, targetIssuesBuffer); err != nil {
+		if err := m.migrateIssue(sourceRepo, commentFilters, issue, targetIssuesBuffer); err != nil {
 			return err
 		}
 		time.Sleep(time.Second)
@@ -36,7 +39,10 @@ func (m *migrator) migrateIssues() error {
 	return nil
 }
 
-func (m *migrator) migrateIssue(sourceRepo, targetRepo *github.Repo, sourceIssue *github.Issue, targetIssuesBuffer *issuesBuffer) error {
+func (m *migrator) migrateIssue(
+	sourceRepo *github.Repo, commentFilters []commentFilter,
+	sourceIssue *github.Issue, targetIssuesBuffer *issuesBuffer,
+) error {
 	fmt.Printf("migrating: %s\n", sourceIssue.HTMLURL)
 	targetIssue, err := targetIssuesBuffer.get(sourceIssue.Number)
 	if err != nil {
@@ -57,17 +63,16 @@ func (m *migrator) migrateIssue(sourceRepo, targetRepo *github.Repo, sourceIssue
 			return err
 		}
 	}
-	return m.target.Import(buildImport(sourceRepo, targetRepo, sourceIssue, comments, reviewComments))
+	return m.target.Import(buildImport(sourceRepo, commentFilters, sourceIssue, comments, reviewComments))
 }
 
 func buildImport(
-	sourceRepo, targetRepo *github.Repo,
-	issue *github.Issue,
+	sourceRepo *github.Repo, commentFilters []commentFilter, issue *github.Issue,
 	comments []*github.Comment, reviewComments []*github.ReviewComment,
 ) *github.Import {
 	importIssue := &github.ImportIssue{
 		Title:     issue.Title,
-		Body:      buildImportBody(sourceRepo, targetRepo, issue),
+		Body:      buildImportBody(sourceRepo, commentFilters, issue),
 		CreatedAt: issue.CreatedAt,
 		UpdatedAt: issue.UpdatedAt,
 		Closed:    issue.State != "open",
@@ -79,11 +84,11 @@ func buildImport(
 	}
 	return &github.Import{
 		Issue:    importIssue,
-		Comments: buildImportComments(sourceRepo, targetRepo, comments, reviewComments),
+		Comments: buildImportComments(commentFilters, comments, reviewComments),
 	}
 }
 
-func buildImportBody(sourceRepo, targetRepo *github.Repo, issue *github.Issue) string {
+func buildImportBody(sourceRepo *github.Repo, commentFilters []commentFilter, issue *github.Issue) string {
 	return buildTable(
 		buildImageTag(issue.User),
 		fmt.Sprintf(
@@ -91,12 +96,13 @@ func buildImportBody(sourceRepo, targetRepo *github.Repo, issue *github.Issue) s
 			issue.User.Login, issue.Type(), formatTimestamp(issue.CreatedAt),
 			buildIssueLinkTag(sourceRepo, issue),
 		),
-	) + "\n\n" + strings.ReplaceAll(issue.Body, sourceRepo.HTMLURL, targetRepo.HTMLURL)
+	) + "\n\n" + applyCommentFilters(commentFilters, issue.Body)
 }
 
 func buildImportComments(
-	sourceRepo, targetRepo *github.Repo,
-	comments []*github.Comment, reviewComments []*github.ReviewComment,
+	commentFilters []commentFilter,
+	comments []*github.Comment,
+	reviewComments []*github.ReviewComment,
 ) []*github.ImportComment {
 	xs := make([]*github.ImportComment, len(comments))
 	for i, c := range comments {
@@ -104,7 +110,7 @@ func buildImportComments(
 			Body: buildTable(
 				buildImageTag(c.User),
 				fmt.Sprintf("@%s commented at %s", c.User.Login, formatTimestamp(c.CreatedAt)),
-			) + "\n\n" + strings.ReplaceAll(c.Body, sourceRepo.HTMLURL, targetRepo.HTMLURL),
+			) + "\n\n" + applyCommentFilters(commentFilters, c.Body),
 			CreatedAt: c.CreatedAt,
 		}
 	}
@@ -115,8 +121,7 @@ func buildImportComments(
 			xs[i].Body += "\n\n" + buildTable(
 				buildImageTag(c.User),
 				fmt.Sprintf("@%s commented at %s", c.User.Login, formatTimestamp(c.CreatedAt)),
-			) + "\n\n" +
-				strings.ReplaceAll(c.Body, sourceRepo.HTMLURL, targetRepo.HTMLURL)
+			) + "\n\n" + applyCommentFilters(commentFilters, c.Body)
 			continue
 		}
 		reviewCommentsIDToIndex[c.ID] = len(xs)
@@ -125,8 +130,7 @@ func buildImportComments(
 				buildTable(
 					buildImageTag(c.User),
 					fmt.Sprintf("@%s commented at %s", c.User.Login, formatTimestamp(c.CreatedAt)),
-				) + "\n\n" +
-				strings.ReplaceAll(c.Body, sourceRepo.HTMLURL, targetRepo.HTMLURL),
+				) + "\n\n" + applyCommentFilters(commentFilters, c.Body),
 			CreatedAt: c.CreatedAt,
 		})
 	}
