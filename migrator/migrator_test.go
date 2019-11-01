@@ -78,6 +78,9 @@ func TestMigratorMigrate(t *testing.T) {
 					User: &github.User{
 						Login: "bob",
 					},
+					Assignee: &github.User{
+						Login: "bob",
+					},
 					PullRequest: &github.IssuePullRequest{
 						URL:     "http://localhost/example/source/pulls/3",
 						HTMLURL: "http://localhost/example/source/pull/3",
@@ -142,6 +145,14 @@ func TestMigratorMigrate(t *testing.T) {
 
 	var assertImport func(string, *github.Import)
 	target := repo.New(github.NewMockClient(
+		github.MockListMembers(func(path string) github.Members {
+			assert.Equal(t, path, "/orgs/example/members")
+			return github.MembersFromSlice([]*github.Member{
+				{
+					Login: "sample-user-2",
+				},
+			})
+		}),
 		github.MockGetRepo(func(path string) (*github.Repo, error) {
 			return &github.Repo{
 				Name:        "target",

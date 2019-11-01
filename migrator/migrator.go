@@ -19,6 +19,7 @@ type migrator struct {
 	source, target         repo.Repo
 	sourceRepo, targetRepo *github.Repo
 	userMapping            map[string]string
+	members                []*github.Member
 }
 
 // Migrate the repository.
