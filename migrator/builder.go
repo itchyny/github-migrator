@@ -68,14 +68,10 @@ func (b *builder) buildImportBody() string {
 }
 
 func (b *builder) buildImportComments() []*github.ImportComment {
-	xs := append(
+	return append(
 		b.buildImportIssueComments(),
 		b.buildImportReviewComments()...,
 	)
-	for _, x := range xs {
-		x.Body = b.commentFilters.apply(x.Body)
-	}
-	return xs
 }
 
 func (b *builder) buildImportIssueComments() []*github.ImportComment {
@@ -110,8 +106,9 @@ func (b *builder) buildImportReviewComments() []*github.ImportComment {
 
 func (b *builder) buildCommentedTable(user *github.User, body string) string {
 	return b.buildTable(
-		b.buildImageTag(user), fmt.Sprintf("@%s commented", user.Login),
-	) + "\n\n" + body
+		b.buildImageTag(user),
+		fmt.Sprintf("@%s commented", b.commentFilters.apply(user.Login)),
+	) + "\n\n" + b.commentFilters.apply(body)
 }
 
 func (b *builder) buildImageTag(user *github.User) string {

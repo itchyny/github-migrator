@@ -154,6 +154,9 @@ func TestMigratorMigrate(t *testing.T) {
 				{
 					Login: "sample-user-2",
 				},
+				{
+					Login: "alice-1",
+				},
 			})
 		}),
 		github.MockGetRepo(func(path string) (*github.Repo, error) {
@@ -320,10 +323,10 @@ Nice catch.
 <table>
   <tr>
     <td>
-      <img src="https://github.com/github.png" width="35">
+      <img src="https://github.com/alice-1.png" width="35">
     </td>
     <td>
-      @cayley commented
+      @alice-1 commented
     </td>
   </tr>
 </table>
@@ -334,6 +337,6 @@ Nice catch.
 		importCount++
 	}
 
-	mig := New(source, target, map[string]string{"bob": "charlie", "alice": "cayley"})
+	mig := New(source, target, map[string]string{"bob": "charlie", "alice": "alice-1"})
 	assert.Nil(t, mig.Migrate())
 }
