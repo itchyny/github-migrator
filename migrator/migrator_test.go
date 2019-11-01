@@ -218,37 +218,103 @@ func TestMigratorMigrate(t *testing.T) {
 		case 0:
 			assert.Equal(t, path, "/repos/example/target/import/issues")
 			assert.Equal(t, x.Issue.Title, "Example title 2")
-			assert.Contains(t, x.Issue.Body, `<img src="https://github.com/sample-user-2.png" width="35">`)
-			assert.Contains(t, x.Issue.Body, `@sample-user-2 created the original issue`)
-			assert.Contains(t, x.Issue.Body, `imported from <a href="http://localhost/example/source/issues/2">example/source#2</a>`)
-			assert.Contains(t, x.Issue.Body, `Example body 2`)
-			assert.Contains(t, x.Issue.Body, `See http://localhost/example/target/issues/1.`)
+			assert.Equal(t, x.Issue.Body, `<table>
+  <tr>
+    <td>
+      <img src="https://github.com/sample-user-2.png" width="35">
+    </td>
+    <td>
+      @sample-user-2 created the original issue<br>imported from <a href="http://localhost/example/source/issues/2">example/source#2</a>
+    </td>
+  </tr>
+</table>
+
+
+Example body 2
+See http://localhost/example/target/issues/1.`)
 			assert.Equal(t, x.Issue.Assignee, "sample-user-2")
 			assert.Equal(t, x.Issue.Labels, []string{"label1", "label2"})
 
 			assert.Len(t, x.Comments, 2)
-			assert.Contains(t, x.Comments[0].Body, `<img src="https://github.com/github.png" width="35">`)
-			assert.Contains(t, x.Comments[0].Body, `@sample-user-1 commented`)
-			assert.Contains(t, x.Comments[0].Body, `Example comment body 1`)
-			assert.Contains(t, x.Comments[1].Body, `<img src="https://github.com/sample-user-2.png" width="35">`)
-			assert.Contains(t, x.Comments[1].Body, `@sample-user-2 commented`)
-			assert.Contains(t, x.Comments[1].Body, `Example comment body 2`)
-			assert.Contains(t, x.Comments[1].Body, `Ref: http://localhost/example/target/issues/1.`)
+			assert.Equal(t, x.Comments[0].Body, `<table>
+  <tr>
+    <td>
+      <img src="https://github.com/github.png" width="35">
+    </td>
+    <td>
+      @sample-user-1 commented
+    </td>
+  </tr>
+</table>
+
+
+Example comment body 1`)
+			assert.Equal(t, x.Comments[1].Body, `<table>
+  <tr>
+    <td>
+      <img src="https://github.com/sample-user-2.png" width="35">
+    </td>
+    <td>
+      @sample-user-2 commented
+    </td>
+  </tr>
+</table>
+
+
+Example comment body 2
+Ref: http://localhost/example/target/issues/1.`)
 		case 1:
 			assert.Equal(t, path, "/repos/example/target/import/issues")
 			assert.Equal(t, x.Issue.Title, "Example title 3")
-			assert.Contains(t, x.Issue.Body, `<img src="https://github.com/github.png" width="35">`)
-			assert.Contains(t, x.Issue.Body, `@charlie created the original pull request`)
-			assert.Contains(t, x.Issue.Body, `imported from <a href="http://localhost/example/source/pull/3">example/source#3</a>`)
-			assert.Contains(t, x.Issue.Body, `Example body 3`)
+			assert.Equal(t, x.Issue.Body, `<table>
+  <tr>
+    <td>
+      <img src="https://github.com/github.png" width="35">
+    </td>
+    <td>
+      @charlie created the original pull request<br>imported from <a href="http://localhost/example/source/pull/3">example/source#3</a>
+    </td>
+  </tr>
+</table>
+
+
+Example body 3`)
 			assert.Equal(t, x.Issue.Assignee, "")
 			assert.Equal(t, x.Issue.Labels, []string{})
 			assert.Len(t, x.Comments, 1)
-			assert.Contains(t, x.Comments[0].Body, "```diff\n# sample.txt:20\n@@ -0,0 +1 @@\n+foo\n```\n")
-			assert.Contains(t, x.Comments[0].Body, "@sample-user-2 commented")
-			assert.Contains(t, x.Comments[0].Body, "Nice catch.\n")
-			assert.Contains(t, x.Comments[0].Body, "@cayley commented")
-			assert.Contains(t, x.Comments[0].Body, "@charlie Thanks.")
+			assert.Equal(t, x.Comments[0].Body, "```"+`diff
+# sample.txt:20
+@@ -0,0 +1 @@
++foo
+`+"```"+`
+
+<table>
+  <tr>
+    <td>
+      <img src="https://github.com/sample-user-2.png" width="35">
+    </td>
+    <td>
+      @sample-user-2 commented
+    </td>
+  </tr>
+</table>
+
+
+Nice catch.
+
+<table>
+  <tr>
+    <td>
+      <img src="https://github.com/github.png" width="35">
+    </td>
+    <td>
+      @cayley commented
+    </td>
+  </tr>
+</table>
+
+
+@charlie Thanks. bobb`)
 		}
 		importCount++
 	}
