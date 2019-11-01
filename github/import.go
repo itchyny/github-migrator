@@ -35,13 +35,21 @@ func issueImportPath(repo string) string {
 		String()
 }
 
-type importRes struct {
-	Status string `json:"status"`
+// ImportResult represents the result of import.
+type ImportResult struct {
+	ID              int    `json:"id"`
+	Status          string `json:"status"`
+	URL             string `json:"url"`
+	ImportIssuesURL string `json:"import_issues_url"`
+	RepositoryURL   string `json:"repository_url"`
+	CreatedAt       string `json:"created_at"`
+	UpdatedAt       string `json:"updated_at"`
 }
 
-type importOrError struct {
-	importRes
-	Message string `json:"message"`
+type importResultOrError struct {
+	ImportResult
+	Message string    `json:"message"`
+	Errors  apiErrors `json:"errors"`
 }
 
 // Import imports an importing object.
@@ -57,15 +65,15 @@ func (c *client) Import(path string, x *Import) error {
 	}
 	defer res.Body.Close()
 
-	var r importOrError
+	var r importResultOrError
 	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
 		return err
 	}
 	if r.Message != "" {
-		return fmt.Errorf("%s: %s", r.Message, issueImportPath(path))
+		return fmt.Errorf("%s: %s: %s", r.Message, r.Errors, issueImportPath(path))
 	}
-	if r.importRes.Status != "imported" && r.importRes.Status != "pending" {
-		return fmt.Errorf("%s: %s (%#v)", r.importRes.Status, issueImportPath(path), r)
+	if r.ImportResult.Status != "imported" && r.ImportResult.Status != "pending" {
+		return fmt.Errorf("%s: %s: %s (%#v)", r.ImportResult.Status, r.Errors, issueImportPath(path), r)
 	}
 	return nil
 }
