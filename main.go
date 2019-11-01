@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/itchyny/github-migrator/github"
 	"github.com/itchyny/github-migrator/migrator"
@@ -64,5 +65,16 @@ func createMigrator(sourcePath, targetPath string) (migrator.Migrator, error) {
 	}
 	source := repo.New(sourceCli, sourcePath)
 	target := repo.New(targetCli, targetPath)
-	return migrator.New(source, target), nil
+	return migrator.New(source, target, createUserMapping()), nil
+}
+
+func createUserMapping() map[string]string {
+	m := make(map[string]string)
+	for _, src := range strings.Split(os.Getenv("GITHUB_MIGRATOR_USERS_MAPPING"), ",") {
+		xs := strings.Split(strings.TrimSpace(src), ":")
+		if len(xs) == 2 && len(xs[0]) > 0 && len(xs[1]) > 0 {
+			m[xs[0]] = xs[1]
+		}
+	}
+	return m
 }

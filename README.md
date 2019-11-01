@@ -7,9 +7,16 @@ This is especially useful to move a repository from GitHub Enterprise to github.
 export GITHUB_MIGRATOR_SOURCE_API_TOKEN=xxx
 export GITHUB_MIGRATOR_SOURCE_API_ENDPOINT=http://localhost/api/v3 # This might be the endpoint of GitHub Enterprise
 export GITHUB_MIGRATOR_TARGET_API_TOKEN=yyy
+# export GITHUB_MIGRATOR_TARGET_API_ENDPOINT=https://api.github.com # No need to specify the endpoint of github.com
 go run . [old-owner]/[source] [new-owner]/[target]
 ```
 Be sure to use this tool before pushing the git tree to the new origin (otherwise the links in the merged commits are lost).
+
+### Other options
+Sometimes same user has different user id on GitHub and Enterprise.
+```bash
+export GITHUB_MIGRATOR_USERS_MAPPING=user-before1:user-after1,user-before2:user-after2,user-before3:user-after3
+```
 
 ## Requirements
 - Go 1.13+

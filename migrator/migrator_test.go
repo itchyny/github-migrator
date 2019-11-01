@@ -76,7 +76,7 @@ func TestMigratorMigrate(t *testing.T) {
 					Body:    "Example body 3",
 					HTMLURL: "http://localhost/example/source/pull/3",
 					User: &github.User{
-						Login: "sample-user-3",
+						Login: "bob",
 					},
 					PullRequest: &github.IssuePullRequest{
 						URL:     "http://localhost/example/source/pulls/3",
@@ -130,10 +130,10 @@ func TestMigratorMigrate(t *testing.T) {
 					Path:        "sample.txt",
 					Line:        20,
 					DiffHunk:    "@@ -0,0 +1 @@\n+foo",
-					Body:        "Thanks.",
+					Body:        "@bob Thanks. bobb",
 					InReplyToID: 100,
 					User: &github.User{
-						Login: "sample-user-3",
+						Login: "alice",
 					},
 				},
 			})
@@ -226,8 +226,8 @@ func TestMigratorMigrate(t *testing.T) {
 		case 1:
 			assert.Equal(t, path, "/repos/example/target/import/issues")
 			assert.Equal(t, x.Issue.Title, "Example title 3")
-			assert.Contains(t, x.Issue.Body, `<img src="https://github.com/sample-user-3.png" width="35">`)
-			assert.Contains(t, x.Issue.Body, `@sample-user-3 created the original pull request`)
+			assert.Contains(t, x.Issue.Body, `<img src="https://github.com/charlie.png" width="35">`)
+			assert.Contains(t, x.Issue.Body, `@charlie created the original pull request`)
 			assert.Contains(t, x.Issue.Body, `imported from <a href="http://localhost/example/source/pull/3">example/source#3</a>`)
 			assert.Contains(t, x.Issue.Body, `Example body 3`)
 			assert.Equal(t, x.Issue.Assignee, "")
@@ -236,12 +236,12 @@ func TestMigratorMigrate(t *testing.T) {
 			assert.Contains(t, x.Comments[0].Body, "```diff\n# sample.txt:20\n@@ -0,0 +1 @@\n+foo\n```\n")
 			assert.Contains(t, x.Comments[0].Body, "@sample-user-2 commented")
 			assert.Contains(t, x.Comments[0].Body, "Nice catch.\n")
-			assert.Contains(t, x.Comments[0].Body, "@sample-user-3 commented")
-			assert.Contains(t, x.Comments[0].Body, "Thanks.")
+			assert.Contains(t, x.Comments[0].Body, "@cayley commented")
+			assert.Contains(t, x.Comments[0].Body, "@charlie Thanks.")
 		}
 		importCount++
 	}
 
-	mig := New(source, target)
+	mig := New(source, target, map[string]string{"bob": "charlie", "alice": "cayley"})
 	assert.Nil(t, mig.Migrate())
 }
