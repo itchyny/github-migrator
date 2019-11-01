@@ -10,7 +10,6 @@ import (
 type ReviewComment struct {
 	ID          int    `json:"id"`
 	Path        string `json:"path"`
-	Line        int    `json:"line"`
 	Body        string `json:"body"`
 	DiffHunk    string `json:"diff_hunk"`
 	HTMLURL     string `json:"html_url"`

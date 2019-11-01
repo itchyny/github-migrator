@@ -100,7 +100,7 @@ func (b *builder) buildImportReviewComments() []*github.ImportComment {
 		}
 		indexByID[c.ID] = len(xs)
 		xs = append(xs, &github.ImportComment{
-			Body: strings.Join([]string{"```diff", fmt.Sprintf("# %s:%d", c.Path, c.Line), c.DiffHunk, "```\n\n"}, "\n") +
+			Body: strings.Join([]string{"```diff", "# " + c.Path, c.DiffHunk, "```\n\n"}, "\n") +
 				b.buildCommentedTable(c.User, c.Body),
 			CreatedAt: c.CreatedAt,
 		})

@@ -121,7 +121,6 @@ func TestMigratorMigrate(t *testing.T) {
 				{
 					ID:       100,
 					Path:     "sample.txt",
-					Line:     20,
 					DiffHunk: "@@ -0,0 +1 @@\n+foo",
 					Body:     "Nice catch.",
 					User: &github.User{
@@ -131,7 +130,6 @@ func TestMigratorMigrate(t *testing.T) {
 				{
 					ID:          200,
 					Path:        "sample.txt",
-					Line:        20,
 					DiffHunk:    "@@ -0,0 +1 @@\n+foo",
 					Body:        "@bob Thanks. bobb",
 					InReplyToID: 100,
@@ -283,7 +281,7 @@ Example body 3`)
 			assert.Equal(t, x.Issue.Labels, []string{})
 			assert.Len(t, x.Comments, 1)
 			assert.Equal(t, x.Comments[0].Body, "```"+`diff
-# sample.txt:20
+# sample.txt
 @@ -0,0 +1 @@
 +foo
 `+"```"+`
