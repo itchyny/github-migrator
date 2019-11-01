@@ -149,6 +149,9 @@ func (b *builder) buildImportLabels(issue *github.Issue) []string {
 }
 
 func (b *builder) isTargetMember(name string) bool {
+	if strings.HasPrefix(b.target.FullName, name+"/") {
+		return true
+	}
 	for _, m := range b.members {
 		if m.Login == name {
 			return true
