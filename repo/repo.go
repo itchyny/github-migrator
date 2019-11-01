@@ -5,6 +5,7 @@ import "github.com/itchyny/github-migrator/github"
 // Repo represents a GitHub repository.
 type Repo interface {
 	Get() (*github.Repo, error)
+	ListMembers() github.Members
 	Update(*github.UpdateRepoParams) (*github.Repo, error)
 	ListLabels() github.Labels
 	CreateLabel(*github.CreateLabelParams) (*github.Label, error)
