@@ -13,17 +13,3 @@ func (m *migrator) listTargetMembers() ([]*github.Member, error) {
 	m.members = members
 	return members, nil
 }
-
-func (m *migrator) isTargetMember(name string) (bool, error) {
-	members, err := m.listTargetMembers()
-	if err != nil {
-		return false, err
-	}
-	m.members = members
-	for _, m := range members {
-		if m.Login == name {
-			return true, nil
-		}
-	}
-	return false, nil
-}
