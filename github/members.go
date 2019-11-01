@@ -90,6 +90,7 @@ func (c *client) listMembers(path string) ([]*Member, string, error) {
 		return nil, "", err
 	}
 	defer res.Body.Close()
+
 	bs, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, "", err
@@ -97,9 +98,12 @@ func (c *client) listMembers(path string) ([]*Member, string, error) {
 
 	var r []*Member
 	if err := json.NewDecoder(bytes.NewReader(bs)).Decode(&r); err != nil {
-		var d interface{}
-		json.NewDecoder(bytes.NewReader(bs)).Decode(&d)
-		fmt.Printf("%#v\n", d)
+		var em map[string]string
+		if err := json.NewDecoder(bytes.NewReader(bs)).Decode(&em); err == nil {
+			if mess, ok := em["message"]; ok && mess == "Not Found" {
+				return nil, "", nil
+			}
+		}
 		return nil, "", err
 	}
 
