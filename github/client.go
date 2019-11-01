@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/tomnomnom/linkheader"
 )
 
 // Client represents a GitHub client.
@@ -80,4 +82,18 @@ func (c *client) request(method, path string, body io.Reader) (*http.Request, er
 	req.Header.Add("Accept", "application/vnd.github.comfort-fade-preview+json")
 	req.Header.Add("User-Agent", "github-migrator")
 	return req, nil
+}
+
+func getNext(header http.Header) string {
+	xs := header["Link"]
+	if len(xs) == 0 {
+		return ""
+	}
+	links := linkheader.Parse(xs[0])
+	for _, link := range links {
+		if link.Rel == "next" {
+			return link.URL
+		}
+	}
+	return ""
 }
