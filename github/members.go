@@ -1,9 +1,11 @@
 package github
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 )
 
 // Member represents a member.
@@ -88,9 +90,16 @@ func (c *client) listMembers(path string) ([]*Member, string, error) {
 		return nil, "", err
 	}
 	defer res.Body.Close()
+	bs, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, "", err
+	}
 
 	var r []*Member
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+	if err := json.NewDecoder(bytes.NewReader(bs)).Decode(&r); err != nil {
+		var d interface{}
+		json.NewDecoder(bytes.NewReader(bs)).Decode(&d)
+		fmt.Printf("%#v\n", d)
 		return nil, "", err
 	}
 
