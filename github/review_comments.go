@@ -51,7 +51,7 @@ func ReviewCommentsFromSlice(xs []*ReviewComment) ReviewComments {
 
 // ReviewCommentsToSlice collects ReviewComments.
 func ReviewCommentsToSlice(cs ReviewComments) ([]*ReviewComment, error) {
-	var xs []*ReviewComment
+	xs := []*ReviewComment{}
 	for {
 		i, err := cs.Next()
 		if err != nil {

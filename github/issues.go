@@ -88,7 +88,7 @@ func IssuesFromSlice(xs []*Issue) Issues {
 
 // IssuesToSlice collects Issues.
 func IssuesToSlice(is Issues) ([]*Issue, error) {
-	var xs []*Issue
+	xs := []*Issue{}
 	for {
 		i, err := is.Next()
 		if err != nil {

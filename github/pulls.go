@@ -44,7 +44,7 @@ func PullReqsFromSlice(xs []*PullReq) PullReqs {
 
 // PullReqsToSlice collects PullReqs.
 func PullReqsToSlice(is PullReqs) ([]*PullReq, error) {
-	var xs []*PullReq
+	xs := []*PullReq{}
 	for {
 		i, err := is.Next()
 		if err != nil {

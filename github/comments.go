@@ -46,7 +46,7 @@ func CommentsFromSlice(xs []*Comment) Comments {
 
 // CommentsToSlice collects Comments.
 func CommentsToSlice(cs Comments) ([]*Comment, error) {
-	var xs []*Comment
+	xs := []*Comment{}
 	for {
 		i, err := cs.Next()
 		if err != nil {

@@ -47,7 +47,7 @@ func LabelsFromSlice(xs []*Label) Labels {
 
 // LabelsToSlice collects Labels.
 func LabelsToSlice(cs Labels) ([]*Label, error) {
-	var xs []*Label
+	xs := []*Label{}
 	for {
 		i, err := cs.Next()
 		if err != nil {

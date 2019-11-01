@@ -42,7 +42,7 @@ func MembersFromSlice(xs []*Member) Members {
 
 // MembersToSlice collects Members.
 func MembersToSlice(cs Members) ([]*Member, error) {
-	var xs []*Member
+	xs := []*Member{}
 	for {
 		i, err := cs.Next()
 		if err != nil {
