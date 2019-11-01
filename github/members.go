@@ -15,8 +15,8 @@ type Member User
 type Members <-chan interface{}
 
 // Next emits the next Member.
-func (cs Members) Next() (*Member, error) {
-	for x := range cs {
+func (ms Members) Next() (*Member, error) {
+	for x := range ms {
 		switch x := x.(type) {
 		case error:
 			return nil, x
@@ -30,28 +30,28 @@ func (cs Members) Next() (*Member, error) {
 
 // MembersFromSlice creates Members from a slice.
 func MembersFromSlice(xs []*Member) Members {
-	cs := make(chan interface{})
+	ms := make(chan interface{})
 	go func() {
-		defer close(cs)
-		for _, i := range xs {
-			cs <- i
+		defer close(ms)
+		for _, m := range xs {
+			ms <- m
 		}
 	}()
-	return cs
+	return ms
 }
 
 // MembersToSlice collects Members.
-func MembersToSlice(cs Members) ([]*Member, error) {
+func MembersToSlice(ms Members) ([]*Member, error) {
 	xs := []*Member{}
 	for {
-		i, err := cs.Next()
+		m, err := ms.Next()
 		if err != nil {
 			if err != io.EOF {
 				return nil, err
 			}
 			return xs, nil
 		}
-		xs = append(xs, i)
+		xs = append(xs, m)
 	}
 }
 
@@ -62,18 +62,18 @@ func listMembersPath(org string) string {
 
 // ListMembers lists the members of the organization.
 func (c *client) ListMembers(org string) Members {
-	cs := make(chan interface{})
+	ms := make(chan interface{})
 	go func() {
-		defer close(cs)
+		defer close(ms)
 		path := c.url(listMembersPath(org))
 		for {
 			xs, next, err := c.listMembers(path)
 			if err != nil {
-				cs <- err
+				ms <- err
 				break
 			}
 			for _, x := range xs {
-				cs <- x
+				ms <- x
 			}
 			if next == "" {
 				break
@@ -81,7 +81,7 @@ func (c *client) ListMembers(org string) Members {
 			path = next
 		}
 	}()
-	return Members(cs)
+	return Members(ms)
 }
 
 func (c *client) listMembers(path string) ([]*Member, string, error) {

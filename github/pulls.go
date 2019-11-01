@@ -17,8 +17,8 @@ type PullReq struct {
 type PullReqs <-chan interface{}
 
 // Next emits the next PullReq.
-func (is PullReqs) Next() (*PullReq, error) {
-	for x := range is {
+func (ps PullReqs) Next() (*PullReq, error) {
+	for x := range ps {
 		switch x := x.(type) {
 		case error:
 			return nil, x
@@ -32,28 +32,28 @@ func (is PullReqs) Next() (*PullReq, error) {
 
 // PullReqsFromSlice creates PullReqs from a slice.
 func PullReqsFromSlice(xs []*PullReq) PullReqs {
-	is := make(chan interface{})
+	ps := make(chan interface{})
 	go func() {
-		defer close(is)
-		for _, i := range xs {
-			is <- i
+		defer close(ps)
+		for _, p := range xs {
+			ps <- p
 		}
 	}()
-	return is
+	return ps
 }
 
 // PullReqsToSlice collects PullReqs.
-func PullReqsToSlice(is PullReqs) ([]*PullReq, error) {
+func PullReqsToSlice(ps PullReqs) ([]*PullReq, error) {
 	xs := []*PullReq{}
 	for {
-		i, err := is.Next()
+		p, err := ps.Next()
 		if err != nil {
 			if err != io.EOF {
 				return nil, err
 			}
 			return xs, nil
 		}
-		xs = append(xs, i)
+		xs = append(xs, p)
 	}
 }
 
@@ -151,18 +151,18 @@ func listPullReqsPath(repo string, params *ListPullReqsParams) string {
 
 // ListPullReqs lists the pull requests.
 func (c *client) ListPullReqs(repo string, params *ListPullReqsParams) PullReqs {
-	is := make(chan interface{})
+	ps := make(chan interface{})
 	go func() {
-		defer close(is)
+		defer close(ps)
 		path := c.url(listPullReqsPath(repo, params))
 		for {
 			xs, next, err := c.listPullReqs(path)
 			if err != nil {
-				is <- err
+				ps <- err
 				break
 			}
 			for _, x := range xs {
-				is <- x
+				ps <- x
 			}
 			if next == "" {
 				break
@@ -170,7 +170,7 @@ func (c *client) ListPullReqs(repo string, params *ListPullReqsParams) PullReqs 
 			path = next
 		}
 	}()
-	return PullReqs(is)
+	return PullReqs(ps)
 }
 
 func (c *client) listPullReqs(path string) ([]*PullReq, string, error) {

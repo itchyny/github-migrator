@@ -20,8 +20,8 @@ type Label struct {
 type Labels <-chan interface{}
 
 // Next emits the next Label.
-func (cs Labels) Next() (*Label, error) {
-	for x := range cs {
+func (ls Labels) Next() (*Label, error) {
+	for x := range ls {
 		switch x := x.(type) {
 		case error:
 			return nil, x
@@ -35,28 +35,28 @@ func (cs Labels) Next() (*Label, error) {
 
 // LabelsFromSlice creates Labels from a slice.
 func LabelsFromSlice(xs []*Label) Labels {
-	cs := make(chan interface{})
+	ls := make(chan interface{})
 	go func() {
-		defer close(cs)
-		for _, i := range xs {
-			cs <- i
+		defer close(ls)
+		for _, l := range xs {
+			ls <- l
 		}
 	}()
-	return cs
+	return ls
 }
 
 // LabelsToSlice collects Labels.
-func LabelsToSlice(cs Labels) ([]*Label, error) {
+func LabelsToSlice(ls Labels) ([]*Label, error) {
 	xs := []*Label{}
 	for {
-		i, err := cs.Next()
+		l, err := ls.Next()
 		if err != nil {
 			if err != io.EOF {
 				return nil, err
 			}
 			return xs, nil
 		}
-		xs = append(xs, i)
+		xs = append(xs, l)
 	}
 }
 
@@ -67,18 +67,18 @@ func listLabelsPath(repo string) string {
 
 // ListLabels lists the labels of an issue.
 func (c *client) ListLabels(repo string) Labels {
-	cs := make(chan interface{})
+	ls := make(chan interface{})
 	go func() {
-		defer close(cs)
+		defer close(ls)
 		path := c.url(listLabelsPath(repo))
 		for {
 			xs, next, err := c.listLabels(path)
 			if err != nil {
-				cs <- err
+				ls <- err
 				break
 			}
 			for _, x := range xs {
-				cs <- x
+				ls <- x
 			}
 			if next == "" {
 				break
@@ -86,7 +86,7 @@ func (c *client) ListLabels(repo string) Labels {
 			path = next
 		}
 	}()
-	return Labels(cs)
+	return Labels(ls)
 }
 
 func (c *client) listLabels(path string) ([]*Label, string, error) {

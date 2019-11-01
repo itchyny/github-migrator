@@ -42,8 +42,8 @@ func ReviewCommentsFromSlice(xs []*ReviewComment) ReviewComments {
 	cs := make(chan interface{})
 	go func() {
 		defer close(cs)
-		for _, i := range xs {
-			cs <- i
+		for _, c := range xs {
+			cs <- c
 		}
 	}()
 	return cs
@@ -53,14 +53,14 @@ func ReviewCommentsFromSlice(xs []*ReviewComment) ReviewComments {
 func ReviewCommentsToSlice(cs ReviewComments) ([]*ReviewComment, error) {
 	xs := []*ReviewComment{}
 	for {
-		i, err := cs.Next()
+		c, err := cs.Next()
 		if err != nil {
 			if err != io.EOF {
 				return nil, err
 			}
 			return xs, nil
 		}
-		xs = append(xs, i)
+		xs = append(xs, c)
 	}
 }
 
