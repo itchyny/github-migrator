@@ -31,8 +31,12 @@ func (m *migrator) migrateIssues() error {
 			}
 			break
 		}
-		if err := m.migrateIssue(sourceRepo, targetRepo, commentFilters, issue, targetIssuesBuffer); err != nil {
+		result, err := m.migrateIssue(sourceRepo, targetRepo, commentFilters, issue, targetIssuesBuffer)
+		if err != nil {
 			return err
+		}
+		if result != nil {
+			fmt.Printf("%#v\n", result)
 		}
 	}
 	return nil
@@ -41,30 +45,30 @@ func (m *migrator) migrateIssues() error {
 func (m *migrator) migrateIssue(
 	sourceRepo, targetRepo *github.Repo, commentFilters commentFilters,
 	sourceIssue *github.Issue, targetIssuesBuffer *issuesBuffer,
-) error {
+) (*github.ImportResult, error) {
 	fmt.Printf("migrating: %s\n", sourceIssue.HTMLURL)
 	targetIssue, err := targetIssuesBuffer.get(sourceIssue.Number)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if targetIssue != nil {
 		fmt.Printf("skipping: %s (already exists)\n", targetIssue.HTMLURL)
-		return nil
+		return nil, nil
 	}
 	comments, err := github.CommentsToSlice(m.source.ListComments(sourceIssue.Number))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	var reviewComments []*github.ReviewComment
 	if sourceIssue.PullRequest != nil {
 		reviewComments, err = github.ReviewCommentsToSlice(m.source.ListReviewComments(sourceIssue.Number))
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 	members, err := m.listTargetMembers()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	time.Sleep(time.Second)
 	return m.target.Import(

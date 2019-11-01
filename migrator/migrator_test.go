@@ -204,9 +204,13 @@ func TestMigratorMigrate(t *testing.T) {
 				},
 			})
 		}),
-		github.MockImport(func(path string, x *github.Import) error {
+		github.MockImport(func(path string, x *github.Import) (*github.ImportResult, error) {
 			assertImport(path, x)
-			return nil
+			return &github.ImportResult{
+				ID:     12345,
+				Status: "pending",
+				URL:    "http://localhost/repo/example/target/import/issues/12345",
+			}, nil
 		}),
 	), "example/target")
 

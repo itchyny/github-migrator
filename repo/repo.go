@@ -14,7 +14,7 @@ type Repo interface {
 	ListComments(int) github.Comments
 	ListPullReqs() github.PullReqs
 	ListReviewComments(int) github.ReviewComments
-	Import(*github.Import) error
+	Import(*github.Import) (*github.ImportResult, error)
 }
 
 // New creates a new Repo.

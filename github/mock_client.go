@@ -13,7 +13,7 @@ type MockClient struct {
 	listCommentsCallback       func(string, int) Comments
 	listPullReqsCallback       func(string, *ListPullReqsParams) PullReqs
 	listReviewCommentsCallback func(string, int) ReviewComments
-	importCallback             func(string, *Import) error
+	importCallback             func(string, *Import) (*ImportResult, error)
 }
 
 // MockClientOption is an option of mock client.
@@ -194,7 +194,7 @@ func MockListReviewComments(callback func(string, int) ReviewComments) MockClien
 }
 
 // Import ...
-func (c *MockClient) Import(repo string, issue *Import) error {
+func (c *MockClient) Import(repo string, issue *Import) (*ImportResult, error) {
 	if c.importCallback != nil {
 		return c.importCallback(issueImportPath(repo), issue)
 	}
@@ -202,7 +202,7 @@ func (c *MockClient) Import(repo string, issue *Import) error {
 }
 
 // MockImport ...
-func MockImport(callback func(string, *Import) error) MockClientOption {
+func MockImport(callback func(string, *Import) (*ImportResult, error)) MockClientOption {
 	return func(c *MockClient) {
 		c.importCallback = callback
 	}

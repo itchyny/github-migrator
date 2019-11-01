@@ -53,27 +53,27 @@ type importResultOrError struct {
 }
 
 // Import imports an importing object.
-func (c *client) Import(path string, x *Import) error {
+func (c *client) Import(path string, x *Import) (*ImportResult, error) {
 	bs, err := json.Marshal(x)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	body := bytes.NewReader(bs)
 	res, err := c.post(c.url(issueImportPath(path)), body)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer res.Body.Close()
 
 	var r importResultOrError
 	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return err
+		return nil, err
 	}
 	if r.Message != "" {
-		return fmt.Errorf("%s: %s: %s", r.Message, r.Errors, issueImportPath(path))
+		return nil, fmt.Errorf("%s: %s: %s", r.Message, r.Errors, issueImportPath(path))
 	}
 	if r.ImportResult.Status != "imported" && r.ImportResult.Status != "pending" {
-		return fmt.Errorf("%s: %s: %s (%#v)", r.ImportResult.Status, r.Errors, issueImportPath(path), r)
+		return nil, fmt.Errorf("%s: %s: %s (%#v)", r.ImportResult.Status, r.Errors, issueImportPath(path), r)
 	}
-	return nil
+	return &r.ImportResult, nil
 }
