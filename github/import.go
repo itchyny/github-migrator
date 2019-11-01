@@ -72,8 +72,34 @@ func (c *client) Import(path string, x *Import) (*ImportResult, error) {
 	if r.Message != "" {
 		return nil, fmt.Errorf("%s: %s: %s", r.Message, r.Errors, issueImportPath(path))
 	}
-	if r.ImportResult.Status != "imported" && r.ImportResult.Status != "pending" {
-		return nil, fmt.Errorf("%s: %s: %s (%#v)", r.ImportResult.Status, r.Errors, issueImportPath(path), r)
+	if r.Errors != nil {
+		return nil, r.Errors
+	}
+	return &r.ImportResult, nil
+}
+
+func getImportPath(repo string, id int) string {
+	return newPath(fmt.Sprintf("/repos/%s/import/issues/%d", repo, id)).
+		String()
+}
+
+// GetImport gets the importing status.
+func (c *client) GetImport(path string, id int) (*ImportResult, error) {
+	res, err := c.get(c.url(getImportPath(path, id)))
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	var r importResultOrError
+	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+		return nil, err
+	}
+	if r.Message != "" {
+		return nil, fmt.Errorf("%s: %s: %s", r.Message, r.Errors, issueImportPath(path))
+	}
+	if r.Errors != nil {
+		return nil, r.Errors
 	}
 	return &r.ImportResult, nil
 }

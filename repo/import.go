@@ -6,3 +6,8 @@ import "github.com/itchyny/github-migrator/github"
 func (r *repo) Import(x *github.Import) (*github.ImportResult, error) {
 	return r.cli.Import(r.path, x)
 }
+
+// GetImport gets the importing status.
+func (r *repo) GetImport(id int) (*github.ImportResult, error) {
+	return r.cli.GetImport(r.path, id)
+}

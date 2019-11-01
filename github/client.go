@@ -23,6 +23,7 @@ type Client interface {
 	ListPullReqs(string, *ListPullReqsParams) PullReqs
 	ListReviewComments(string, int) ReviewComments
 	Import(string, *Import) (*ImportResult, error)
+	GetImport(string, int) (*ImportResult, error)
 }
 
 // New creates a new GitHub client.

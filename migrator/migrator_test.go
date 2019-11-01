@@ -10,6 +10,11 @@ import (
 	"github.com/itchyny/github-migrator/repo"
 )
 
+func init() {
+	beforeImportIssueDuration = 0
+	waitImportIssueInitialDuration = 0
+}
+
 func TestMigratorMigrate(t *testing.T) {
 	source := repo.New(github.NewMockClient(
 		github.MockGetRepo(func(path string) (*github.Repo, error) {
@@ -209,6 +214,14 @@ func TestMigratorMigrate(t *testing.T) {
 			return &github.ImportResult{
 				ID:     12345,
 				Status: "pending",
+				URL:    "http://localhost/repo/example/target/import/issues/12345",
+			}, nil
+		}),
+		github.MockGetImport(func(path string, id int) (*github.ImportResult, error) {
+			assert.Equal(t, id, 12345)
+			return &github.ImportResult{
+				ID:     12345,
+				Status: "imported",
 				URL:    "http://localhost/repo/example/target/import/issues/12345",
 			}, nil
 		}),
