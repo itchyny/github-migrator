@@ -2,7 +2,7 @@
 This tool migrates a GitHub repository to another.
 This is especially useful to move a repository from GitHub Enterprise to github.com.
 
-## Basic usage
+## Usage
 ```bash
 export GITHUB_MIGRATOR_SOURCE_API_TOKEN=xxx
 export GITHUB_MIGRATOR_SOURCE_API_ENDPOINT=http://localhost/api/v3 # This might be the endpoint of GitHub Enterprise
@@ -10,6 +10,10 @@ export GITHUB_MIGRATOR_TARGET_API_TOKEN=yyy
 go run . [old-owner]/[source] [new-owner]/[target]
 ```
 Be sure to use this tool before pushing the git tree to the new origin (otherwise the links in the merged commits are lost).
+
+## Requirements
+- Go 1.13+
+- API tokens to access the source and target repositories.
 
 ## Features
 - Issues
@@ -35,7 +39,7 @@ Be sure to use this tool before pushing the git tree to the new origin (otherwis
   - Webhooks, Notifications, Integrations
 
 ## Disclaimer
-This tool is stil under construction.
+This tool is still under construction.
 I assume no responsibility according to what happens using this tool.
 
 ## Bug Tracker
