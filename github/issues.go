@@ -51,10 +51,10 @@ func (i *Issue) Type() IssueType {
 
 // IssuePullRequest represents the pull request information of an issue.
 type IssuePullRequest struct {
-	URL      string `json:"URL"`
-	HTMLURL  string `json:"html_URL"`
-	DiffURL  string `json:"diff_URL"`
-	PatchURL string `json:"patch_URL"`
+	URL      string `json:"url"`
+	HTMLURL  string `json:"html_url"`
+	DiffURL  string `json:"diff_url"`
+	PatchURL string `json:"patch_url"`
 }
 
 // Issues represents a collection of issues.
