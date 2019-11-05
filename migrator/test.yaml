@@ -77,7 +77,149 @@
         color: bfbfbf
 
 -
-  name: complicated
+  name: issues
+
+  source:
+    repo:
+      name: source
+      full_name: example/source
+      html_url: http://localhost/example/source
+    members:
+      - &user1
+        login: sample-user-1
+      - &user2
+        login: sample-user-2
+    labels:
+      - &label1
+        id: 1
+        name: bug
+        description: this is a bug
+        color: fc2929
+        default: true
+      - &label2
+        id: 2
+        name: design
+        description: this is a design
+        color: bfdadc
+        default: false
+    issues:
+      - number: 1
+        title: Example title 1
+        state: closed
+        body: |
+          Example body 1
+        html_url: http://localhost/example/source/issues/1
+        user: *user1
+        assignee: *user1
+      - number: 2
+        title: Example title 2
+        state: open
+        body: |
+          Example body 2
+          See http://localhost/example/source/issues/1.
+        html_url: http://localhost/example/source/issues/2
+        user: *user2
+        assignee: *user2
+        labels:
+          - *label1
+          - *label2
+        comments:
+          - body: |
+              Example comment body 1
+            html_url: http://localhost/example/source/issues/2#issuecomment-1
+            user: *user1
+          - body: |
+              Example comment body 2
+              Ref: http://localhost/example/source/issues/1.
+            html_url: http://localhost/example/source/issues/2#issuecomment-2
+            user: *user2
+
+  target:
+    repo:
+      name: target
+      full_name: example/target
+      html_url: http://localhost/example/target
+    members:
+      - *user1
+    labels:
+      - *label1
+      - *label2
+    imports:
+      - issue:
+          title: Example title 1
+          body: |
+            <table>
+              <tr>
+                <td>
+                  <img src="https://github.com/sample-user-1.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1 created the original issue<br>imported from <a href="http://localhost/example/source/issues/1">example/source#1</a>
+                </td>
+              </tr>
+            </table>
+
+
+            Example body 1
+          assignee: sample-user-1
+          closed: true
+          labels: []
+        comments: []
+      - issue:
+          title: Example title 2
+          body: |
+            <table>
+              <tr>
+                <td>
+                  <img src="https://github.com/sample-user-2.png" width="35">
+                </td>
+                <td>
+                  @sample-user-2 created the original issue<br>imported from <a href="http://localhost/example/source/issues/2">example/source#2</a>
+                </td>
+              </tr>
+            </table>
+
+
+            Example body 2
+            See http://localhost/example/target/issues/1.
+          assignee: sample-user-2
+          closed: false
+          labels:
+            - bug
+            - design
+        comments:
+          - body: |
+              <table>
+                <tr>
+                  <td>
+                    <img src="https://github.com/sample-user-1.png" width="35">
+                  </td>
+                  <td>
+                    @sample-user-1 commented
+                  </td>
+                </tr>
+              </table>
+
+
+              Example comment body 1
+          - body: |
+              <table>
+                <tr>
+                  <td>
+                    <img src="https://github.com/sample-user-2.png" width="35">
+                  </td>
+                  <td>
+                    @sample-user-2 commented
+                  </td>
+                </tr>
+              </table>
+
+
+              Example comment body 2
+              Ref: http://localhost/example/target/issues/1.
+
+-
+  name: pull requests
 
   source:
     members:
@@ -115,35 +257,6 @@
         color: e6e6e6
         default: true
     issues:
-      - number: 1
-        title: Example title 1
-        state: closed
-        body: |
-          Example body 1
-        html_url: http://localhost/example/source/issues/1
-        user: *user1
-      - number: 2
-        title: Example title 2
-        state: open
-        body: |
-          Example body 2
-          See http://localhost/example/source/issues/1.
-        html_url: http://localhost/example/source/issues/2
-        user: *user2
-        assignee: *user2
-        labels:
-          - *label1
-          - *label2
-        comments:
-          - body: |
-              Example comment body 1
-            html_url: http://localhost/example/source/issues/2#issuecomment-1
-            user: *user1
-          - body: |
-              Example comment body 2
-              Ref: http://localhost/example/source/issues/1.
-            html_url: http://localhost/example/source/issues/2#issuecomment-2
-            user: *user2
       - number: 3
         title: Example title 3
         state: closed
@@ -166,8 +279,10 @@
             diff_hunk: |-
               @@ -0.0 +1 @@
               +foo
+              +http://localhost/example/source # urls in diff are kept
             body: |
               Nice catch.
+              http://localhost/example/source # urls in comment are replaced
             user: *user2
           - id: 200
             path: sample.txt
@@ -210,63 +325,8 @@
       - *label2
     update_labels:
       - *label3
-    issues:
-      - number: 1
-        title: Example title 1
-        state: closed
+    issues: []
     imports:
-      - issue:
-          title: Example title 2
-          body: |
-            <table>
-              <tr>
-                <td>
-                  <img src="https://github.com/sample-user-1-2.png" width="35">
-                </td>
-                <td>
-                  @sample-user-1-2 created the original issue<br>imported from <a href="http://localhost/example/source/issues/2">example/source#2</a>
-                </td>
-              </tr>
-            </table>
-
-
-            Example body 2
-            See http://localhost/example/target/issues/1.
-          assignee: sample-user-1-2
-          closed: false
-          labels:
-            - bug
-            - design
-        comments:
-          - body: |
-              <table>
-                <tr>
-                  <td>
-                    <img src="https://github.com/github.png" width="35">
-                  </td>
-                  <td>
-                    @sample-user-1 commented
-                  </td>
-                </tr>
-              </table>
-
-
-              Example comment body 1
-          - body: |
-              <table>
-                <tr>
-                  <td>
-                    <img src="https://github.com/sample-user-1-2.png" width="35">
-                  </td>
-                  <td>
-                    @sample-user-1-2 commented
-                  </td>
-                </tr>
-              </table>
-
-
-              Example comment body 2
-              Ref: http://localhost/example/target/issues/1.
       - issue:
           title: Example title 3
           body: |
@@ -306,6 +366,7 @@
               # sample.txt
               @@ -0.0 +1 @@
               +foo
+              +http://localhost/example/source # urls in diff are kept
               ```
 
               <table>
@@ -321,6 +382,7 @@
 
 
               Nice catch.
+              http://localhost/example/target # urls in comment are replaced
           - body: |
               ```diff
               # sample.txt
