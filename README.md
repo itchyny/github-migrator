@@ -15,7 +15,7 @@ Be sure to use this tool before pushing the git tree to the new origin (otherwis
 ### Other options
 Sometimes same user has different user id on GitHub and Enterprise.
 ```bash
-export GITHUB_MIGRATOR_USERS_MAPPING=user-before1:user-after1,user-before2:user-after2,user-before3:user-after3
+export GITHUB_MIGRATOR_USER_MAPPING=user-before1:user-after1,user-before2:user-after2,user-before3:user-after3
 ```
 
 ## Requirements

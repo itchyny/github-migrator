@@ -70,7 +70,7 @@ func createMigrator(sourcePath, targetPath string) (migrator.Migrator, error) {
 
 func createUserMapping() map[string]string {
 	m := make(map[string]string)
-	for _, src := range strings.Split(os.Getenv("GITHUB_MIGRATOR_USERS_MAPPING"), ",") {
+	for _, src := range strings.Split(os.Getenv("GITHUB_MIGRATOR_USER_MAPPING"), ",") {
 		xs := strings.Split(strings.TrimSpace(src), ":")
 		if len(xs) == 2 && len(xs[0]) > 0 && len(xs[1]) > 0 {
 			m[xs[0]] = xs[1]
