@@ -23,9 +23,11 @@ func (m *migrator) migrateRepo() error {
 		targetRepo.Name, targetRepo.HTMLURL,
 	)
 
-	_, err = m.target.Update(buildUpdateRepoParams(sourceRepo, targetRepo))
-	if err != nil {
-		return err
+	if params, ok := buildUpdateRepoParams(sourceRepo, targetRepo); ok {
+		_, err = m.target.Update(params)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -54,19 +56,22 @@ func (m *migrator) getTargetRepo() (*github.Repo, error) {
 	return repo, nil
 }
 
-func buildUpdateRepoParams(sourceRepo, targetRepo *github.Repo) *github.UpdateRepoParams {
+func buildUpdateRepoParams(sourceRepo, targetRepo *github.Repo) (*github.UpdateRepoParams, bool) {
+	var update bool
 	params := &github.UpdateRepoParams{
 		Name:        targetRepo.Name,
 		Description: targetRepo.Description,
 		Homepage:    targetRepo.Homepage,
 		Private:     targetRepo.Private,
 	}
-	if params.Description == "" {
+	if params.Description == "" && sourceRepo.Description != "" {
 		params.Description = sourceRepo.Description
+		update = true
 	}
-	if params.Homepage == "" {
+	if params.Homepage == "" && sourceRepo.Homepage != "" {
 		params.Homepage = sourceRepo.Homepage
+		update = true
 	}
 	// other fields should not be overwritten unless examined carefully
-	return params
+	return params, update
 }
