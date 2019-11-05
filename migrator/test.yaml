@@ -1,0 +1,367 @@
+-
+  name: repo
+
+  source:
+    repo:
+      name: source
+      full_name: example/source
+      description: This is a description.
+      html_url: http://localhost/example
+      private: false
+
+  target:
+    repo:
+      name: target
+      full_name: example/target
+      private: true
+
+    update_repo:
+      name: target
+      full_name: example/target
+      description: This is a description.
+      html_url: http://localhost/example
+      private: true
+
+-
+  name: labels
+
+  source:
+    repo:
+      name: source
+      full_name: example/source
+    labels:
+      - id: 1
+        name: bug1
+      - id: 2
+        name: bug2
+        description: This is a description.
+      - id: 3
+        name: bug3
+        color: fc2929
+      - id: 4
+        name: bug4
+        description: This is a description.
+      - id: 5
+        name: bug5
+        color: bfbfbf
+      - id: 6
+        name: bug6
+        description: This is a description.
+        color: c8c8c8
+
+  target:
+    repo:
+      name: target
+      full_name: example/target
+    labels:
+      - id: 1
+        name: bug1
+      - id: 2
+        name: bug4
+      - id: 3
+        name: bug5
+        color: 29fc29
+      - id: 4
+        name: bug6
+        description: This is a description.
+        color: c8c8c8
+    create_labels:
+      - name: bug2
+        description: This is a description.
+      - name: bug3
+        color: fc2929
+    update_labels:
+      - name: bug4
+        description: This is a description.
+      - name: bug5
+        color: bfbfbf
+
+-
+  name: complicated
+
+  source:
+    members:
+      - &user1
+        login: sample-user-1
+      - &user2
+        login: sample-user-2
+      - &user3
+        login: sample-user-3
+      - &user4
+        login: sample-user-1-2
+    repo:
+      name: source
+      full_name: example/source
+      description: The source repository.
+      html_url: http://localhost/example/source
+      homepage: http://localhost/
+      private: false
+    labels:
+      - &label1
+        id: 1
+        name: bug
+        description: this is a bug
+        color: fc2929
+        default: true
+      - &label2
+        id: 2
+        name: design
+        description: this is a design
+        color: bfdadc
+        default: false
+      - &label3
+        id: 3
+        name: invalid
+        color: e6e6e6
+        default: true
+    issues:
+      - number: 1
+        title: Example title 1
+        state: closed
+        body: |
+          Example body 1
+        html_url: http://localhost/example/source/issues/1
+        user: *user1
+      - number: 2
+        title: Example title 2
+        state: open
+        body: |
+          Example body 2
+          See http://localhost/example/source/issues/1.
+        html_url: http://localhost/example/source/issues/2
+        user: *user2
+        assignee: *user2
+        labels:
+          - *label1
+          - *label2
+        comments:
+          - body: |
+              Example comment body 1
+            html_url: http://localhost/example/source/issues/2#issuecomment-1
+            user: *user1
+          - body: |
+              Example comment body 2
+              Ref: http://localhost/example/source/issues/1.
+            html_url: http://localhost/example/source/issues/2#issuecomment-2
+            user: *user2
+      - number: 3
+        title: Example title 3
+        state: closed
+        body: |
+          Example body 3
+        html_url: http://localhost/example/source/pull/3
+        user: *user3
+        assignee: *user3
+        pull_request:
+          url: http://localhost/example/source/pulls/3
+          html_url: http://localhost/example/source/pull/3
+        comments:
+          - body: |
+              LGTM
+            html_url: http://localhost/example/source/issues/3#issuecomment-1
+            user: *user2
+        review_comments:
+          - id: 100
+            path: sample.txt
+            diff_hunk: |-
+              @@ -0.0 +1 @@
+              +foo
+            body: |
+              Nice catch.
+            user: *user2
+          - id: 200
+            path: sample.txt
+            diff_hunk: |-
+              @@ -0.0 +1 @@
+              +foo
+            body: |
+              @bob Thanks.
+            user: *user3
+          - id: 300
+            path: sample.txt
+            diff_hunk: |-
+              @@ -0.0 +1 @@
+              +bar
+            body: |
+              nice. see http://localhost/example/source/issues/2.
+            user: *user1
+
+  target:
+    members:
+      - *user2
+      - *user4
+    repo:
+      name: target
+      full_name: example/target
+      description: The target repository.
+      html_url: http://localhost/example/target
+      private: true
+    update_repo:
+      name: target
+      full_name: example/target
+      description: The target repository.
+      html_url: http://localhost/example/target
+      homepage: http://localhost/
+      private: true
+    labels:
+      - *label1
+      - *label3
+    create_labels:
+      - *label2
+    update_labels:
+      - *label3
+    issues:
+      - number: 1
+        title: Example title 1
+        state: closed
+    imports:
+      - issue:
+          title: Example title 2
+          body: |
+            <table>
+              <tr>
+                <td>
+                  <img src="https://github.com/sample-user-1-2.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1-2 created the original issue<br>imported from <a href="http://localhost/example/source/issues/2">example/source#2</a>
+                </td>
+              </tr>
+            </table>
+
+
+            Example body 2
+            See http://localhost/example/target/issues/1.
+          assignee: sample-user-1-2
+          closed: false
+          labels:
+            - bug
+            - design
+        comments:
+          - body: |
+              <table>
+                <tr>
+                  <td>
+                    <img src="https://github.com/github.png" width="35">
+                  </td>
+                  <td>
+                    @sample-user-1 commented
+                  </td>
+                </tr>
+              </table>
+
+
+              Example comment body 1
+          - body: |
+              <table>
+                <tr>
+                  <td>
+                    <img src="https://github.com/sample-user-1-2.png" width="35">
+                  </td>
+                  <td>
+                    @sample-user-1-2 commented
+                  </td>
+                </tr>
+              </table>
+
+
+              Example comment body 2
+              Ref: http://localhost/example/target/issues/1.
+      - issue:
+          title: Example title 3
+          body: |
+            <table>
+              <tr>
+                <td>
+                  <img src="https://github.com/github.png" width="35">
+                </td>
+                <td>
+                  @sample-user-3 created the original pull request<br>imported from <a href="http://localhost/example/source/pull/3">example/source#3</a>
+                </td>
+              </tr>
+            </table>
+
+
+            Example body 3
+          assignee: ""
+          closed: true
+          labels: []
+        comments:
+          - body: |
+              <table>
+                <tr>
+                  <td>
+                    <img src="https://github.com/sample-user-1-2.png" width="35">
+                  </td>
+                  <td>
+                    @sample-user-1-2 commented
+                  </td>
+                </tr>
+              </table>
+
+
+              LGTM
+          - body: |
+              ```diff
+              # sample.txt
+              @@ -0.0 +1 @@
+              +foo
+              ```
+
+              <table>
+                <tr>
+                  <td>
+                    <img src="https://github.com/sample-user-1-2.png" width="35">
+                  </td>
+                  <td>
+                    @sample-user-1-2 commented
+                  </td>
+                </tr>
+              </table>
+
+
+              Nice catch.
+          - body: |
+              ```diff
+              # sample.txt
+              @@ -0.0 +1 @@
+              +foo
+              ```
+
+              <table>
+                <tr>
+                  <td>
+                    <img src="https://github.com/github.png" width="35">
+                  </td>
+                  <td>
+                    @sample-user-3 commented
+                  </td>
+                </tr>
+              </table>
+
+
+              @charlie Thanks.
+          - body: |
+              ```diff
+              # sample.txt
+              @@ -0.0 +1 @@
+              +bar
+              ```
+
+              <table>
+                <tr>
+                  <td>
+                    <img src="https://github.com/github.png" width="35">
+                  </td>
+                  <td>
+                    @sample-user-1 commented
+                  </td>
+                </tr>
+              </table>
+
+
+              nice. see http://localhost/example/target/issues/2.
+
+  user_mapping:
+    bob: charlie
+    sample-user-2: sample-user-1-2

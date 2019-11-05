@@ -1,10 +1,15 @@
 package migrator
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"gopkg.in/yaml.v3"
 
 	"github.com/itchyny/github-migrator/github"
 	"github.com/itchyny/github-migrator/repo"
@@ -15,328 +20,153 @@ func init() {
 	waitImportIssueInitialDuration = 0
 }
 
-func TestMigratorMigrate(t *testing.T) {
-	source := repo.New(github.NewMockClient(
-		github.MockGetRepo(func(path string) (*github.Repo, error) {
-			return &github.Repo{
-				Name:        "source",
-				FullName:    "example/source",
-				Description: "Source repository.",
-				HTMLURL:     "http://localhost/example/source",
-				Homepage:    "http://localhost/",
-				Private:     false,
-			}, nil
-		}),
-		github.MockListLabels(func(path string) github.Labels {
-			return github.LabelsFromSlice([]*github.Label{
-				{
-					ID:          1,
-					Name:        "bug",
-					Description: "This is a bug.",
-					Color:       "fc2929",
-					Default:     false,
-				},
-				{
-					ID:          2,
-					Name:        "design",
-					Description: "This is a design issue.",
-					Color:       "bfdadc",
-					Default:     false,
-				},
-			})
-		}),
-		github.MockListIssues(func(path string, _ *github.ListIssuesParams) github.Issues {
-			return github.IssuesFromSlice([]*github.Issue{
-				{
-					Number:  1,
-					Title:   "Example title 1",
-					State:   "closed",
-					Body:    "Example body 1",
-					HTMLURL: "http://localhost/example/source/issues/1",
-					User: &github.User{
-						Login: "sample-user-1",
-					},
-				},
-				{
-					Number:  2,
-					Title:   "Example title 2",
-					State:   "open",
-					Body:    "Example body 2\nSee http://localhost/example/source/issues/1.",
-					HTMLURL: "http://localhost/example/source/issues/2",
-					User: &github.User{
-						Login: "sample-user-2",
-					},
-					Assignee: &github.User{
-						Login: "sample-user-2",
-					},
-					Labels: []*github.Label{
-						{Name: "label1"},
-						{Name: "label2"},
-					},
-				},
-				{
-					Number:  3,
-					Title:   "Example title 3",
-					State:   "open",
-					Body:    "Example body 3",
-					HTMLURL: "http://localhost/example/source/pull/3",
-					User: &github.User{
-						Login: "bob",
-					},
-					Assignee: &github.User{
-						Login: "bob",
-					},
-					PullRequest: &github.IssuePullRequest{
-						URL:     "http://localhost/example/source/pulls/3",
-						HTMLURL: "http://localhost/example/source/pull/3",
-					},
-				},
-			})
-		}),
-		github.MockListComments(func(path string, issueNumber int) github.Comments {
-			switch issueNumber {
-			case 2:
-				return github.CommentsFromSlice([]*github.Comment{
-					{
-						Body:    "Example comment body 1",
-						HTMLURL: "http://localhost/example/source/issues/1#issuecomment-1",
-						User: &github.User{
-							Login: "sample-user-1",
-						},
-					},
-					{
-						Body:    "Example comment body 2\nRef: http://localhost/example/source/issues/1.",
-						HTMLURL: "http://localhost/example/source/issues/1#issuecomment-2",
-						User: &github.User{
-							Login: "sample-user-2",
-						},
-					},
-				})
-			case 3:
-				return github.CommentsFromSlice([]*github.Comment{})
-			default:
-				assert.Nil(t, fmt.Errorf("unexpected issue number: %d", issueNumber))
-				return nil
-			}
-		}),
-		github.MockListReviewComments(func(path string, pullNumber int) github.ReviewComments {
-			assert.Equal(t, path, "/repos/example/source/pulls/3/comments")
-			assert.Equal(t, pullNumber, 3)
-			return github.ReviewCommentsFromSlice([]*github.ReviewComment{
-				{
-					ID:       100,
-					Path:     "sample.txt",
-					DiffHunk: "@@ -0,0 +1 @@\n+foo",
-					Body:     "Nice catch.",
-					User: &github.User{
-						Login: "sample-user-2",
-					},
-				},
-				{
-					ID:          200,
-					Path:        "sample.txt",
-					DiffHunk:    "@@ -0,0 +1 @@\n+foo",
-					Body:        "@bob Thanks. bobb",
-					InReplyToID: 100,
-					User: &github.User{
-						Login: "alice",
-					},
-				},
-			})
-		}),
-	), "example/source")
+type testRepo struct {
+	Repo         *github.Repo
+	UpdateRepo   *github.Repo     `json:"update_repo"`
+	Members      []*github.Member `json:"members"`
+	Labels       []*github.Label  `json:"labels"`
+	CreateLabels []*github.Label  `json:"create_labels"`
+	UpdateLabels []*github.Label  `json:"update_labels"`
+	Issues       []struct {
+		*github.Issue
+		Comments       []*github.Comment       `json:"comments"`
+		ReviewComments []*github.ReviewComment `json:"review_comments"`
+	}
+	Imports []*github.Import `json:"imports"`
+}
 
-	var assertImport func(string, *github.Import)
-	target := repo.New(github.NewMockClient(
+func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
+	return repo.New(github.NewMockClient(
 		github.MockListMembers(func(path string) github.Members {
-			assert.Equal(t, path, "/orgs/example/members")
-			return github.MembersFromSlice([]*github.Member{
-				{
-					Login: "sample-user-2",
-				},
-				{
-					Login: "alice-1",
-				},
-			})
+			assert.True(t, isTarget)
+			return github.MembersFromSlice(r.Members)
 		}),
 		github.MockGetRepo(func(path string) (*github.Repo, error) {
-			return &github.Repo{
-				Name:        "target",
-				Description: "Target repository.",
-				HTMLURL:     "http://localhost/example/target",
-				Private:     true,
-			}, nil
+			return r.Repo, nil
 		}),
 		github.MockUpdateRepo(func(path string, params *github.UpdateRepoParams) (*github.Repo, error) {
-			assert.Equal(t, path, "/repos/example/target")
-			assert.Equal(t, params.Name, "target")
-			assert.Equal(t, params.Description, "Target repository.")
-			assert.Equal(t, params.Homepage, "http://localhost/")
-			assert.Equal(t, params.Private, true)
-			return &github.Repo{}, nil
+			assert.True(t, isTarget)
+			assert.Equal(t, "/repos/"+r.Repo.FullName, path)
+			assert.NotNil(t, r.UpdateRepo)
+			assert.Equal(t, r.UpdateRepo.Name, params.Name)
+			assert.Equal(t, r.UpdateRepo.Description, params.Description)
+			assert.Equal(t, r.UpdateRepo.Homepage, params.Homepage)
+			assert.Equal(t, r.UpdateRepo.Private, params.Private)
+			return r.UpdateRepo, nil
 		}),
 		github.MockListLabels(func(path string) github.Labels {
-			return github.LabelsFromSlice([]*github.Label{
-				{
-					ID:          1,
-					Name:        "bug",
-					Description: "This is a bug.",
-					Color:       "292929",
-					Default:     false,
-				},
-			})
+			return github.LabelsFromSlice(r.Labels)
 		}),
-		github.MockCreateLabel(func(path string, params *github.CreateLabelParams) (*github.Label, error) {
-			assert.Equal(t, path, "/repos/example/target/labels")
-			assert.Equal(t, params.Name, "design")
-			return nil, nil
-		}),
-		github.MockUpdateLabel(func(path, name string, params *github.UpdateLabelParams) (*github.Label, error) {
-			assert.Equal(t, path, "/repos/example/target/labels/"+name)
-			assert.Equal(t, params.Name, name)
-			assert.Equal(t, params.Name, "bug")
-			assert.Equal(t, params.Color, "fc2929")
-			return nil, nil
-		}),
+		github.MockCreateLabel((func(i int) func(string, *github.CreateLabelParams) (*github.Label, error) {
+			return func(path string, params *github.CreateLabelParams) (*github.Label, error) {
+				defer func() { i++ }()
+				assert.True(t, isTarget)
+				require.Greater(t, len(r.CreateLabels), i)
+				assert.Equal(t, "/repos/"+r.Repo.FullName+"/labels", path)
+				assert.Equal(t, r.CreateLabels[i].Name, params.Name)
+				assert.Equal(t, r.CreateLabels[i].Color, params.Color)
+				assert.Equal(t, r.CreateLabels[i].Description, params.Description)
+				return nil, nil
+			}
+		})(0)),
+		github.MockUpdateLabel((func(i int) func(string, string, *github.UpdateLabelParams) (*github.Label, error) {
+			return func(path, name string, params *github.UpdateLabelParams) (*github.Label, error) {
+				defer func() { i++ }()
+				assert.True(t, isTarget)
+				require.Greater(t, len(r.UpdateLabels), i)
+				assert.Equal(t, "/repos/"+r.Repo.FullName+"/labels/"+r.UpdateLabels[i].Name, path)
+				assert.Equal(t, r.UpdateLabels[i].Name, name)
+				assert.Equal(t, r.UpdateLabels[i].Name, params.Name)
+				assert.Equal(t, r.UpdateLabels[i].Color, params.Color)
+				assert.Equal(t, r.UpdateLabels[i].Description, params.Description)
+				return nil, nil
+			}
+		})(0)),
 		github.MockListIssues(func(path string, _ *github.ListIssuesParams) github.Issues {
-			return github.IssuesFromSlice([]*github.Issue{
-				{
-					Number:  1,
-					Title:   "Example title 1",
-					State:   "closed",
-					Body:    "Example body 1",
-					HTMLURL: "http://localhost/example/target/issues/1",
-					User: &github.User{
-						Login: "sample-user-1",
-					},
-				},
-			})
+			xs := make([]*github.Issue, len(r.Issues))
+			for i, s := range r.Issues {
+				xs[i] = s.Issue
+			}
+			return github.IssuesFromSlice(xs)
 		}),
-		github.MockImport(func(path string, x *github.Import) (*github.ImportResult, error) {
-			assertImport(path, x)
-			return &github.ImportResult{
-				ID:     12345,
-				Status: "pending",
-				URL:    "http://localhost/repo/example/target/import/issues/12345",
-			}, nil
+		github.MockListComments(func(path string, issueNumber int) github.Comments {
+			assert.True(t, !isTarget)
+			for _, s := range r.Issues {
+				if s.Issue.Number == issueNumber {
+					return github.CommentsFromSlice(s.Comments)
+				}
+			}
+			panic(fmt.Sprintf("unexpected issue number: %d", issueNumber))
+			return nil
 		}),
+		github.MockListReviewComments(func(path string, pullNumber int) github.ReviewComments {
+			assert.True(t, !isTarget)
+			for _, s := range r.Issues {
+				if s.Issue.Number == pullNumber {
+					return github.ReviewCommentsFromSlice(s.ReviewComments)
+				}
+			}
+			panic(fmt.Sprintf("unexpected pull request number: %d", pullNumber))
+			return nil
+		}),
+		github.MockImport((func(i int) func(string, *github.Import) (*github.ImportResult, error) {
+			return func(path string, x *github.Import) (*github.ImportResult, error) {
+				defer func() { i++ }()
+				assert.True(t, isTarget)
+				require.Greater(t, len(r.Imports), i)
+				assert.Equal(t, "/repos/"+r.Repo.FullName+"/import/issues", path)
+				assert.Equal(t, r.Imports[i], x)
+				return &github.ImportResult{
+					ID:     12345,
+					Status: "pending",
+					URL:    "http://localhost/repo/example/target/import/issues/12345",
+				}, nil
+			}
+		})(0)),
 		github.MockGetImport(func(path string, id int) (*github.ImportResult, error) {
-			assert.Equal(t, id, 12345)
+			assert.True(t, isTarget)
+			assert.Equal(t, 12345, id)
 			return &github.ImportResult{
 				ID:     12345,
 				Status: "imported",
 				URL:    "http://localhost/repo/example/target/import/issues/12345",
 			}, nil
 		}),
-	), "example/target")
+	), r.Repo.FullName)
+}
 
-	var importCount int
-	assertImport = func(path string, x *github.Import) {
-		switch importCount {
-		case 0:
-			assert.Equal(t, path, "/repos/example/target/import/issues")
-			assert.Equal(t, x.Issue.Title, "Example title 2")
-			assert.Equal(t, x.Issue.Body, `<table>
-  <tr>
-    <td>
-      <img src="https://github.com/sample-user-2.png" width="35">
-    </td>
-    <td>
-      @sample-user-2 created the original issue<br>imported from <a href="http://localhost/example/source/issues/2">example/source#2</a>
-    </td>
-  </tr>
-</table>
+func TestMigratorMigrate(t *testing.T) {
+	f, err := os.Open("test.yaml")
+	require.NoError(t, err)
+	defer f.Close()
 
-
-Example body 2
-See http://localhost/example/target/issues/1.`)
-			assert.Equal(t, x.Issue.Assignee, "sample-user-2")
-			assert.Equal(t, x.Issue.Labels, []string{"label1", "label2"})
-
-			assert.Len(t, x.Comments, 2)
-			assert.Equal(t, x.Comments[0].Body, `<table>
-  <tr>
-    <td>
-      <img src="https://github.com/github.png" width="35">
-    </td>
-    <td>
-      @sample-user-1 commented
-    </td>
-  </tr>
-</table>
-
-
-Example comment body 1`)
-			assert.Equal(t, x.Comments[1].Body, `<table>
-  <tr>
-    <td>
-      <img src="https://github.com/sample-user-2.png" width="35">
-    </td>
-    <td>
-      @sample-user-2 commented
-    </td>
-  </tr>
-</table>
-
-
-Example comment body 2
-Ref: http://localhost/example/target/issues/1.`)
-		case 1:
-			assert.Equal(t, path, "/repos/example/target/import/issues")
-			assert.Equal(t, x.Issue.Title, "Example title 3")
-			assert.Equal(t, x.Issue.Body, `<table>
-  <tr>
-    <td>
-      <img src="https://github.com/github.png" width="35">
-    </td>
-    <td>
-      @charlie created the original pull request<br>imported from <a href="http://localhost/example/source/pull/3">example/source#3</a>
-    </td>
-  </tr>
-</table>
-
-
-Example body 3`)
-			assert.Equal(t, x.Issue.Assignee, "")
-			assert.Equal(t, x.Issue.Labels, []string{})
-			assert.Len(t, x.Comments, 1)
-			assert.Equal(t, x.Comments[0].Body, "```"+`diff
-# sample.txt
-@@ -0,0 +1 @@
-+foo
-`+"```"+`
-
-<table>
-  <tr>
-    <td>
-      <img src="https://github.com/sample-user-2.png" width="35">
-    </td>
-    <td>
-      @sample-user-2 commented
-    </td>
-  </tr>
-</table>
-
-
-Nice catch.
-
-<table>
-  <tr>
-    <td>
-      <img src="https://github.com/alice-1.png" width="35">
-    </td>
-    <td>
-      @alice-1 commented
-    </td>
-  </tr>
-</table>
-
-
-@charlie Thanks. bobb`)
-		}
-		importCount++
+	var testCases []struct {
+		Name        string            `json:"name"`
+		Source      *testRepo         `json:"source"`
+		Target      *testRepo         `json:"target"`
+		UserMapping map[string]string `json:"user_mapping"`
 	}
+	require.NoError(t, decodeYAML(f, &testCases))
 
-	mig := New(source, target, map[string]string{"bob": "charlie", "alice": "alice-1"})
-	assert.Nil(t, mig.Migrate())
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
+			source := tc.Source.build(t, false)
+			target := tc.Target.build(t, true)
+			migrator := New(source, target, tc.UserMapping)
+			assert.Nil(t, migrator.Migrate())
+		})
+	}
+}
+
+func decodeYAML(r io.Reader, d interface{}) error {
+	// decode to interface once to use json tags
+	var m interface{}
+	if err := yaml.NewDecoder(r).Decode(&m); err != nil {
+		return err
+	}
+	bs, err := json.Marshal(m)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(bs, d)
 }
