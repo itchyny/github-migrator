@@ -57,3 +57,11 @@ itchyny (https://github.com/itchyny)
 
 ## License
 This software is released under the MIT License, see LICENSE.
+
+## Previous works and references
+- [fastlane/monorepo: Scripts to migrate to a monorepo](https://github.com/fastlane/monorepo)
+  - This tool greatly influenced me, especially for investigating the usage of the import api.
+- [aereal/migrate-gh-repo: migrate GitHub (incl. Enterprise) repositories with idempotent-like manner](https://github.com/aereal/migrate-gh-repo)
+  - For the idea of keeping the issue and pull request numbers.
+- [Complete issue import API walkthrough with curl](https://gist.github.com/jonmagic/5282384165e0f86ef105)
+  - Comprehensive tutorial for using the import api (which is not listed in the official api document yet).
