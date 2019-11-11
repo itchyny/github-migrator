@@ -13,6 +13,7 @@ type Repo interface {
 	ListIssues() github.Issues
 	ListComments(int) github.Comments
 	ListPullReqs() github.PullReqs
+	GetPullReq(int) (*github.PullReq, error)
 	ListReviewComments(int) github.ReviewComments
 	Import(*github.Import) (*github.ImportResult, error)
 	GetImport(int) (*github.ImportResult, error)

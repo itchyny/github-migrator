@@ -49,3 +49,26 @@ func TestRepoListPullReqs(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, got, expected)
 }
+
+func TestRepoGetPullReq(t *testing.T) {
+	expected := &github.PullReq{
+		Issue: github.Issue{
+			Number:  1,
+			Title:   "Example title 1",
+			State:   "closed",
+			Body:    "Example body 1",
+			HTMLURL: "http://localhost/example/test/pull/1",
+		},
+		Merged: false,
+		Draft:  true,
+	}
+	repo := New(github.NewMockClient(
+		github.MockGetPullReq(func(path string, pullNumber int) (*github.PullReq, error) {
+			assert.Contains(t, path, "/repos/example/test/pulls/1")
+			return expected, nil
+		}),
+	), "example/test")
+	got, err := repo.GetPullReq(1)
+	assert.Nil(t, err)
+	assert.Equal(t, got, expected)
+}

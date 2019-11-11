@@ -9,3 +9,8 @@ func (r *repo) ListPullReqs() github.PullReqs {
 		Direction: github.ListPullReqsParamDirectionAsc,
 	})
 }
+
+// GetPullReq gets the pull request.
+func (r *repo) GetPullReq(pullNumber int) (*github.PullReq, error) {
+	return r.cli.GetPullReq(r.path, pullNumber)
+}

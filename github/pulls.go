@@ -2,6 +2,7 @@ package github
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 )
 
@@ -186,4 +187,33 @@ func (c *client) listPullReqs(path string) ([]*PullReq, string, error) {
 	}
 
 	return r, getNext(res.Header), nil
+}
+
+func getPullReqPath(repo string, pullNumber int) string {
+	return newPath(fmt.Sprintf("/repos/%s/pulls/%d", repo, pullNumber)).
+		String()
+}
+
+type pullReqOrError struct {
+	PullReq
+	Message string `json:"message"`
+}
+
+func (c *client) GetPullReq(repo string, pullNumber int) (*PullReq, error) {
+	res, err := c.get(c.url(getPullReqPath(repo, pullNumber)))
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	var r pullReqOrError
+	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+		return nil, err
+	}
+
+	if r.Message != "" {
+		return nil, fmt.Errorf("%s: %s", r.Message, "/pulls/"+fmt.Sprint(pullNumber))
+	}
+
+	return &r.PullReq, nil
 }
