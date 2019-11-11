@@ -28,7 +28,7 @@ type testRepo struct {
 	CreateLabels []*github.Label  `json:"create_labels"`
 	UpdateLabels []*github.Label  `json:"update_labels"`
 	Issues       []struct {
-		*github.Issue
+		*github.PullReq
 		Comments       []*github.Comment       `json:"comments"`
 		ReviewComments []*github.ReviewComment `json:"review_comments"`
 	}
@@ -85,7 +85,7 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 		github.MockListIssues(func(path string, _ *github.ListIssuesParams) github.Issues {
 			xs := make([]*github.Issue, len(r.Issues))
 			for i, s := range r.Issues {
-				xs[i] = s.Issue
+				xs[i] = &s.PullReq.Issue
 			}
 			return github.IssuesFromSlice(xs)
 		}),
@@ -97,7 +97,15 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 				}
 			}
 			panic(fmt.Sprintf("unexpected issue number: %d", issueNumber))
-			return nil
+		}),
+		github.MockGetPullReq(func(path string, pullNumber int) (*github.PullReq, error) {
+			assert.True(t, !isTarget)
+			for _, s := range r.Issues {
+				if s.PullReq.Number == pullNumber {
+					return s.PullReq, nil
+				}
+			}
+			panic(fmt.Sprintf("unexpected pull request number: %d", pullNumber))
 		}),
 		github.MockListReviewComments(func(path string, pullNumber int) github.ReviewComments {
 			assert.True(t, !isTarget)
@@ -107,7 +115,6 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 				}
 			}
 			panic(fmt.Sprintf("unexpected pull request number: %d", pullNumber))
-			return nil
 		}),
 		github.MockImport((func(i int) func(string, *github.Import) (*github.ImportResult, error) {
 			return func(path string, x *github.Import) (*github.ImportResult, error) {

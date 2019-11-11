@@ -17,6 +17,7 @@ type Issue struct {
 	CreatedAt   string            `json:"created_at"`
 	UpdatedAt   string            `json:"updated_at"`
 	ClosedAt    string            `json:"closed_at,omitempty"`
+	ClosedBy    *User             `json:"closed_by,omitempty"`
 	Labels      []*Label          `json:"labels"`
 	PullRequest *IssuePullRequest `json:"pull_request"`
 }

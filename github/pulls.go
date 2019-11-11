@@ -9,9 +9,10 @@ import (
 // PullReq represents a pull request.
 type PullReq struct {
 	Issue
-	Merged   bool  `json:"merged"`
-	MergedBy *User `json:"merged_by"`
-	Draft    bool  `json:"draft"`
+	Merged   bool   `json:"merged"`
+	MergedAt string `json:"merged_at"`
+	MergedBy *User  `json:"merged_by"`
+	Draft    bool   `json:"draft"`
 }
 
 // PullReqs represents a collection of pull requests.

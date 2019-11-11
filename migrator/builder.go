@@ -11,6 +11,7 @@ type builder struct {
 	source, target *github.Repo
 	commentFilters commentFilters
 	issue          *github.Issue
+	pullReq        *github.PullReq
 	comments       []*github.Comment
 	reviewComments []*github.ReviewComment
 	members        []*github.Member
@@ -18,7 +19,7 @@ type builder struct {
 
 func buildImport(
 	sourceRepo, targetRepo *github.Repo, commentFilters commentFilters,
-	issue *github.Issue,
+	issue *github.Issue, pullReq *github.PullReq,
 	comments []*github.Comment, reviewComments []*github.ReviewComment,
 	members []*github.Member,
 ) *github.Import {
@@ -27,6 +28,7 @@ func buildImport(
 		target:         targetRepo,
 		commentFilters: commentFilters,
 		issue:          issue,
+		pullReq:        pullReq,
 		comments:       comments,
 		reviewComments: reviewComments,
 		members:        members,
@@ -68,10 +70,14 @@ func (b *builder) buildImportBody() string {
 }
 
 func (b *builder) buildImportComments() []*github.ImportComment {
-	return append(
+	cs := append(
 		b.buildImportIssueComments(),
 		b.buildImportReviewComments()...,
 	)
+	if c := b.buildClosedComment(); c != nil {
+		cs = append(cs, c)
+	}
+	return cs
 }
 
 func (b *builder) buildImportIssueComments() []*github.ImportComment {
@@ -102,6 +108,31 @@ func (b *builder) buildImportReviewComments() []*github.ImportComment {
 		})
 	}
 	return xs
+}
+
+func (b *builder) buildClosedComment() *github.ImportComment {
+	if b.issue.State == "open" {
+		return nil
+	}
+	var user *github.User
+	var comment string
+	var closedAt string
+	if b.pullReq != nil && b.pullReq.MergedBy != nil {
+		user = b.pullReq.MergedBy
+		comment = fmt.Sprintf("merged the %s", b.issue.Type())
+		closedAt = b.pullReq.MergedAt
+	} else {
+		user = b.issue.ClosedBy
+		comment = fmt.Sprintf("closed the %s", b.issue.Type())
+		closedAt = b.issue.ClosedAt
+	}
+	return &github.ImportComment{
+		Body: b.buildTable(
+			b.buildImageTag(user),
+			fmt.Sprintf("@%s %s", b.commentFilters.apply(user.Login), comment),
+		),
+		CreatedAt: closedAt,
+	}
 }
 
 func (b *builder) buildCommentedTable(user *github.User, body string) string {
