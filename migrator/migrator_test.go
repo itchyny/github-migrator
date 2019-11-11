@@ -89,6 +89,15 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			}
 			return github.IssuesFromSlice(xs)
 		}),
+		github.MockGetIssue(func(path string, issueNumber int) (*github.Issue, error) {
+			assert.True(t, !isTarget)
+			for _, s := range r.Issues {
+				if s.PullReq.Number == issueNumber {
+					return &s.PullReq.Issue, nil
+				}
+			}
+			panic(fmt.Sprintf("unexpected issue number: %d", issueNumber))
+		}),
 		github.MockListComments(func(path string, issueNumber int) github.Comments {
 			assert.True(t, !isTarget)
 			for _, s := range r.Issues {

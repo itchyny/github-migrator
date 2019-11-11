@@ -117,10 +117,16 @@ func (b *builder) buildClosedComment() *github.ImportComment {
 	var user *github.User
 	var comment string
 	var closedAt string
-	if b.pullReq != nil && b.pullReq.MergedBy != nil {
-		user = b.pullReq.MergedBy
-		comment = fmt.Sprintf("merged the %s", b.issue.Type())
-		closedAt = b.pullReq.MergedAt
+	if b.pullReq != nil {
+		if b.pullReq.MergedBy != nil {
+			user = b.pullReq.MergedBy
+			comment = fmt.Sprintf("merged the %s", b.issue.Type())
+			closedAt = b.pullReq.MergedAt
+		} else {
+			user = b.issue.ClosedBy
+			comment = fmt.Sprintf("closed the %s without merging", b.issue.Type())
+			closedAt = b.issue.ClosedAt
+		}
 	} else {
 		user = b.issue.ClosedBy
 		comment = fmt.Sprintf("closed the %s", b.issue.Type())
