@@ -2,6 +2,7 @@ package github
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 )
 
@@ -256,4 +257,33 @@ func (c *client) listIssues(path string) ([]*Issue, string, error) {
 	}
 
 	return r, getNext(res.Header), nil
+}
+
+func getIssuePath(repo string, issueNumber int) string {
+	return newPath(fmt.Sprintf("/repos/%s/issues/%d", repo, issueNumber)).
+		String()
+}
+
+type issueOrError struct {
+	Issue
+	Message string `json:"message"`
+}
+
+func (c *client) GetIssue(repo string, issueNumber int) (*Issue, error) {
+	res, err := c.get(c.url(getIssuePath(repo, issueNumber)))
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	var r issueOrError
+	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+		return nil, err
+	}
+
+	if r.Message != "" {
+		return nil, fmt.Errorf("%s: %s", r.Message, "/issues/"+fmt.Sprint(issueNumber))
+	}
+
+	return &r.Issue, nil
 }

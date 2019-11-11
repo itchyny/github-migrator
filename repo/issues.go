@@ -10,3 +10,8 @@ func (r *repo) ListIssues() github.Issues {
 		Direction: github.ListIssuesParamDirectionAsc,
 	})
 }
+
+// GetIssue gets the issue.
+func (r *repo) GetIssue(issueNumber int) (*github.Issue, error) {
+	return r.cli.GetIssue(r.path, issueNumber)
+}

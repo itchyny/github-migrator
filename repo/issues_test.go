@@ -39,3 +39,25 @@ func TestRepoListIssues(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, got, expected)
 }
+
+func TestRepoGetIssue(t *testing.T) {
+	expected := &github.Issue{
+		Number:  1,
+		Title:   "Example title 1",
+		State:   "closed",
+		Body:    "Example body 1",
+		HTMLURL: "http://localhost/example/test/issue/1",
+		ClosedBy: &github.User{
+			Login: "test-user",
+		},
+	}
+	repo := New(github.NewMockClient(
+		github.MockGetIssue(func(path string, issueNumber int) (*github.Issue, error) {
+			assert.Contains(t, path, "/repos/example/test/issues/1")
+			return expected, nil
+		}),
+	), "example/test")
+	got, err := repo.GetIssue(1)
+	assert.Nil(t, err)
+	assert.Equal(t, got, expected)
+}

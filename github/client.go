@@ -19,6 +19,7 @@ type Client interface {
 	CreateLabel(string, *CreateLabelParams) (*Label, error)
 	UpdateLabel(string, string, *UpdateLabelParams) (*Label, error)
 	ListIssues(string, *ListIssuesParams) Issues
+	GetIssue(string, int) (*Issue, error)
 	ListComments(string, int) Comments
 	ListPullReqs(string, *ListPullReqsParams) PullReqs
 	GetPullReq(string, int) (*PullReq, error)
