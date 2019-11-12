@@ -287,6 +287,22 @@
               LGTM
             html_url: http://localhost/example/source/issues/3#issuecomment-1
             user: *user2
+        reviews:
+          - id: 100
+            state: CHANGES_REQUESTED
+            body: |
+              Please fix here.
+            user: *user1
+          - id: 200
+            state: COMMENTED
+            body: |
+              Comment.
+            user: *user1
+          - id: 300
+            state: APPROVED
+            body: |
+              LGTM
+            user: *user2
         review_comments:
           - id: 100
             path: sample.txt
@@ -437,6 +453,34 @@
 
 
               nice. see http://localhost/example/target/issues/2.
+          - body: |
+              <table>
+                <tr>
+                  <td>
+                    <img src="https://github.com/github.png" width="35">
+                  </td>
+                  <td>
+                    @sample-user-1 requested changes
+                  </td>
+                </tr>
+              </table>
+
+
+              Please fix here.
+          - body: |
+              <table>
+                <tr>
+                  <td>
+                    <img src="https://github.com/sample-user-1-2.png" width="35">
+                  </td>
+                  <td>
+                    @sample-user-1-2 approved
+                  </td>
+                </tr>
+              </table>
+
+
+              LGTM
           - body: |
               <table>
                 <tr>

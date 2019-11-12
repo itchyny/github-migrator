@@ -67,11 +67,16 @@ func (m *migrator) migrateIssue(
 	if err != nil {
 		return nil, err
 	}
+	var reviews []*github.Review
 	var reviewComments []*github.ReviewComment
 	var sourcePullReq *github.PullReq
 	if sourceIssue.State != github.IssueStateOpen {
 		if sourceIssue.PullRequest != nil {
 			sourcePullReq, err = m.source.GetPullReq(sourceIssue.Number)
+			if err != nil {
+				return nil, err
+			}
+			reviews, err = github.ReviewsToSlice(m.source.ListReviews(sourceIssue.Number))
 			if err != nil {
 				return nil, err
 			}
@@ -96,7 +101,7 @@ func (m *migrator) migrateIssue(
 	return m.target.Import(
 		buildImport(
 			sourceRepo, targetRepo, commentFilters,
-			sourceIssue, sourcePullReq, comments, reviewComments, members,
+			sourceIssue, sourcePullReq, comments, reviews, reviewComments, members,
 		),
 	)
 }

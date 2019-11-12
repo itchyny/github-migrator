@@ -13,6 +13,7 @@ type builder struct {
 	issue          *github.Issue
 	pullReq        *github.PullReq
 	comments       []*github.Comment
+	reviews        []*github.Review
 	reviewComments []*github.ReviewComment
 	members        []*github.Member
 }
@@ -20,7 +21,7 @@ type builder struct {
 func buildImport(
 	sourceRepo, targetRepo *github.Repo, commentFilters commentFilters,
 	issue *github.Issue, pullReq *github.PullReq,
-	comments []*github.Comment, reviewComments []*github.ReviewComment,
+	comments []*github.Comment, reviews []*github.Review, reviewComments []*github.ReviewComment,
 	members []*github.Member,
 ) *github.Import {
 	return (&builder{
@@ -30,6 +31,7 @@ func buildImport(
 		issue:          issue,
 		pullReq:        pullReq,
 		comments:       comments,
+		reviews:        reviews,
 		reviewComments: reviewComments,
 		members:        members,
 	}).build()
@@ -58,21 +60,24 @@ func (b *builder) build() *github.Import {
 }
 
 func (b *builder) buildImportBody() string {
-	return b.buildTable(
-		b.buildImageTag(b.issue.User),
+	return b.buildCommentedTable(
+		b.issue.User,
 		fmt.Sprintf(
-			"@%s created the original %s<br>imported from %s",
-			b.commentFilters.apply(b.issue.User.Login),
+			"created the original %s<br>imported from %s",
 			b.issue.Type(),
 			b.buildIssueLinkTag(b.source, b.issue),
 		),
-	) + "\n\n" + b.commentFilters.apply(b.issue.Body)
+		b.issue.Body,
+	)
 }
 
 func (b *builder) buildImportComments() []*github.ImportComment {
 	cs := append(
-		b.buildImportIssueComments(),
-		b.buildImportReviewComments()...,
+		append(
+			b.buildImportIssueComments(),
+			b.buildImportReviewComments()...,
+		),
+		b.buildImportReviews()...,
 	)
 	if c := b.buildClosedComment(); c != nil {
 		cs = append(cs, c)
@@ -84,9 +89,28 @@ func (b *builder) buildImportIssueComments() []*github.ImportComment {
 	xs := make([]*github.ImportComment, len(b.comments))
 	for i, c := range b.comments {
 		xs[i] = &github.ImportComment{
-			Body:      b.buildCommentedTable(c.User, c.Body),
+			Body:      b.buildCommentedTable(c.User, "commented", c.Body),
 			CreatedAt: c.CreatedAt,
 		}
+	}
+	return xs
+}
+
+func (b *builder) buildImportReviews() []*github.ImportComment {
+	var xs []*github.ImportComment
+	for _, c := range b.reviews {
+		var comment string
+		if c.State == github.ReviewStateApproved {
+			comment = "approved"
+		} else if c.State == github.ReviewStateChangesRequested {
+			comment = "requested changes"
+		} else {
+			continue
+		}
+		xs = append(xs, &github.ImportComment{
+			Body:      b.buildCommentedTable(c.User, comment, c.Body),
+			CreatedAt: c.SubmittedAt,
+		})
 	}
 	return xs
 }
@@ -97,13 +121,13 @@ func (b *builder) buildImportReviewComments() []*github.ImportComment {
 	for _, c := range b.reviewComments {
 		if i, ok := indexByID[c.InReplyToID]; ok {
 			indexByID[c.ID] = i
-			xs[i].Body += "\n\n" + b.buildCommentedTable(c.User, c.Body)
+			xs[i].Body += "\n\n" + b.buildCommentedTable(c.User, "commented", c.Body)
 			continue
 		}
 		indexByID[c.ID] = len(xs)
 		xs = append(xs, &github.ImportComment{
 			Body: strings.Join([]string{"```diff", "# " + c.Path, c.DiffHunk, "```\n\n"}, "\n") +
-				b.buildCommentedTable(c.User, c.Body),
+				b.buildCommentedTable(c.User, "commented", c.Body),
 			CreatedAt: c.CreatedAt,
 		})
 	}
@@ -141,10 +165,10 @@ func (b *builder) buildClosedComment() *github.ImportComment {
 	}
 }
 
-func (b *builder) buildCommentedTable(user *github.User, body string) string {
+func (b *builder) buildCommentedTable(user *github.User, action, body string) string {
 	return b.buildTable(
 		b.buildImageTag(user),
-		fmt.Sprintf("@%s commented", b.commentFilters.apply(user.Login)),
+		fmt.Sprintf("@%s %s", b.commentFilters.apply(user.Login), action),
 	) + "\n\n" + b.commentFilters.apply(body)
 }
 

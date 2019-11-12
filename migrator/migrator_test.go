@@ -30,6 +30,7 @@ type testRepo struct {
 	Issues       []struct {
 		*github.PullReq
 		Comments       []*github.Comment       `json:"comments"`
+		Reviews        []*github.Review        `json:"reviews"`
 		ReviewComments []*github.ReviewComment `json:"review_comments"`
 	}
 	Imports []*github.Import `json:"imports"`
@@ -116,10 +117,19 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			}
 			panic(fmt.Sprintf("unexpected pull request number: %d", pullNumber))
 		}),
+		github.MockListReviews(func(path string, pullNumber int) github.Reviews {
+			assert.True(t, !isTarget)
+			for _, s := range r.Issues {
+				if s.PullReq.Number == pullNumber {
+					return github.ReviewsFromSlice(s.Reviews)
+				}
+			}
+			panic(fmt.Sprintf("unexpected pull request number: %d", pullNumber))
+		}),
 		github.MockListReviewComments(func(path string, pullNumber int) github.ReviewComments {
 			assert.True(t, !isTarget)
 			for _, s := range r.Issues {
-				if s.Issue.Number == pullNumber {
+				if s.PullReq.Number == pullNumber {
 					return github.ReviewCommentsFromSlice(s.ReviewComments)
 				}
 			}
