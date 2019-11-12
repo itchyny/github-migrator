@@ -41,7 +41,7 @@ func (b *builder) build() *github.Import {
 		Body:      b.buildImportBody(),
 		CreatedAt: b.issue.CreatedAt,
 		UpdatedAt: b.issue.UpdatedAt,
-		Closed:    b.issue.State != "open",
+		Closed:    b.issue.State != github.IssueStateOpen,
 		ClosedAt:  b.issue.ClosedAt,
 		Labels:    b.buildImportLabels(b.issue),
 	}
@@ -111,7 +111,7 @@ func (b *builder) buildImportReviewComments() []*github.ImportComment {
 }
 
 func (b *builder) buildClosedComment() *github.ImportComment {
-	if b.issue.State == "open" {
+	if b.issue.State == github.IssueStateOpen {
 		return nil
 	}
 	var user *github.User

@@ -14,7 +14,7 @@ func TestRepoListPullReqs(t *testing.T) {
 			Issue: github.Issue{
 				Number:  1,
 				Title:   "Example title 1",
-				State:   "closed",
+				State:   github.IssueStateClosed,
 				Body:    "Example body 1",
 				HTMLURL: "http://localhost/example/test/pull/1",
 			},
@@ -25,7 +25,7 @@ func TestRepoListPullReqs(t *testing.T) {
 			Issue: github.Issue{
 				Number:  2,
 				Title:   "Example title 2",
-				State:   "open",
+				State:   github.IssueStateOpen,
 				Body:    "Example body 2",
 				HTMLURL: "http://localhost/example/test/pull/2",
 			},
@@ -55,7 +55,7 @@ func TestRepoGetPullReq(t *testing.T) {
 		Issue: github.Issue{
 			Number:  1,
 			Title:   "Example title 1",
-			State:   "closed",
+			State:   github.IssueStateClosed,
 			Body:    "Example body 1",
 			HTMLURL: "http://localhost/example/test/pull/1",
 		},

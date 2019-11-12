@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strconv"
 )
 
 // Issue represents an issue.
 type Issue struct {
 	Number      int               `json:"number"`
 	Title       string            `json:"title"`
-	State       string            `json:"state"`
+	State       IssueState        `json:"state"`
 	Body        string            `json:"body"`
 	HTMLURL     string            `json:"html_url"`
 	User        *User             `json:"user"`
@@ -21,6 +22,53 @@ type Issue struct {
 	ClosedBy    *User             `json:"closed_by,omitempty"`
 	Labels      []*Label          `json:"labels"`
 	PullRequest *IssuePullRequest `json:"pull_request"`
+}
+
+// IssueState ...
+type IssueState int
+
+// IssueState ...
+const (
+	IssueStateOpen IssueState = iota + 1
+	IssueStateClosed
+)
+
+var stringToIssueState = map[string]IssueState{
+	"open":   IssueStateOpen,
+	"closed": IssueStateClosed,
+}
+
+var issueStateToString = map[IssueState]string{
+	IssueStateOpen:   "open",
+	IssueStateClosed: "closed",
+}
+
+// UnmarshalJSON implements json.Unmarshaler
+func (t *IssueState) UnmarshalJSON(b []byte) error {
+	var s string
+	if err := json.Unmarshal(b, &s); err != nil {
+		return err
+	}
+	if x, ok := stringToIssueState[s]; ok {
+		*t = x
+		return nil
+	}
+	return fmt.Errorf("unknown issue state: %q", s)
+}
+
+// MarshalJSON implements json.Marshaler
+func (t IssueState) MarshalJSON() ([]byte, error) {
+	return json.Marshal(t.String())
+}
+
+// String implements Stringer
+func (t IssueState) String() string {
+	return issueStateToString[t]
+}
+
+// GoString implements GoString
+func (t IssueState) GoString() string {
+	return strconv.Quote(t.String())
 }
 
 // IssueType ...

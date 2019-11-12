@@ -69,7 +69,7 @@ func (m *migrator) migrateIssue(
 	}
 	var reviewComments []*github.ReviewComment
 	var sourcePullReq *github.PullReq
-	if sourceIssue.State != "open" {
+	if sourceIssue.State != github.IssueStateOpen {
 		if sourceIssue.PullRequest != nil {
 			sourcePullReq, err = m.source.GetPullReq(sourceIssue.Number)
 			if err != nil {
