@@ -60,7 +60,7 @@ func (b *builder) build() *github.Import {
 }
 
 func (b *builder) buildImportBody() string {
-	return b.buildCommentedTable(
+	return b.buildUserActionBody(
 		b.issue.User,
 		fmt.Sprintf(
 			"created the original %s<br>imported from %s",
@@ -89,7 +89,7 @@ func (b *builder) buildImportIssueComments() []*github.ImportComment {
 	xs := make([]*github.ImportComment, len(b.comments))
 	for i, c := range b.comments {
 		xs[i] = &github.ImportComment{
-			Body:      b.buildCommentedTable(c.User, "commented", c.Body),
+			Body:      b.buildUserActionBody(c.User, "commented", c.Body),
 			CreatedAt: c.CreatedAt,
 		}
 	}
@@ -99,16 +99,16 @@ func (b *builder) buildImportIssueComments() []*github.ImportComment {
 func (b *builder) buildImportReviews() []*github.ImportComment {
 	var xs []*github.ImportComment
 	for _, c := range b.reviews {
-		var comment string
+		var action string
 		if c.State == github.ReviewStateApproved {
-			comment = "approved"
+			action = "approved"
 		} else if c.State == github.ReviewStateChangesRequested {
-			comment = "requested changes"
+			action = "requested changes"
 		} else {
 			continue
 		}
 		xs = append(xs, &github.ImportComment{
-			Body:      b.buildCommentedTable(c.User, comment, c.Body),
+			Body:      b.buildUserActionBody(c.User, action, c.Body),
 			CreatedAt: c.SubmittedAt,
 		})
 	}
@@ -121,13 +121,13 @@ func (b *builder) buildImportReviewComments() []*github.ImportComment {
 	for _, c := range b.reviewComments {
 		if i, ok := indexByID[c.InReplyToID]; ok {
 			indexByID[c.ID] = i
-			xs[i].Body += "\n\n" + b.buildCommentedTable(c.User, "commented", c.Body)
+			xs[i].Body += "\n\n" + b.buildUserActionBody(c.User, "commented", c.Body)
 			continue
 		}
 		indexByID[c.ID] = len(xs)
+		diffBody := strings.Join([]string{"```diff", "# " + c.Path, c.DiffHunk, "```"}, "\n")
 		xs = append(xs, &github.ImportComment{
-			Body: strings.Join([]string{"```diff", "# " + c.Path, c.DiffHunk, "```\n\n"}, "\n") +
-				b.buildCommentedTable(c.User, "commented", c.Body),
+			Body:      diffBody + "\n\n" + b.buildUserActionBody(c.User, "commented", c.Body),
 			CreatedAt: c.CreatedAt,
 		})
 	}
@@ -139,37 +139,36 @@ func (b *builder) buildClosedComment() *github.ImportComment {
 		return nil
 	}
 	var user *github.User
-	var comment string
+	var action string
 	var closedAt string
-	if b.pullReq != nil {
-		if b.pullReq.MergedBy != nil {
-			user = b.pullReq.MergedBy
-			comment = fmt.Sprintf("merged the %s", b.issue.Type())
-			closedAt = b.pullReq.MergedAt
-		} else {
-			user = b.issue.ClosedBy
-			comment = fmt.Sprintf("closed the %s without merging", b.issue.Type())
-			closedAt = b.issue.ClosedAt
-		}
+	if b.pullReq == nil {
+		user = b.issue.ClosedBy
+		action = "closed the issue"
+		closedAt = b.issue.ClosedAt
+	} else if b.pullReq.MergedBy != nil {
+		user = b.pullReq.MergedBy
+		action = "merged the pull request"
+		closedAt = b.pullReq.MergedAt
 	} else {
 		user = b.issue.ClosedBy
-		comment = fmt.Sprintf("closed the %s", b.issue.Type())
+		action = "closed the pull request without merging"
 		closedAt = b.issue.ClosedAt
 	}
 	return &github.ImportComment{
-		Body: b.buildTable(
-			b.buildImageTag(user),
-			fmt.Sprintf("@%s %s", b.commentFilters.apply(user.Login), comment),
-		),
+		Body:      b.buildUserActionBody(user, action, ""),
 		CreatedAt: closedAt,
 	}
 }
 
-func (b *builder) buildCommentedTable(user *github.User, action, body string) string {
+func (b *builder) buildUserActionBody(user *github.User, action, body string) string {
+	var suffix string
+	if body != "" {
+		suffix = "\n\n" + b.commentFilters.apply(body)
+	}
 	return b.buildTable(
 		b.buildImageTag(user),
 		fmt.Sprintf("@%s %s", b.commentFilters.apply(user.Login), action),
-	) + "\n\n" + b.commentFilters.apply(body)
+	) + suffix
 }
 
 func (b *builder) buildImageTag(user *github.User) string {
