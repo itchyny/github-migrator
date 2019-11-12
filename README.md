@@ -38,7 +38,8 @@ export GITHUB_MIGRATOR_USER_MAPPING=user-before1:user-after1,user-before2:user-a
 - Labels
   - Label name, description and colors
 - All the other things will be lost
-  - Issue and pull request reactions
+  - Emoji reactions to issue and pull request comments
+  - Label changing logs in issue and pull request
   - Diffs (split) view of pull requests
   - Wiki
   - Projects, Milestones (will be implemented in the near future)
