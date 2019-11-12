@@ -76,7 +76,7 @@ type IssueType int
 
 // IssueType ...
 const (
-	IssueTypeIssue IssueType = iota
+	IssueTypeIssue IssueType = iota + 1
 	IssueTypePullReq
 )
 
@@ -164,7 +164,7 @@ type ListIssuesParamFilter int
 
 // ListIssuesParamFilter ...
 const (
-	ListIssuesParamFilterDefault ListIssuesParamFilter = iota
+	ListIssuesParamFilterDefault ListIssuesParamFilter = iota + 1
 	ListIssuesParamFilterAssigned
 	ListIssuesParamFilterCreated
 	ListIssuesParamFilterMentioned
@@ -194,7 +194,7 @@ type ListIssuesParamState int
 
 // ListIssuesParamState ...
 const (
-	ListIssuesParamStateDefault ListIssuesParamState = iota
+	ListIssuesParamStateDefault ListIssuesParamState = iota + 1
 	ListIssuesParamStateOpen
 	ListIssuesParamStateClosed
 	ListIssuesParamStateAll
@@ -218,7 +218,7 @@ type ListIssuesParamSort int
 
 // ListIssuesParamSort ...
 const (
-	ListIssuesParamSortDefault ListIssuesParamSort = iota
+	ListIssuesParamSortDefault ListIssuesParamSort = iota + 1
 	ListIssuesParamSortCreated
 	ListIssuesParamSortUpdated
 	ListIssuesParamSortComments
@@ -242,7 +242,7 @@ type ListIssuesParamDirection int
 
 // ListIssuesParamDirection ...
 const (
-	ListIssuesParamDirectionDefault ListIssuesParamDirection = iota
+	ListIssuesParamDirectionDefault ListIssuesParamDirection = iota + 1
 	ListIssuesParamDirectionAsc
 	ListIssuesParamDirectionDesc
 )

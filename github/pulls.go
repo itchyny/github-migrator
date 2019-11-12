@@ -73,7 +73,7 @@ type ListPullReqsParamState int
 
 // ListPullReqsParamState ...
 const (
-	ListPullReqsParamStateDefault ListPullReqsParamState = iota
+	ListPullReqsParamStateDefault ListPullReqsParamState = iota + 1
 	ListPullReqsParamStateOpen
 	ListPullReqsParamStateClosed
 	ListPullReqsParamStateAll
@@ -97,7 +97,7 @@ type ListPullReqsParamSort int
 
 // ListPullReqsParamSort ...
 const (
-	ListPullReqsParamSortDefault ListPullReqsParamSort = iota
+	ListPullReqsParamSortDefault ListPullReqsParamSort = iota + 1
 	ListPullReqsParamSortCreated
 	ListPullReqsParamSortUpdated
 	ListPullReqsParamSortPopularity
@@ -124,7 +124,7 @@ type ListPullReqsParamDirection int
 
 // ListPullReqsParamDirection ...
 const (
-	ListPullReqsParamDirectionDefault ListPullReqsParamDirection = iota
+	ListPullReqsParamDirectionDefault ListPullReqsParamDirection = iota + 1
 	ListPullReqsParamDirectionAsc
 	ListPullReqsParamDirectionDesc
 )
