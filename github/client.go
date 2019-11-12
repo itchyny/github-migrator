@@ -23,6 +23,7 @@ type Client interface {
 	ListComments(string, int) Comments
 	ListPullReqs(string, *ListPullReqsParams) PullReqs
 	GetPullReq(string, int) (*PullReq, error)
+	ListReviews(string, int) Reviews
 	ListReviewComments(string, int) ReviewComments
 	Import(string, *Import) (*ImportResult, error)
 	GetImport(string, int) (*ImportResult, error)
