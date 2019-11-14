@@ -165,10 +165,10 @@ func (b *builder) buildUserActionBody(user *github.User, action, body string) st
 	if body != "" {
 		suffix = "\n\n" + b.commentFilters.apply(body)
 	}
-	return b.buildTable(
+	return b.buildTable(2, []string{
 		b.buildImageTag(user),
 		fmt.Sprintf("@%s %s", b.commentFilters.apply(user.Login), action),
-	) + suffix
+	}) + suffix
 }
 
 func (b *builder) buildImageTag(user *github.User) string {
@@ -179,16 +179,26 @@ func (b *builder) buildImageTag(user *github.User) string {
 	return fmt.Sprintf(`<img src="https://github.com/%s.png" width="35">`, target)
 }
 
-func (b *builder) buildTable(xs ...string) string {
+func (b *builder) buildTable(width int, xss ...[]string) string {
 	s := new(strings.Builder)
 	s.WriteString("<table>\n")
-	s.WriteString("  <tr>\n")
-	for _, x := range xs {
-		s.WriteString("    <td>\n")
-		s.WriteString("      " + x + "\n")
-		s.WriteString("    </td>\n")
+	for _, xs := range xss {
+		s.WriteString("<tr>\n")
+		for i, x := range xs {
+			if i == len(xs)-1 && len(xs) < width {
+				s.WriteString(fmt.Sprintf(`  <td colspan="%d">\n`, width-i))
+			} else {
+				s.WriteString("  <td>\n")
+			}
+			if !strings.Contains(x, "\n") {
+				s.WriteString("    " + x + "\n")
+			} else {
+				s.WriteString("  " + x + "\n")
+			}
+			s.WriteString("  </td>\n")
+		}
+		s.WriteString("</tr>\n")
 	}
-	s.WriteString("  </tr>\n")
 	s.WriteString("</table>\n")
 	return s.String()
 }

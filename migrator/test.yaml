@@ -150,14 +150,14 @@
           title: Example title 1
           body: |
             <table>
-              <tr>
-                <td>
-                  <img src="https://github.com/sample-user-1.png" width="35">
-                </td>
-                <td>
-                  @sample-user-1 created the original issue<br>imported from <a href="http://localhost/example/source/issues/1">example/source#1</a>
-                </td>
-              </tr>
+            <tr>
+              <td>
+                <img src="https://github.com/sample-user-1.png" width="35">
+              </td>
+              <td>
+                @sample-user-1 created the original issue<br>imported from <a href="http://localhost/example/source/issues/1">example/source#1</a>
+              </td>
+            </tr>
             </table>
 
 
@@ -168,27 +168,27 @@
         comments:
           - body: |
               <table>
-                <tr>
-                  <td>
-                    <img src="https://github.com/sample-user-2.png" width="35">
-                  </td>
-                  <td>
-                    @sample-user-2 closed the issue
-                  </td>
-                </tr>
-              </table>
-      - issue:
-          title: Example title 2
-          body: |
-            <table>
               <tr>
                 <td>
                   <img src="https://github.com/sample-user-2.png" width="35">
                 </td>
                 <td>
-                  @sample-user-2 created the original issue<br>imported from <a href="http://localhost/example/source/issues/2">example/source#2</a>
+                  @sample-user-2 closed the issue
                 </td>
               </tr>
+              </table>
+      - issue:
+          title: Example title 2
+          body: |
+            <table>
+            <tr>
+              <td>
+                <img src="https://github.com/sample-user-2.png" width="35">
+              </td>
+              <td>
+                @sample-user-2 created the original issue<br>imported from <a href="http://localhost/example/source/issues/2">example/source#2</a>
+              </td>
+            </tr>
             </table>
 
 
@@ -202,28 +202,28 @@
         comments:
           - body: |
               <table>
-                <tr>
-                  <td>
-                    <img src="https://github.com/sample-user-1.png" width="35">
-                  </td>
-                  <td>
-                    @sample-user-1 commented
-                  </td>
-                </tr>
+              <tr>
+                <td>
+                  <img src="https://github.com/sample-user-1.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1 commented
+                </td>
+              </tr>
               </table>
 
 
               Example comment body 1
           - body: |
               <table>
-                <tr>
-                  <td>
-                    <img src="https://github.com/sample-user-2.png" width="35">
-                  </td>
-                  <td>
-                    @sample-user-2 commented
-                  </td>
-                </tr>
+              <tr>
+                <td>
+                  <img src="https://github.com/sample-user-2.png" width="35">
+                </td>
+                <td>
+                  @sample-user-2 commented
+                </td>
+              </tr>
               </table>
 
 
@@ -361,14 +361,14 @@
           title: Example title 3
           body: |
             <table>
-              <tr>
-                <td>
-                  <img src="https://github.com/github.png" width="35">
-                </td>
-                <td>
-                  @sample-user-3 created the original pull request<br>imported from <a href="http://localhost/example/source/pull/3">example/source#3</a>
-                </td>
-              </tr>
+            <tr>
+              <td>
+                <img src="https://github.com/github.png" width="35">
+              </td>
+              <td>
+                @sample-user-3 created the original pull request<br>imported from <a href="http://localhost/example/source/pull/3">example/source#3</a>
+              </td>
+            </tr>
             </table>
 
 
@@ -379,14 +379,14 @@
         comments:
           - body: |
               <table>
-                <tr>
-                  <td>
-                    <img src="https://github.com/sample-user-1-2.png" width="35">
-                  </td>
-                  <td>
-                    @sample-user-1-2 commented
-                  </td>
-                </tr>
+              <tr>
+                <td>
+                  <img src="https://github.com/sample-user-1-2.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1-2 commented
+                </td>
+              </tr>
               </table>
 
 
@@ -400,14 +400,14 @@
               ```
 
               <table>
-                <tr>
-                  <td>
-                    <img src="https://github.com/sample-user-1-2.png" width="35">
-                  </td>
-                  <td>
-                    @sample-user-1-2 commented
-                  </td>
-                </tr>
+              <tr>
+                <td>
+                  <img src="https://github.com/sample-user-1-2.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1-2 commented
+                </td>
+              </tr>
               </table>
 
 
@@ -421,14 +421,14 @@
               ```
 
               <table>
-                <tr>
-                  <td>
-                    <img src="https://github.com/github.png" width="35">
-                  </td>
-                  <td>
-                    @sample-user-3 commented
-                  </td>
-                </tr>
+              <tr>
+                <td>
+                  <img src="https://github.com/github.png" width="35">
+                </td>
+                <td>
+                  @sample-user-3 commented
+                </td>
+              </tr>
               </table>
 
 
@@ -441,56 +441,56 @@
               ```
 
               <table>
-                <tr>
-                  <td>
-                    <img src="https://github.com/github.png" width="35">
-                  </td>
-                  <td>
-                    @sample-user-1 commented
-                  </td>
-                </tr>
+              <tr>
+                <td>
+                  <img src="https://github.com/github.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1 commented
+                </td>
+              </tr>
               </table>
 
 
               nice. see http://localhost/example/target/issues/2.
           - body: |
               <table>
-                <tr>
-                  <td>
-                    <img src="https://github.com/github.png" width="35">
-                  </td>
-                  <td>
-                    @sample-user-1 requested changes
-                  </td>
-                </tr>
+              <tr>
+                <td>
+                  <img src="https://github.com/github.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1 requested changes
+                </td>
+              </tr>
               </table>
 
 
               Please fix here.
           - body: |
               <table>
-                <tr>
-                  <td>
-                    <img src="https://github.com/sample-user-1-2.png" width="35">
-                  </td>
-                  <td>
-                    @sample-user-1-2 approved
-                  </td>
-                </tr>
+              <tr>
+                <td>
+                  <img src="https://github.com/sample-user-1-2.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1-2 approved
+                </td>
+              </tr>
               </table>
 
 
               LGTM
           - body: |
               <table>
-                <tr>
-                  <td>
-                    <img src="https://github.com/sample-user-1-2.png" width="35">
-                  </td>
-                  <td>
-                    @sample-user-1-2 merged the pull request
-                  </td>
-                </tr>
+              <tr>
+                <td>
+                  <img src="https://github.com/sample-user-1-2.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1-2 merged the pull request
+                </td>
+              </tr>
               </table>
 
   user_mapping:
