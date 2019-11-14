@@ -218,7 +218,11 @@ func (b *builder) buildClosedComment() *github.ImportComment {
 		closedAt = b.issue.ClosedAt
 	} else if b.pullReq.MergedBy != nil {
 		user = b.pullReq.MergedBy
-		action = "merged the pull request"
+		action = fmt.Sprintf(
+			"merged the pull request<br>commit %s into <code>%s</code> from <code>%s</code>",
+			b.buildCommitLinkTag(b.target, b.pullReq.MergeCommitSHA),
+			b.pullReq.Base.Ref, b.pullReq.Head.Ref,
+		)
 		closedAt = b.pullReq.MergedAt
 	} else {
 		user = b.issue.ClosedBy
@@ -305,6 +309,10 @@ func makeIndent(indent, str string) string {
 
 func (b *builder) buildIssueLinkTag(repo *github.Repo, issue *github.Issue) string {
 	return fmt.Sprintf(`<a href="%s">%s#%d</a>`, issue.HTMLURL, repo.FullName, issue.Number)
+}
+
+func (b *builder) buildCommitLinkTag(repo *github.Repo, sha string) string {
+	return fmt.Sprintf(`<a href="%s/commit/%s">%s</a>`, repo.HTMLURL, sha, sha[:7])
 }
 
 func (b *builder) buildCompareLinkTag(repo *github.Repo, base, head string) string {

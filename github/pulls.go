@@ -9,21 +9,23 @@ import (
 // PullReq represents a pull request.
 type PullReq struct {
 	Issue
-	Merged       bool        `json:"merged"`
-	MergedAt     string      `json:"merged_at"`
-	MergedBy     *User       `json:"merged_by"`
-	Draft        bool        `json:"draft"`
-	Head         *PullReqRef `json:"head"`
-	Base         *PullReqRef `json:"base"`
-	Commits      int         `json:"commits"`
-	Additions    int         `json:"additions"`
-	Deletions    int         `json:"deletions"`
-	ChangedFiles int         `json:"changed_files"`
+	Merged         bool        `json:"merged"`
+	MergedAt       string      `json:"merged_at"`
+	MergedBy       *User       `json:"merged_by"`
+	MergeCommitSHA string      `json:"merge_commit_sha"`
+	Draft          bool        `json:"draft"`
+	Head           *PullReqRef `json:"head"`
+	Base           *PullReqRef `json:"base"`
+	Commits        int         `json:"commits"`
+	Additions      int         `json:"additions"`
+	Deletions      int         `json:"deletions"`
+	ChangedFiles   int         `json:"changed_files"`
 }
 
 // PullReqRef ...
 type PullReqRef struct {
 	SHA  string `json:"sha"`
+	Ref  string `json:"ref"`
 	User *User  `json:"user"`
 	Repo *Repo  `json:"repo"`
 }

@@ -282,11 +282,14 @@
           html_url: http://localhost/example/source/pull/3
         merged: true
         merged_by: *user2
+        merge_commit_sha: sha222222
         head:
           sha: sha111111
+          ref: staging
           repo: *source
         base:
           sha: sha000000
+          ref: master
           repo: *source
         commits: 3
         additions: 1
@@ -579,7 +582,7 @@
                   <img src="https://github.com/sample-user-1-2.png" width="35">
                 </td>
                 <td>
-                  @sample-user-1-2 merged the pull request
+                  @sample-user-1-2 merged the pull request<br>commit <a href="http://localhost/example/target/commit/sha222222">sha2222</a> into <code>master</code> from <code>staging</code>
                 </td>
               </tr>
               </table>
