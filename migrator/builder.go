@@ -316,7 +316,7 @@ func (b *builder) buildCommitLinkTag(repo *github.Repo, sha string) string {
 }
 
 func (b *builder) buildCompareLinkTag(repo *github.Repo, base, head string) string {
-	return fmt.Sprintf(`<a href="%s/%s...%s">%s...%s</a>`, repo.HTMLURL, base, head, base[:7], head[:7])
+	return fmt.Sprintf(`<a href="%s/compare/%s...%s">%s...%s</a>`, repo.HTMLURL, base, head, base[:7], head[:7])
 }
 
 func (b *builder) buildImportLabels(issue *github.Issue) []string {
