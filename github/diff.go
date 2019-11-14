@@ -14,7 +14,20 @@ func getDiffPath(repo string, sha string) string {
 }
 
 func (c *client) GetDiff(repo string, sha string) (string, error) {
-	req, err := c.request("GET", c.url(getDiffPath(repo, sha)), nil)
+	return c.getDiff(getDiffPath(repo, sha))
+}
+
+func getComparePath(repo string, base, head string) string {
+	return newPath(fmt.Sprintf("/repos/%s/compare/%s...%s", repo, base, head)).
+		String()
+}
+
+func (c *client) GetCompare(repo string, base, head string) (string, error) {
+	return c.getDiff(getComparePath(repo, base, head))
+}
+
+func (c *client) getDiff(path string) (string, error) {
+	req, err := c.request("GET", c.url(path), nil)
 	if err != nil {
 		return "", err
 	}
@@ -41,7 +54,7 @@ func (c *client) GetDiff(repo string, sha string) (string, error) {
 		if r.Message != "" {
 			return "", errors.New(r.Message)
 		}
-		return "", fmt.Errorf("failed to get diff of: %s, %s", repo, sha)
+		return "", fmt.Errorf("failed to get %s", path)
 	}
 
 	return string(bs), nil

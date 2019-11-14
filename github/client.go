@@ -25,6 +25,7 @@ type Client interface {
 	GetPullReq(string, int) (*PullReq, error)
 	ListPullReqCommits(string, int) Commits
 	GetDiff(string, string) (string, error)
+	GetCompare(string, string, string) (string, error)
 	ListReviews(string, int) Reviews
 	ListReviewComments(string, int) ReviewComments
 	Import(string, *Import) (*ImportResult, error)

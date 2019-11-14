@@ -16,6 +16,7 @@ type MockClient struct {
 	getPullReqCallback         func(string, int) (*PullReq, error)
 	listPullReqCommitsCallback func(string, int) Commits
 	getDiffCallback            func(string, string) (string, error)
+	getCompareCallback         func(string, string, string) (string, error)
 	listReviewsCallback        func(string, int) Reviews
 	listReviewCommentsCallback func(string, int) ReviewComments
 	importCallback             func(string, *Import) (*ImportResult, error)
@@ -241,6 +242,21 @@ func (c *MockClient) GetDiff(repo string, sha string) (string, error) {
 func MockGetDiff(callback func(string, string) (string, error)) MockClientOption {
 	return func(c *MockClient) {
 		c.getDiffCallback = callback
+	}
+}
+
+// GetCompare ...
+func (c *MockClient) GetCompare(repo string, base, head string) (string, error) {
+	if c.getCompareCallback != nil {
+		return c.getCompareCallback(getComparePath(repo, base, head), base, head)
+	}
+	panic("MockClient#GetCompare")
+}
+
+// MockGetCompare ...
+func MockGetCompare(callback func(string, string, string) (string, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.getCompareCallback = callback
 	}
 }
 
