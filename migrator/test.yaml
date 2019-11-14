@@ -289,7 +289,7 @@
           sha: sha000000
           repo: *source
         commits: 3
-        additions: 36
+        additions: 1
         deletions: 20
         changed_files: 5
         comments:
@@ -418,7 +418,7 @@
             <tr>
               <td colspan="2">
               <details>
-                <summary>5 files changed, 36 insertions(+), 20 deletions(-)</summary>
+                <summary>5 files changed, 1 insertion(+), 20 deletions(-)</summary>
 
             ```diff
             diff --git a/README.md b/README.md

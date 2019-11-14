@@ -97,20 +97,20 @@ func (b *builder) buildImportBody() string {
 }
 
 func (b *builder) buildDiffDetails() string {
-	summary := fmt.Sprintf(
-		"%d files changed, %d insertions(+), %d deletions(-)",
-		b.pullReq.ChangedFiles, b.pullReq.Additions, b.pullReq.Deletions,
-	)
+	summary := plural(b.pullReq.ChangedFiles, "file") + " changed"
+	if b.pullReq.Additions > 0 {
+		summary += ", " + plural(b.pullReq.Additions, "insertion") + "(+)"
+	}
+	if b.pullReq.Deletions > 0 {
+		summary += ", " + plural(b.pullReq.Deletions, "deletion") + "(-)"
+	}
 	return b.buildDetails("  ", summary, "\n```diff\n"+
 		escapeBackQuotes(truncateDiff(b.commitDiff))+
 		"```\n")
 }
 
 func (b *builder) buildCommitDetails() string {
-	summary := fmt.Sprintf("%d commit", b.pullReq.Commits)
-	if b.pullReq.Commits > 1 {
-		summary += "s"
-	}
+	summary := plural(b.pullReq.Commits, "commit")
 	var commitRows [][]string
 	for i, c := range b.commits {
 		if i > 0 {
@@ -133,6 +133,13 @@ func (b *builder) buildCommitDetails() string {
 		})
 	}
 	return b.buildDetails("", summary, b.buildTable(1, commitRows...))
+}
+
+func plural(count int, unit string) string {
+	if count == 1 {
+		return fmt.Sprintf("%d %s", count, unit)
+	}
+	return fmt.Sprintf("%d %ss", count, unit)
 }
 
 func (b *builder) buildImportComments() []*github.ImportComment {
