@@ -16,6 +16,7 @@ type Repo interface {
 	ListPullReqs() github.PullReqs
 	GetPullReq(int) (*github.PullReq, error)
 	ListPullReqCommits(int) github.Commits
+	GetDiff(string) (string, error)
 	ListReviews(int) github.Reviews
 	ListReviewComments(int) github.ReviewComments
 	Import(*github.Import) (*github.ImportResult, error)
