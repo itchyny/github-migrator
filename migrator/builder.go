@@ -76,6 +76,9 @@ func (b *builder) buildImportBody() string {
 		b.issue.Type(),
 		b.buildIssueLinkTag(b.source, b.issue),
 	)
+	if b.pullReq != nil {
+		action += "<br>" + b.buildCompareLinkTag(b.target, b.pullReq.Base.SHA, b.pullReq.Head.SHA)
+	}
 	tableRows := [][]string{
 		[]string{
 			b.buildImageTag(b.issue.User, 35),
@@ -295,6 +298,10 @@ func makeIndent(indent, str string) string {
 
 func (b *builder) buildIssueLinkTag(repo *github.Repo, issue *github.Issue) string {
 	return fmt.Sprintf(`<a href="%s">%s#%d</a>`, issue.HTMLURL, repo.FullName, issue.Number)
+}
+
+func (b *builder) buildCompareLinkTag(repo *github.Repo, base, head string) string {
+	return fmt.Sprintf(`<a href="%s/%s...%s">%s...%s</a>`, repo.HTMLURL, base, head, base[:7], head[:7])
 }
 
 func (b *builder) buildImportLabels(issue *github.Issue) []string {

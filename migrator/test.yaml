@@ -411,7 +411,7 @@
                 <img src="https://github.com/github.png" width="35">
               </td>
               <td>
-                @sample-user-3 created the original pull request<br>imported from <a href="http://localhost/example/source/pull/3">example/source#3</a>
+                @sample-user-3 created the original pull request<br>imported from <a href="http://localhost/example/source/pull/3">example/source#3</a><br><a href="http://localhost/example/target/sha000000...sha111111">sha0000...sha1111</a>
               </td>
             </tr>
             <tr></tr>
