@@ -288,12 +288,16 @@
         base:
           sha: sha000000
           repo: *source
+        commits: 3
+        additions: 36
+        deletions: 20
+        changed_files: 5
         comments:
           - body: |
               LGTM
             html_url: http://localhost/example/source/issues/3#issuecomment-1
             user: *user2
-        commits:
+        commit_details:
           - sha: shaxxxyyx
             html_url: http://localhost/example/source/commit/shaxxxyyx
             commit:
@@ -414,7 +418,7 @@
             <tr>
               <td colspan="2">
               <details>
-                <summary>diff</summary>
+                <summary>5 files changed, 36 insertions(+), 20 deletions(-)</summary>
 
             ```diff
             diff --git a/README.md b/README.md
@@ -433,7 +437,7 @@
             <tr>
               <td colspan="2">
                 <details>
-                  <summary>commits</summary>
+                  <summary>3 commits</summary>
                   <table>
                   <tr>
                     <td>

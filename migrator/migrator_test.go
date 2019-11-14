@@ -30,7 +30,7 @@ type testRepo struct {
 	Issues       []struct {
 		*github.PullReq
 		Comments       []*github.Comment       `json:"comments"`
-		Commits        []*github.Commit        `json:"commits"`
+		Commits        []*github.Commit        `json:"commit_details"`
 		Reviews        []*github.Review        `json:"reviews"`
 		ReviewComments []*github.ReviewComment `json:"review_comments"`
 	}

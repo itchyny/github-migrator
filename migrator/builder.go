@@ -94,10 +94,18 @@ func (b *builder) buildImportBody() string {
 }
 
 func (b *builder) buildDiffDetails() string {
-	return b.buildDetails("  ", "diff", "\n```diff\n"+b.commitDiff+"```\n")
+	summary := fmt.Sprintf(
+		"%d files changed, %d insertions(+), %d deletions(-)",
+		b.pullReq.ChangedFiles, b.pullReq.Additions, b.pullReq.Deletions,
+	)
+	return b.buildDetails("  ", summary, "\n```diff\n"+b.commitDiff+"```\n")
 }
 
 func (b *builder) buildCommitDetails() string {
+	summary := fmt.Sprintf("%d commit", b.pullReq.Commits)
+	if b.pullReq.Commits > 1 {
+		summary += "s"
+	}
 	var commitRows [][]string
 	for i, c := range b.commits {
 		if i > 0 {
@@ -115,7 +123,7 @@ func (b *builder) buildCommitDetails() string {
 				fmt.Sprintf(` <a href="%s">%s</a>`, b.commentFilters.apply(c.HTMLURL), c.SHA[:7]),
 		})
 	}
-	return b.buildDetails("", "commits", b.buildTable(1, commitRows...))
+	return b.buildDetails("", summary, b.buildTable(1, commitRows...))
 }
 
 func (b *builder) buildImportComments() []*github.ImportComment {
