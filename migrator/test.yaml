@@ -387,7 +387,7 @@
           body: |
             <table>
             <tr>
-              <td>
+              <td width="60">
                 <img src="https://github.com/github.png" width="35">
               </td>
               <td>

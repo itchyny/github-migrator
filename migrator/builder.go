@@ -228,6 +228,8 @@ func (b *builder) buildTable(width int, xss ...[]string) string {
 		for i, x := range xs {
 			if i == len(xs)-1 && len(xs) < width {
 				s.WriteString(fmt.Sprintf("  <td colspan=\"%d\">\n", width-i))
+			} else if i == 0 && len(xss) > 1 && strings.HasPrefix(x, `<img src="`) && !strings.Contains(x, "\n") {
+				s.WriteString("  <td width=\"60\">\n")
 			} else {
 				s.WriteString("  <td>\n")
 			}
