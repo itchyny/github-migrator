@@ -69,6 +69,7 @@ func (m *migrator) migrateIssue(
 	}
 	var sourcePullReq *github.PullReq
 	var commits []*github.Commit
+	var commitDiff string
 	var reviews []*github.Review
 	var reviewComments []*github.ReviewComment
 	if sourceIssue.PullRequest != nil {
@@ -77,6 +78,11 @@ func (m *migrator) migrateIssue(
 			return nil, err
 		}
 		commits, err = github.CommitsToSlice(m.source.ListPullReqCommits(sourceIssue.Number))
+		if err != nil {
+			return nil, err
+		}
+		commitDiff, err = m.source.NewPath(sourcePullReq.Base.Repo.FullName).
+			GetCompare(sourcePullReq.Base.SHA, sourcePullReq.Head.SHA)
 		if err != nil {
 			return nil, err
 		}
@@ -106,7 +112,7 @@ func (m *migrator) migrateIssue(
 	return m.target.Import(
 		buildImport(
 			sourceRepo, targetRepo, commentFilters,
-			sourceIssue, sourcePullReq, comments, commits,
+			sourceIssue, sourcePullReq, comments, commits, commitDiff,
 			reviews, reviewComments, members,
 		),
 	)

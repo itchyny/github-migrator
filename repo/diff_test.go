@@ -15,7 +15,7 @@ index 1234567..89abcde 100644
 +++ b/README.md
 @@ -1,6 +1,16 @@
  # README
-+deleted
+-deleted
 +added
 `
 	repo := New(github.NewMockClient(
@@ -36,7 +36,7 @@ index 1234567..89abcde 100644
 +++ b/README.md
 @@ -1,6 +1,16 @@
  # README
-+deleted
+-deleted
 +added
 `
 	repo := New(github.NewMockClient(

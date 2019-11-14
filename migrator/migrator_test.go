@@ -34,6 +34,7 @@ type testRepo struct {
 		Reviews        []*github.Review        `json:"reviews"`
 		ReviewComments []*github.ReviewComment `json:"review_comments"`
 	}
+	Compare map[string]string
 	Imports []*github.Import `json:"imports"`
 }
 
@@ -126,6 +127,13 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 				}
 			}
 			panic(fmt.Sprintf("unexpected pull request number: %d", pullNumber))
+		}),
+		github.MockGetCompare(func(path string, base, head string) (string, error) {
+			assert.True(t, !isTarget)
+			if diff, ok := r.Compare[base+"..."+head]; ok {
+				return diff, nil
+			}
+			panic(fmt.Sprintf("unexpected compare: %s...%s", base, head))
 		}),
 		github.MockListReviews(func(path string, pullNumber int) github.Reviews {
 			assert.True(t, !isTarget)

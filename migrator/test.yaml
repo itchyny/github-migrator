@@ -1,7 +1,7 @@
 -
   name: repo
 
-  source:
+  source: &source
     repo:
       name: source
       full_name: example/source
@@ -282,6 +282,12 @@
           html_url: http://localhost/example/source/pull/3
         merged: true
         merged_by: *user2
+        head:
+          sha: sha111111
+          repo: *source
+        base:
+          sha: sha000000
+          repo: *source
         comments:
           - body: |
               LGTM
@@ -355,6 +361,16 @@
             body: |
               nice. see http://localhost/example/source/issues/2.
             user: *user1
+    compare:
+      sha000000...sha111111: |
+        diff --git a/README.md b/README.md
+        index 1234567..89abcde 100644
+        --- a/README.md
+        +++ b/README.md
+        @@ -1,6 +1,16 @@
+        # README
+        -deleted
+        +added
 
   target:
     members:
@@ -392,6 +408,25 @@
               </td>
               <td>
                 @sample-user-3 created the original pull request<br>imported from <a href="http://localhost/example/source/pull/3">example/source#3</a>
+              </td>
+            </tr>
+            <tr></tr>
+            <tr>
+              <td colspan="2">
+              <details>
+                <summary>diff</summary>
+
+            ```diff
+            diff --git a/README.md b/README.md
+            index 1234567..89abcde 100644
+            --- a/README.md
+            +++ b/README.md
+            @@ -1,6 +1,16 @@
+            # README
+            -deleted
+            +added
+            ```
+              </details>
               </td>
             </tr>
             <tr></tr>

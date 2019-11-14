@@ -16,6 +16,7 @@ type builder struct {
 	pullReq        *github.PullReq
 	comments       []*github.Comment
 	commits        []*github.Commit
+	commitDiff     string
 	reviews        []*github.Review
 	reviewComments []*github.ReviewComment
 	members        []*github.Member
@@ -24,7 +25,7 @@ type builder struct {
 func buildImport(
 	sourceRepo, targetRepo *github.Repo, commentFilters commentFilters,
 	issue *github.Issue, pullReq *github.PullReq,
-	comments []*github.Comment, commits []*github.Commit,
+	comments []*github.Comment, commits []*github.Commit, commitDiff string,
 	reviews []*github.Review, reviewComments []*github.ReviewComment,
 	members []*github.Member,
 ) *github.Import {
@@ -36,6 +37,7 @@ func buildImport(
 		pullReq:        pullReq,
 		comments:       comments,
 		commits:        commits,
+		commitDiff:     commitDiff,
 		reviews:        reviews,
 		reviewComments: reviewComments,
 		members:        members,
@@ -80,11 +82,19 @@ func (b *builder) buildImportBody() string {
 			fmt.Sprintf("@%s %s", b.commentFilters.apply(b.issue.User.Login), action),
 		},
 	}
+	if len(b.commitDiff) > 0 {
+		tableRows = append(tableRows, []string{})
+		tableRows = append(tableRows, []string{b.buildDiffDetails()})
+	}
 	if len(b.commits) > 0 {
 		tableRows = append(tableRows, []string{})
 		tableRows = append(tableRows, []string{b.buildCommitDetails()})
 	}
 	return b.buildTable(2, tableRows...) + suffix
+}
+
+func (b *builder) buildDiffDetails() string {
+	return b.buildDetails("  ", "diff", "\n```diff\n"+b.commitDiff+"```\n")
 }
 
 func (b *builder) buildCommitDetails() string {
@@ -105,7 +115,7 @@ func (b *builder) buildCommitDetails() string {
 				fmt.Sprintf(` <a href="%s">%s</a>`, b.commentFilters.apply(c.HTMLURL), c.SHA[:7]),
 		})
 	}
-	return b.buildDetails("commits", b.buildTable(1, commitRows...))
+	return b.buildDetails("", "commits", b.buildTable(1, commitRows...))
 }
 
 func (b *builder) buildImportComments() []*github.ImportComment {
@@ -233,7 +243,7 @@ func (b *builder) buildTable(width int, xss ...[]string) string {
 			} else {
 				s.WriteString("  <td>\n")
 			}
-			x := indent("    ", x)
+			x := makeIndent("    ", x)
 			if !strings.HasSuffix(x, "\n") {
 				x += "\n"
 			}
@@ -246,16 +256,16 @@ func (b *builder) buildTable(width int, xss ...[]string) string {
 	return s.String()
 }
 
-func (b *builder) buildDetails(summary, details string) string {
+func (b *builder) buildDetails(indent, summary, details string) string {
 	s := new(strings.Builder)
-	s.WriteString("<details>\n")
-	s.WriteString(fmt.Sprintf("  <summary>%s</summary>\n", html.EscapeString(summary)))
-	s.WriteString(indent("  ", details))
-	s.WriteString("</details>\n")
+	s.WriteString(indent + "<details>\n")
+	s.WriteString(fmt.Sprintf(indent+"  <summary>%s</summary>\n", html.EscapeString(summary)))
+	s.WriteString(makeIndent(indent+"  ", details))
+	s.WriteString(indent + "</details>\n")
 	return s.String()
 }
 
-func indent(indent, str string) string {
+func makeIndent(indent, str string) string {
 	if strings.Contains(str, "```") {
 		return str
 	}
