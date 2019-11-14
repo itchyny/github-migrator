@@ -114,14 +114,18 @@ func (b *builder) buildCommitDetails() string {
 			commitRows = append(commitRows, []string{})
 		}
 		var dateString string
+		committer := c.Committer
+		if committer == nil {
+			committer = c.Author
+		}
 		t, err := time.Parse(time.RFC3339, c.Commit.Committer.Date)
 		if err == nil {
 			dateString = t.Format(" on Mon 2, 2006")
 		}
 		commitRows = append(commitRows, []string{
 			html.EscapeString(c.Commit.Message) + `<br>` +
-				b.buildImageTag(c.Committer, 16) +
-				fmt.Sprintf(" @%s comitted%s", b.commentFilters.apply(c.Committer.Login), dateString) +
+				b.buildImageTag(committer, 16) +
+				fmt.Sprintf(" @%s comitted%s", b.commentFilters.apply(committer.Login), dateString) +
 				fmt.Sprintf(` <a href="%s">%s</a>`, b.commentFilters.apply(c.HTMLURL), c.SHA[:7]),
 		})
 	}
