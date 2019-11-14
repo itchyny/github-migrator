@@ -151,7 +151,7 @@
           body: |
             <table>
             <tr>
-              <td>
+              <td width="60">
                 <img src="https://github.com/sample-user-1.png" width="35">
               </td>
               <td>
@@ -169,7 +169,7 @@
           - body: |
               <table>
               <tr>
-                <td>
+                <td width="60">
                   <img src="https://github.com/sample-user-2.png" width="35">
                 </td>
                 <td>
@@ -182,7 +182,7 @@
           body: |
             <table>
             <tr>
-              <td>
+              <td width="60">
                 <img src="https://github.com/sample-user-2.png" width="35">
               </td>
               <td>
@@ -203,7 +203,7 @@
           - body: |
               <table>
               <tr>
-                <td>
+                <td width="60">
                   <img src="https://github.com/sample-user-1.png" width="35">
                 </td>
                 <td>
@@ -217,7 +217,7 @@
           - body: |
               <table>
               <tr>
-                <td>
+                <td width="60">
                   <img src="https://github.com/sample-user-2.png" width="35">
                 </td>
                 <td>
@@ -474,7 +474,7 @@
           - body: |
               <table>
               <tr>
-                <td>
+                <td width="60">
                   <img src="https://github.com/sample-user-1-2.png" width="35">
                 </td>
                 <td>
@@ -495,7 +495,7 @@
 
               <table>
               <tr>
-                <td>
+                <td width="60">
                   <img src="https://github.com/sample-user-1-2.png" width="35">
                 </td>
                 <td>
@@ -516,7 +516,7 @@
 
               <table>
               <tr>
-                <td>
+                <td width="60">
                   <img src="https://github.com/github.png" width="35">
                 </td>
                 <td>
@@ -536,7 +536,7 @@
 
               <table>
               <tr>
-                <td>
+                <td width="60">
                   <img src="https://github.com/github.png" width="35">
                 </td>
                 <td>
@@ -550,7 +550,7 @@
           - body: |
               <table>
               <tr>
-                <td>
+                <td width="60">
                   <img src="https://github.com/github.png" width="35">
                 </td>
                 <td>
@@ -564,7 +564,7 @@
           - body: |
               <table>
               <tr>
-                <td>
+                <td width="60">
                   <img src="https://github.com/sample-user-1-2.png" width="35">
                 </td>
                 <td>
@@ -578,7 +578,7 @@
           - body: |
               <table>
               <tr>
-                <td>
+                <td width="60">
                   <img src="https://github.com/sample-user-1-2.png" width="35">
                 </td>
                 <td>
