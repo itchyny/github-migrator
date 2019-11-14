@@ -287,6 +287,31 @@
               LGTM
             html_url: http://localhost/example/source/issues/3#issuecomment-1
             user: *user2
+        commits:
+          - sha: shaxxxyyx
+            html_url: http://localhost/example/source/commit/shaxxxyyx
+            commit:
+              committer:
+                name: sample-user-3
+                date: 2019-11-10T03:00:00Z
+              message: commit message 1
+            committer: *user3
+          - sha: shaxxxyyy
+            html_url: http://localhost/example/source/commit/shaxxxyyy
+            commit:
+              committer:
+                name: sample-user-3
+                date: 2019-11-10T03:10:00Z
+              message: commit message 2
+            committer: *user3
+          - sha: shaxxxyyz
+            html_url: http://localhost/example/source/commit/shaxxxyyz
+            commit:
+              committer:
+                name: sample-user-2
+                date: 2019-11-10T03:20:00Z
+              message: commit message 3
+            committer: *user2
         reviews:
           - id: 100
             state: CHANGES_REQUESTED
@@ -367,6 +392,33 @@
               </td>
               <td>
                 @sample-user-3 created the original pull request<br>imported from <a href="http://localhost/example/source/pull/3">example/source#3</a>
+              </td>
+            </tr>
+            <tr></tr>
+            <tr>
+              <td colspan="2">
+                <details>
+                  <summary>commits</summary>
+                  <table>
+                  <tr>
+                    <td>
+                      commit message 1<br><img src="https://github.com/github.png" width="16"> @sample-user-3 comitted on Sun 10, 2019 <a href="http://localhost/example/target/commit/shaxxxyyx">shaxxxy</a>
+                    </td>
+                  </tr>
+                  <tr></tr>
+                  <tr>
+                    <td>
+                      commit message 2<br><img src="https://github.com/github.png" width="16"> @sample-user-3 comitted on Sun 10, 2019 <a href="http://localhost/example/target/commit/shaxxxyyy">shaxxxy</a>
+                    </td>
+                  </tr>
+                  <tr></tr>
+                  <tr>
+                    <td>
+                      commit message 3<br><img src="https://github.com/sample-user-1-2.png" width="16"> @sample-user-1-2 comitted on Sun 10, 2019 <a href="http://localhost/example/target/commit/shaxxxyyz">shaxxxy</a>
+                    </td>
+                  </tr>
+                  </table>
+                </details>
               </td>
             </tr>
             </table>

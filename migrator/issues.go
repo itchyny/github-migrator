@@ -67,24 +67,29 @@ func (m *migrator) migrateIssue(
 	if err != nil {
 		return nil, err
 	}
+	var sourcePullReq *github.PullReq
+	var commits []*github.Commit
 	var reviews []*github.Review
 	var reviewComments []*github.ReviewComment
-	var sourcePullReq *github.PullReq
-	if sourceIssue.State != github.IssueStateOpen {
-		if sourceIssue.PullRequest != nil {
-			sourcePullReq, err = m.source.GetPullReq(sourceIssue.Number)
-			if err != nil {
-				return nil, err
-			}
-			reviews, err = github.ReviewsToSlice(m.source.ListReviews(sourceIssue.Number))
-			if err != nil {
-				return nil, err
-			}
-			reviewComments, err = github.ReviewCommentsToSlice(m.source.ListReviewComments(sourceIssue.Number))
-			if err != nil {
-				return nil, err
-			}
+	if sourceIssue.PullRequest != nil {
+		sourcePullReq, err = m.source.GetPullReq(sourceIssue.Number)
+		if err != nil {
+			return nil, err
 		}
+		commits, err = github.CommitsToSlice(m.source.ListPullReqCommits(sourceIssue.Number))
+		if err != nil {
+			return nil, err
+		}
+		reviews, err = github.ReviewsToSlice(m.source.ListReviews(sourceIssue.Number))
+		if err != nil {
+			return nil, err
+		}
+		reviewComments, err = github.ReviewCommentsToSlice(m.source.ListReviewComments(sourceIssue.Number))
+		if err != nil {
+			return nil, err
+		}
+	}
+	if sourceIssue.State != github.IssueStateOpen {
 		if sourcePullReq == nil || sourcePullReq.MergedBy == nil {
 			issue, err := m.source.GetIssue(sourceIssue.Number)
 			if err != nil {
@@ -101,7 +106,8 @@ func (m *migrator) migrateIssue(
 	return m.target.Import(
 		buildImport(
 			sourceRepo, targetRepo, commentFilters,
-			sourceIssue, sourcePullReq, comments, reviews, reviewComments, members,
+			sourceIssue, sourcePullReq, comments, commits,
+			reviews, reviewComments, members,
 		),
 	)
 }

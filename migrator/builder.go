@@ -2,7 +2,9 @@ package migrator
 
 import (
 	"fmt"
+	"html"
 	"strings"
+	"time"
 
 	"github.com/itchyny/github-migrator/github"
 )
@@ -13,6 +15,7 @@ type builder struct {
 	issue          *github.Issue
 	pullReq        *github.PullReq
 	comments       []*github.Comment
+	commits        []*github.Commit
 	reviews        []*github.Review
 	reviewComments []*github.ReviewComment
 	members        []*github.Member
@@ -21,7 +24,8 @@ type builder struct {
 func buildImport(
 	sourceRepo, targetRepo *github.Repo, commentFilters commentFilters,
 	issue *github.Issue, pullReq *github.PullReq,
-	comments []*github.Comment, reviews []*github.Review, reviewComments []*github.ReviewComment,
+	comments []*github.Comment, commits []*github.Commit,
+	reviews []*github.Review, reviewComments []*github.ReviewComment,
 	members []*github.Member,
 ) *github.Import {
 	return (&builder{
@@ -31,6 +35,7 @@ func buildImport(
 		issue:          issue,
 		pullReq:        pullReq,
 		comments:       comments,
+		commits:        commits,
 		reviews:        reviews,
 		reviewComments: reviewComments,
 		members:        members,
@@ -60,15 +65,47 @@ func (b *builder) build() *github.Import {
 }
 
 func (b *builder) buildImportBody() string {
-	return b.buildUserActionBody(
-		b.issue.User,
-		fmt.Sprintf(
-			"created the original %s<br>imported from %s",
-			b.issue.Type(),
-			b.buildIssueLinkTag(b.source, b.issue),
-		),
-		b.issue.Body,
+	var suffix string
+	if b.issue.Body != "" {
+		suffix = "\n\n" + b.commentFilters.apply(b.issue.Body)
+	}
+	action := fmt.Sprintf(
+		"created the original %s<br>imported from %s",
+		b.issue.Type(),
+		b.buildIssueLinkTag(b.source, b.issue),
 	)
+	tableRows := [][]string{
+		[]string{
+			b.buildImageTag(b.issue.User, 35),
+			fmt.Sprintf("@%s %s", b.commentFilters.apply(b.issue.User.Login), action),
+		},
+	}
+	if len(b.commits) > 0 {
+		tableRows = append(tableRows, []string{})
+		tableRows = append(tableRows, []string{b.buildCommitDetails()})
+	}
+	return b.buildTable(2, tableRows...) + suffix
+}
+
+func (b *builder) buildCommitDetails() string {
+	var commitRows [][]string
+	for i, c := range b.commits {
+		if i > 0 {
+			commitRows = append(commitRows, []string{})
+		}
+		var dateString string
+		t, err := time.Parse(time.RFC3339, c.Commit.Committer.Date)
+		if err == nil {
+			dateString = t.Format(" on Mon 2, 2006")
+		}
+		commitRows = append(commitRows, []string{
+			html.EscapeString(c.Commit.Message) + `<br>` +
+				b.buildImageTag(c.Committer, 16) +
+				fmt.Sprintf(" @%s comitted%s", b.commentFilters.apply(c.Committer.Login), dateString) +
+				fmt.Sprintf(` <a href="%s">%s</a>`, b.commentFilters.apply(c.HTMLURL), c.SHA[:7]),
+		})
+	}
+	return b.buildDetails("commits", b.buildTable(1, commitRows...))
 }
 
 func (b *builder) buildImportComments() []*github.ImportComment {
@@ -166,41 +203,67 @@ func (b *builder) buildUserActionBody(user *github.User, action, body string) st
 		suffix = "\n\n" + b.commentFilters.apply(body)
 	}
 	return b.buildTable(2, []string{
-		b.buildImageTag(user),
+		b.buildImageTag(user, 35),
 		fmt.Sprintf("@%s %s", b.commentFilters.apply(user.Login), action),
 	}) + suffix
 }
 
-func (b *builder) buildImageTag(user *github.User) string {
+func (b *builder) buildImageTag(user *github.User, width int) string {
 	target := b.commentFilters.apply(user.Login)
 	if !b.isTargetMember(target) {
 		target = "github"
 	}
-	return fmt.Sprintf(`<img src="https://github.com/%s.png" width="35">`, target)
+	return fmt.Sprintf(`<img src="https://github.com/%s.png" width="%d">`, target, width)
 }
 
 func (b *builder) buildTable(width int, xss ...[]string) string {
 	s := new(strings.Builder)
 	s.WriteString("<table>\n")
 	for _, xs := range xss {
-		s.WriteString("<tr>\n")
+		if len(xs) > 0 {
+			s.WriteString("<tr>\n")
+		} else {
+			s.WriteString("<tr>")
+		}
 		for i, x := range xs {
 			if i == len(xs)-1 && len(xs) < width {
-				s.WriteString(fmt.Sprintf(`  <td colspan="%d">\n`, width-i))
+				s.WriteString(fmt.Sprintf("  <td colspan=\"%d\">\n", width-i))
 			} else {
 				s.WriteString("  <td>\n")
 			}
-			if !strings.Contains(x, "\n") {
-				s.WriteString("    " + x + "\n")
-			} else {
-				s.WriteString("  " + x + "\n")
+			x := indent("    ", x)
+			if !strings.HasSuffix(x, "\n") {
+				x += "\n"
 			}
+			s.WriteString(x)
 			s.WriteString("  </td>\n")
 		}
 		s.WriteString("</tr>\n")
 	}
 	s.WriteString("</table>\n")
 	return s.String()
+}
+
+func (b *builder) buildDetails(summary, details string) string {
+	s := new(strings.Builder)
+	s.WriteString("<details>\n")
+	s.WriteString(fmt.Sprintf("  <summary>%s</summary>\n", html.EscapeString(summary)))
+	s.WriteString(indent("  ", details))
+	s.WriteString("</details>\n")
+	return s.String()
+}
+
+func indent(indent, str string) string {
+	if strings.Contains(str, "```") {
+		return str
+	}
+	xs := strings.Split(str, "\n")
+	for i, x := range xs {
+		if x != "" {
+			xs[i] = indent + x
+		}
+	}
+	return strings.Join(xs, "\n")
 }
 
 func (b *builder) buildIssueLinkTag(repo *github.Repo, issue *github.Issue) string {
