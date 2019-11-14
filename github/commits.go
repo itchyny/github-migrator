@@ -1,10 +1,13 @@
 package github
 
-import "io"
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+)
 
 // Commit represents a commit.
 type Commit struct {
-	URL     string `json:"url"`
 	SHA     string `json:"sha"`
 	HTMLURL string `json:"html_url"`
 	Commit  struct {
@@ -69,4 +72,48 @@ func CommitsToSlice(cs Commits) ([]*Commit, error) {
 		}
 		xs = append(xs, p)
 	}
+}
+
+func listPullReqCommitsPath(repo string, pullNumber int) string {
+	return newPath(fmt.Sprintf("/repos/%s/pulls/%d/commits", repo, pullNumber)).
+		String()
+}
+
+// ListPullReqCommits lists the commits of a pull request.
+func (c *client) ListPullReqCommits(repo string, pullNumber int) Commits {
+	cs := make(chan interface{})
+	go func() {
+		defer close(cs)
+		path := c.url(listPullReqCommitsPath(repo, pullNumber))
+		for {
+			xs, next, err := c.listPullReqCommits(path)
+			if err != nil {
+				cs <- err
+				break
+			}
+			for _, x := range xs {
+				cs <- x
+			}
+			if next == "" {
+				break
+			}
+			path = next
+		}
+	}()
+	return Commits(cs)
+}
+
+func (c *client) listPullReqCommits(path string) ([]*Commit, string, error) {
+	res, err := c.get(path)
+	if err != nil {
+		return nil, "", err
+	}
+	defer res.Body.Close()
+
+	var r []*Commit
+	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+		return nil, "", err
+	}
+
+	return r, getNext(res.Header), nil
 }
