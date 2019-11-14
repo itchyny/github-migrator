@@ -3,7 +3,6 @@ package migrator
 import (
 	"fmt"
 	"html"
-	"regexp"
 	"strings"
 	"time"
 
@@ -94,15 +93,13 @@ func (b *builder) buildImportBody() string {
 	return b.buildTable(2, tableRows...) + suffix
 }
 
-var backquoteRe = regexp.MustCompile("((?:^|\n) *)```")
-
 func (b *builder) buildDiffDetails() string {
 	summary := fmt.Sprintf(
 		"%d files changed, %d insertions(+), %d deletions(-)",
 		b.pullReq.ChangedFiles, b.pullReq.Additions, b.pullReq.Deletions,
 	)
 	return b.buildDetails("  ", summary, "\n```diff\n"+
-		backquoteRe.ReplaceAllString(b.commitDiff, "$1\u00a0```")+
+		escapeBackQuotes(truncateDiff(b.commitDiff))+
 		"```\n")
 }
 
