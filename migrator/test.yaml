@@ -155,7 +155,8 @@
                 <img src="https://github.com/sample-user-1.png" width="35">
               </td>
               <td>
-                @sample-user-1 created the original issue<br>imported from <a href="http://localhost/example/source/issues/1">example/source#1</a>
+                @sample-user-1 created the original issue<br>
+                imported from <a href="http://localhost/example/source/issues/1">example/source#1</a>
               </td>
             </tr>
             </table>
@@ -186,7 +187,8 @@
                 <img src="https://github.com/sample-user-2.png" width="35">
               </td>
               <td>
-                @sample-user-2 created the original issue<br>imported from <a href="http://localhost/example/source/issues/2">example/source#2</a>
+                @sample-user-2 created the original issue<br>
+                imported from <a href="http://localhost/example/source/issues/2">example/source#2</a>
               </td>
             </tr>
             </table>
@@ -414,7 +416,9 @@
                 <img src="https://github.com/github.png" width="35">
               </td>
               <td>
-                @sample-user-3 created the original pull request<br><a href="http://localhost/example/target/compare/sha000000...sha111111">sha0000...sha1111</a> into <code>master</code> from <code>staging</code><br>imported from <a href="http://localhost/example/source/pull/3">example/source#3</a>
+                @sample-user-3 created the original pull request<br>
+                <a href="http://localhost/example/target/compare/sha000000...sha111111">sha0000...sha1111</a> into <code>master</code> from <code>staging</code><br>
+                imported from <a href="http://localhost/example/source/pull/3">example/source#3</a>
               </td>
             </tr>
             <tr></tr>
@@ -444,19 +448,22 @@
                   <table>
                   <tr>
                     <td>
-                      commit message 1<br><img src="https://github.com/github.png" width="16"> @sample-user-3 comitted on Sun 10, 2019 <a href="http://localhost/example/target/commit/shaxxxyyx">shaxxxy</a>
+                      commit message 1<br>
+                      <img src="https://github.com/github.png" width="16"> @sample-user-3 comitted on Sun 10, 2019 <a href="http://localhost/example/target/commit/shaxxxyyx">shaxxxy</a>
                     </td>
                   </tr>
                   <tr></tr>
                   <tr>
                     <td>
-                      commit message 2<br><img src="https://github.com/github.png" width="16"> @sample-user-3 comitted on Sun 10, 2019 <a href="http://localhost/example/target/commit/shaxxxyyy">shaxxxy</a>
+                      commit message 2<br>
+                      <img src="https://github.com/github.png" width="16"> @sample-user-3 comitted on Sun 10, 2019 <a href="http://localhost/example/target/commit/shaxxxyyy">shaxxxy</a>
                     </td>
                   </tr>
                   <tr></tr>
                   <tr>
                     <td>
-                      commit message 3<br><img src="https://github.com/sample-user-1-2.png" width="16"> @sample-user-1-2 comitted on Sun 10, 2019 <a href="http://localhost/example/target/commit/shaxxxyyz">shaxxxy</a>
+                      commit message 3<br>
+                      <img src="https://github.com/sample-user-1-2.png" width="16"> @sample-user-1-2 comitted on Sun 10, 2019 <a href="http://localhost/example/target/commit/shaxxxyyz">shaxxxy</a>
                     </td>
                   </tr>
                   </table>
@@ -582,7 +589,8 @@
                   <img src="https://github.com/sample-user-1-2.png" width="35">
                 </td>
                 <td>
-                  @sample-user-1-2 merged the pull request<br>commit <a href="http://localhost/example/target/commit/sha222222">sha2222</a> into <code>master</code> from <code>staging</code>
+                  @sample-user-1-2 merged the pull request<br>
+                  commit <a href="http://localhost/example/target/commit/sha222222">sha2222</a> into <code>master</code> from <code>staging</code>
                 </td>
               </tr>
               </table>

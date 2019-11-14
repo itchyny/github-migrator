@@ -71,10 +71,10 @@ func (b *builder) buildImportBody() string {
 	if b.issue.Body != "" {
 		suffix = "\n\n" + b.commentFilters.apply(b.issue.Body)
 	}
-	action := fmt.Sprintf("created the original %s<br>", b.issue.Type())
+	action := fmt.Sprintf("created the original %s<br>\n", b.issue.Type())
 	if b.pullReq != nil {
 		action += b.buildCompareLinkTag(b.target, b.pullReq.Base.SHA, b.pullReq.Head.SHA) +
-			" " + b.buildPullRequestRefs() + "<br>"
+			" " + b.buildPullRequestRefs() + "<br>\n"
 	}
 	action += "imported from " + b.buildIssueLinkTag(b.source, b.issue)
 	tableRows := [][]string{
@@ -124,7 +124,7 @@ func (b *builder) buildCommitDetails() string {
 			dateString = t.Format(" on Mon 2, 2006")
 		}
 		commitRows = append(commitRows, []string{
-			html.EscapeString(c.Commit.Message) + `<br>` +
+			html.EscapeString(c.Commit.Message) + "<br>\n" +
 				b.buildImageTag(committer, 16) +
 				fmt.Sprintf(" @%s comitted%s", b.commentFilters.apply(committer.Login), dateString) +
 				fmt.Sprintf(` <a href="%s">%s</a>`, b.commentFilters.apply(c.HTMLURL), c.SHA[:7]),
@@ -217,7 +217,7 @@ func (b *builder) buildClosedComment() *github.ImportComment {
 	} else if b.pullReq.MergedBy != nil {
 		user = b.pullReq.MergedBy
 		action = fmt.Sprintf(
-			"merged the pull request<br>commit %s ",
+			"merged the pull request<br>\ncommit %s ",
 			b.buildCommitLinkTag(b.target, b.pullReq.MergeCommitSHA),
 		) + b.buildPullRequestRefs()
 		closedAt = b.pullReq.MergedAt
