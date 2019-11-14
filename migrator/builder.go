@@ -285,9 +285,10 @@ func makeIndent(indent, str string) string {
 	}
 	xs := strings.Split(str, "\n")
 	for i, x := range xs {
-		if x != "" {
-			xs[i] = indent + x
+		if x == "" {
+			break // avoid indented code block
 		}
+		xs[i] = indent + x
 	}
 	return strings.Join(xs, "\n")
 }
