@@ -71,14 +71,12 @@ func (b *builder) buildImportBody() string {
 	if b.issue.Body != "" {
 		suffix = "\n\n" + b.commentFilters.apply(b.issue.Body)
 	}
-	action := fmt.Sprintf(
-		"created the original %s<br>imported from %s",
-		b.issue.Type(),
-		b.buildIssueLinkTag(b.source, b.issue),
-	)
+	action := fmt.Sprintf("created the original %s<br>", b.issue.Type())
 	if b.pullReq != nil {
-		action += "<br>" + b.buildCompareLinkTag(b.target, b.pullReq.Base.SHA, b.pullReq.Head.SHA)
+		action += b.buildCompareLinkTag(b.target, b.pullReq.Base.SHA, b.pullReq.Head.SHA) +
+			" " + b.buildPullRequestRefs() + "<br>"
 	}
+	action += "imported from " + b.buildIssueLinkTag(b.source, b.issue)
 	tableRows := [][]string{
 		[]string{
 			b.buildImageTag(b.issue.User, 35),
@@ -219,10 +217,9 @@ func (b *builder) buildClosedComment() *github.ImportComment {
 	} else if b.pullReq.MergedBy != nil {
 		user = b.pullReq.MergedBy
 		action = fmt.Sprintf(
-			"merged the pull request<br>commit %s into <code>%s</code> from <code>%s</code>",
+			"merged the pull request<br>commit %s ",
 			b.buildCommitLinkTag(b.target, b.pullReq.MergeCommitSHA),
-			b.pullReq.Base.Ref, b.pullReq.Head.Ref,
-		)
+		) + b.buildPullRequestRefs()
 		closedAt = b.pullReq.MergedAt
 	} else {
 		user = b.issue.ClosedBy
@@ -233,6 +230,13 @@ func (b *builder) buildClosedComment() *github.ImportComment {
 		Body:      b.buildUserActionBody(user, action, ""),
 		CreatedAt: closedAt,
 	}
+}
+
+func (b *builder) buildPullRequestRefs() string {
+	return fmt.Sprintf(
+		"into <code>%s</code> from <code>%s</code>",
+		b.pullReq.Base.Ref, b.pullReq.Head.Ref,
+	)
 }
 
 func (b *builder) buildUserActionBody(user *github.User, action, body string) string {
@@ -287,7 +291,7 @@ func (b *builder) buildTable(width int, xss ...[]string) string {
 func (b *builder) buildDetails(indent, summary, details string) string {
 	s := new(strings.Builder)
 	s.WriteString(indent + "<details>\n")
-	s.WriteString(fmt.Sprintf(indent+"  <summary>%s</summary>\n", html.EscapeString(summary)))
+	s.WriteString(fmt.Sprintf(indent+"  <summary>%s</summary>\n", summary))
 	s.WriteString(makeIndent(indent+"  ", details))
 	s.WriteString(indent + "</details>\n")
 	return s.String()
