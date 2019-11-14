@@ -33,6 +33,9 @@ export GITHUB_MIGRATOR_USER_MAPPING=user-before1:user-after1,user-before2:user-a
   - Comments and review comments are migrated as issue comments
   - Created dates, Labels
   - Pull request numbers (issue numbers) are same as the original repository
+  - Number of changed files, insertions and deletions
+  - Entire diff (excluding large file diffs)
+  - Commits list and link to the corresponding /compare/ page
 - Repository information
   - Description, Homepage (only when the target repository has blank description, homepage)
 - Labels
