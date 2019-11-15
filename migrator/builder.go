@@ -84,11 +84,9 @@ func (b *builder) buildImportBody() string {
 		},
 	}
 	if len(b.commitDiff) > 0 {
-		tableRows = append(tableRows, []string{})
 		tableRows = append(tableRows, []string{b.buildDiffDetails()})
 	}
 	if len(b.commits) > 0 {
-		tableRows = append(tableRows, []string{})
 		tableRows = append(tableRows, []string{b.buildCommitDetails()})
 	}
 	return b.buildTable(2, tableRows...) + suffix
@@ -110,10 +108,7 @@ func (b *builder) buildDiffDetails() string {
 func (b *builder) buildCommitDetails() string {
 	summary := plural(b.pullReq.Commits, "commit")
 	var commitRows [][]string
-	for i, c := range b.commits {
-		if i > 0 {
-			commitRows = append(commitRows, []string{})
-		}
+	for _, c := range b.commits {
 		var dateString string
 		committer := c.Committer
 		if committer == nil {
@@ -261,12 +256,11 @@ func (b *builder) buildImageTag(user *github.User, width int) string {
 func (b *builder) buildTable(width int, xss ...[]string) string {
 	s := new(strings.Builder)
 	s.WriteString("<table>\n")
-	for _, xs := range xss {
-		if len(xs) > 0 {
-			s.WriteString("<tr>\n")
-		} else {
-			s.WriteString("<tr>")
+	for i, xs := range xss {
+		if i > 0 {
+			s.WriteString("<tr></tr>\n")
 		}
+		s.WriteString("<tr>\n")
 		for i, x := range xs {
 			if i == len(xs)-1 && len(xs) < width {
 				s.WriteString(fmt.Sprintf("  <td colspan=\"%d\">\n", width-i))
