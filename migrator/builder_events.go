@@ -26,19 +26,20 @@ func (b *builder) buildImportEventComments() []*github.ImportComment {
 
 func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 	ess := make([][]*github.Event, 0, len(xs))
-	mergeTypes := map[string]int{
+	eventGroupTypes := map[string]int{
 		"closed":    1,
 		"merged":    1,
 		"reopened":  1,
 		"labeled":   2,
 		"unlabeled": 2,
+		"rename":    3,
 	}
 	for _, x := range xs {
 		var appended bool
 		for i, es := range ess {
 			if es[0].Actor.Login == x.Actor.Login &&
 				nearTime(es[0].CreatedAt, x.CreatedAt) &&
-				mergeTypes[es[0].Event] == mergeTypes[x.Event] {
+				eventGroupTypes[es[0].Event] == eventGroupTypes[x.Event] {
 				ess[i] = append(ess[i], x)
 				appended = true
 				break
@@ -101,6 +102,13 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) string {
 			addedLabels = append(addedLabels, e.Label.Name)
 		case "unlabeled":
 			removedLabels = append(removedLabels, e.Label.Name)
+		case "renamed":
+			actions = append(actions,
+				fmt.Sprintf(
+					"changed the title <b><s>%s</s></b> <b>%s</b>",
+					html.EscapeString(e.Rename.From), html.EscapeString(e.Rename.To),
+				),
+			)
 		}
 	}
 
@@ -108,9 +116,10 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) string {
 	if len(actions) > 0 {
 		for i, a := range actions {
 			if i > 0 {
-				action += ", "
 				if i == len(actions)-1 {
-					action += "and "
+					action += " and "
+				} else {
+					action += ", "
 				}
 			}
 			action += a

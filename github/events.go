@@ -8,18 +8,25 @@ import (
 
 // Event represents an event.
 type Event struct {
-	ID        int         `json:"id"`
-	Actor     *User       `json:"actor"`
-	Event     string      `json:"event"`
-	Label     *EventLabel `json:"label"`
-	CommitID  string      `json:"commit_id"`
-	CreatedAt string      `json:"created_at"`
+	ID        int          `json:"id"`
+	Actor     *User        `json:"actor"`
+	Event     string       `json:"event"`
+	Label     *EventLabel  `json:"label"`
+	CommitID  string       `json:"commit_id"`
+	CreatedAt string       `json:"created_at"`
+	Rename    *EventRename `json:"rename"`
 }
 
 // EventLabel ...
 type EventLabel struct {
 	Name  string `json:"name"`
 	Color string `json:"color"`
+}
+
+// EventRename ...
+type EventRename struct {
+	From string `json:"from"`
+	To   string `json:"to"`
 }
 
 // Events represents a collection of events.

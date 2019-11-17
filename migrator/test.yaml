@@ -151,18 +151,30 @@
           - actor: *user1
             event: unlabeled
             label:
-              name: "test1"
+              name: test1
             created_at: 2019-11-18T12:00:00Z
           - actor: *user2
             event: labeled
             label:
-              name: "test2"
+              name: test2
             created_at: 2019-11-18T13:00:00Z
           - actor: *user3
             event: unlabeled
             label:
-              name: "test2"
+              name: test2
             created_at: 2019-11-18T13:00:00Z
+          - actor: *user2
+            event: renamed
+            rename:
+              from: Event title 2
+              to: <div><p>
+            created_at: 2019-11-18T14:00:00Z
+          - actor: *user2
+            event: renamed
+            rename:
+              from: <div><p>
+              to: Event title 2
+            created_at: 2019-11-18T14:00:05Z
 
   target:
     repo:
@@ -297,6 +309,18 @@
               </tr>
               </table>
             created_at: 2019-11-18T13:00:00Z
+          - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/sample-user-2.png" width="35">
+                </td>
+                <td>
+                  @sample-user-2 changed the title <b><s>Event title 2</s></b> <b>&lt;div&gt;&lt;p&gt;</b> and changed the title <b><s>&lt;div&gt;&lt;p&gt;</s></b> <b>Event title 2</b>
+                </td>
+              </tr>
+              </table>
+            created_at: 2019-11-18T14:00:00Z
 
 -
   name: pull requests
