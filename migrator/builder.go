@@ -196,7 +196,8 @@ func (b *builder) buildImportReviewComments() []*github.ImportComment {
 func (b *builder) buildPullRequestRefs() string {
 	return fmt.Sprintf(
 		"into <code>%s</code> from <code>%s</code>",
-		b.pullReq.Base.Ref, b.pullReq.Head.Ref,
+		html.EscapeString(b.pullReq.Base.Ref),
+		html.EscapeString(b.pullReq.Head.Ref),
 	)
 }
 

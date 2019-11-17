@@ -27,12 +27,14 @@ func (b *builder) buildImportEventComments() []*github.ImportComment {
 func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 	ess := make([][]*github.Event, 0, len(xs))
 	eventGroupTypes := map[string]int{
-		"closed":    1,
-		"merged":    1,
-		"reopened":  1,
-		"labeled":   2,
-		"unlabeled": 2,
-		"rename":    3,
+		"closed":            1,
+		"merged":            1,
+		"reopened":          1,
+		"labeled":           2,
+		"unlabeled":         2,
+		"rename":            3,
+		"head_ref_deleted":  4,
+		"head_ref_restored": 4,
 	}
 	for _, x := range xs {
 		var appended bool
@@ -107,6 +109,20 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) string {
 				fmt.Sprintf(
 					"changed the title <b><s>%s</s></b> <b>%s</b>",
 					html.EscapeString(e.Rename.From), html.EscapeString(e.Rename.To),
+				),
+			)
+		case "head_ref_deleted":
+			actions = append(actions,
+				fmt.Sprintf(
+					"deleted the <code>%s</code> branch",
+					html.EscapeString(b.pullReq.Head.Ref),
+				),
+			)
+		case "head_ref_restored":
+			actions = append(actions,
+				fmt.Sprintf(
+					"restored the <code>%s</code> branch",
+					html.EscapeString(b.pullReq.Head.Ref),
 				),
 			)
 		}

@@ -468,6 +468,12 @@
           - actor: *user2
             event: closed
             created_at: 2019-11-18T12:00:01Z
+          - actor: *user2
+            event: head_ref_deleted
+            created_at: 2019-11-18T12:00:10Z
+          - actor: *user2
+            event: head_ref_restored
+            created_at: 2019-11-18T12:00:18Z
     compare:
       sha000000...sha111111: |
         diff --git a/README.md b/README.md
@@ -603,6 +609,18 @@
               </tr>
               </table>
             created_at: 2019-11-18T12:00:00Z
+          - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/sample-user-1-2.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1-2 deleted the <code>staging</code> branch and restored the <code>staging</code> branch
+                </td>
+              </tr>
+              </table>
+            created_at: 2019-11-18T12:00:10Z
           - body: |
               ```diff
               # sample.txt
