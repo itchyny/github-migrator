@@ -3,7 +3,9 @@ package migrator
 import (
 	"fmt"
 	"html"
+	"math"
 	"strings"
+	"time"
 
 	"github.com/itchyny/github-migrator/github"
 )
@@ -35,7 +37,7 @@ func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 		var appended bool
 		for i, es := range ess {
 			if es[0].Actor.Login == x.Actor.Login &&
-				es[0].CreatedAt == x.CreatedAt &&
+				nearTime(es[0].CreatedAt, x.CreatedAt) &&
 				mergeTypes[es[0].Event] == mergeTypes[x.Event] {
 				ess[i] = append(ess[i], x)
 				appended = true
@@ -48,6 +50,19 @@ func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 		ess = append(ess, []*github.Event{x})
 	}
 	return ess
+}
+
+func nearTime(s1, s2 string) bool {
+	t1, err := time.Parse(time.RFC3339, s1)
+	if err != nil {
+		panic(err)
+	}
+	t2, err := time.Parse(time.RFC3339, s2)
+	if err != nil {
+		panic(err)
+	}
+	diff := t1.Sub(t2)
+	return math.Abs(float64(diff)) < float64(10*time.Second)
 }
 
 const (

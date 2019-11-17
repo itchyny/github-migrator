@@ -443,7 +443,7 @@
             commit_id: sha222222
           - actor: *user2
             event: closed
-            created_at: 2019-11-18T12:00:00Z
+            created_at: 2019-11-18T12:00:01Z
     compare:
       sha000000...sha111111: |
         diff --git a/README.md b/README.md
