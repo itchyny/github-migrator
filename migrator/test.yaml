@@ -113,7 +113,10 @@
         html_url: http://localhost/example/source/issues/1
         user: *user1
         assignee: *user1
-        closed_by: *user2
+        events:
+          - actor: *user2
+            event: closed
+            created_at: 2019-11-18T12:00:00Z
       - number: 2
         title: Example title 2
         state: open
@@ -204,6 +207,7 @@
                 </td>
               </tr>
               </table>
+            created_at: 2019-11-18T12:00:00Z
       - issue:
           title: Example title 2
           body: |
@@ -432,6 +436,14 @@
             body: |
               nice. see http://localhost/example/source/issues/2.
             user: *user1
+        events:
+          - actor: *user2
+            event: merged
+            created_at: 2019-11-18T12:00:00Z
+            commit_id: sha222222
+          - actor: *user2
+            event: closed
+            created_at: 2019-11-18T12:00:00Z
     compare:
       sha000000...sha111111: |
         diff --git a/README.md b/README.md
@@ -555,6 +567,19 @@
 
               LGTM
           - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/sample-user-1-2.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1-2 merged the pull request<br>
+                  commit <a href="http://localhost/example/target/commit/sha222222">sha2222</a> into <code>master</code> from <code>staging</code>
+                </td>
+              </tr>
+              </table>
+            created_at: 2019-11-18T12:00:00Z
+          - body: |
               ```diff
               # sample.txt
               @@ -0.0 +1 @@
@@ -644,18 +669,6 @@
 
 
               LGTM
-          - body: |
-              <table>
-              <tr>
-                <td width="60">
-                  <img src="https://github.com/sample-user-1-2.png" width="35">
-                </td>
-                <td>
-                  @sample-user-1-2 merged the pull request<br>
-                  commit <a href="http://localhost/example/target/commit/sha222222">sha2222</a> into <code>master</code> from <code>staging</code>
-                </td>
-              </tr>
-              </table>
 
   user_mapping:
     bob: charlie

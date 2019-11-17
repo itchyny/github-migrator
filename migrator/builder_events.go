@@ -1,6 +1,7 @@
 package migrator
 
 import (
+	"fmt"
 	"html"
 	"strings"
 
@@ -24,8 +25,11 @@ func (b *builder) buildImportEventComments() []*github.ImportComment {
 func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 	ess := make([][]*github.Event, 0, len(xs))
 	mergeTypes := map[string]int{
-		"labeled":   1,
-		"unlabeled": 1,
+		"closed":    1,
+		"merged":    1,
+		"reopened":  1,
+		"labeled":   2,
+		"unlabeled": 2,
 	}
 	for _, x := range xs {
 		var appended bool
@@ -46,11 +50,38 @@ func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 	return ess
 }
 
+const (
+	actionClosed = 1 << iota
+	actionMerged
+	actionReopened
+)
+
 func (b *builder) buildImportEventGroupBody(eg []*github.Event) string {
+	var actions []string
+	var merged bool
 	var addedLabels []string
 	var removedLabels []string
+
 	for _, e := range eg {
 		switch e.Event {
+		case "closed":
+			if !merged {
+				if b.pullReq == nil {
+					actions = append(actions, "closed the issue")
+				} else {
+					actions = append(actions, "closed the pull request without merging")
+				}
+			}
+		case "merged":
+			merged = true
+			actions = append(actions,
+				fmt.Sprintf(
+					"merged the pull request<br>\ncommit %s ",
+					b.buildCommitLinkTag(b.target, e.CommitID),
+				)+b.buildPullRequestRefs(),
+			)
+		case "reopened":
+			actions = append(actions, fmt.Sprintf("reopened the %s", b.issue.Type()))
 		case "labeled":
 			addedLabels = append(addedLabels, e.Label.Name)
 		case "unlabeled":
@@ -59,6 +90,19 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) string {
 	}
 
 	var action string
+	if len(actions) > 0 {
+		for i, a := range actions {
+			if i > 0 {
+				action += ", "
+				if i == len(actions)-1 {
+					action += "and "
+				}
+			}
+			action += a
+		}
+		return action
+	}
+
 	if len(addedLabels) > 0 {
 		action += "added " + quoteLabels(addedLabels)
 	}

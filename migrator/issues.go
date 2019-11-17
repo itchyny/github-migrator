@@ -99,15 +99,6 @@ func (m *migrator) migrateIssue(
 			return nil, err
 		}
 	}
-	if sourceIssue.State != github.IssueStateOpen {
-		if sourcePullReq == nil || sourcePullReq.MergedBy == nil {
-			issue, err := m.source.GetIssue(sourceIssue.Number)
-			if err != nil {
-				return nil, err
-			}
-			sourceIssue.ClosedBy = issue.ClosedBy
-		}
-	}
 	members, err := m.listTargetMembers()
 	if err != nil {
 		return nil, err

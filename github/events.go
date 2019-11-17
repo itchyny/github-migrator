@@ -12,6 +12,7 @@ type Event struct {
 	Actor     *User       `json:"actor"`
 	Event     string      `json:"event"`
 	Label     *EventLabel `json:"label"`
+	CommitID  string      `json:"commit_id"`
 	CreatedAt string      `json:"created_at"`
 }
 

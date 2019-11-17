@@ -132,7 +132,7 @@ func (b *builder) buildCommitDetails() string {
 }
 
 func (b *builder) buildImportComments() []*github.ImportComment {
-	cs := append(
+	return append(
 		append(
 			append(
 				b.buildImportIssueComments(),
@@ -142,10 +142,6 @@ func (b *builder) buildImportComments() []*github.ImportComment {
 		),
 		b.buildImportReviews()...,
 	)
-	if c := b.buildClosedComment(); c != nil {
-		cs = append(cs, c)
-	}
-	return cs
 }
 
 func (b *builder) buildImportIssueComments() []*github.ImportComment {
@@ -195,35 +191,6 @@ func (b *builder) buildImportReviewComments() []*github.ImportComment {
 		})
 	}
 	return xs
-}
-
-func (b *builder) buildClosedComment() *github.ImportComment {
-	if b.issue.State == github.IssueStateOpen {
-		return nil
-	}
-	var user *github.User
-	var action string
-	var closedAt string
-	if b.pullReq == nil {
-		user = b.issue.ClosedBy
-		action = "closed the issue"
-		closedAt = b.issue.ClosedAt
-	} else if b.pullReq.MergedBy != nil {
-		user = b.pullReq.MergedBy
-		action = fmt.Sprintf(
-			"merged the pull request<br>\ncommit %s ",
-			b.buildCommitLinkTag(b.target, b.pullReq.MergeCommitSHA),
-		) + b.buildPullRequestRefs()
-		closedAt = b.pullReq.MergedAt
-	} else {
-		user = b.issue.ClosedBy
-		action = "closed the pull request without merging"
-		closedAt = b.issue.ClosedAt
-	}
-	return &github.ImportComment{
-		Body:      b.buildUserActionBody(user, action, ""),
-		CreatedAt: closedAt,
-	}
 }
 
 func (b *builder) buildPullRequestRefs() string {
