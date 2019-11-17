@@ -15,6 +15,7 @@ type builder struct {
 	issue          *github.Issue
 	pullReq        *github.PullReq
 	comments       []*github.Comment
+	events         []*github.Event
 	commits        []*github.Commit
 	commitDiff     string
 	reviews        []*github.Review
@@ -25,7 +26,8 @@ type builder struct {
 func buildImport(
 	sourceRepo, targetRepo *github.Repo, commentFilters commentFilters,
 	issue *github.Issue, pullReq *github.PullReq,
-	comments []*github.Comment, commits []*github.Commit, commitDiff string,
+	comments []*github.Comment, events []*github.Event,
+	commits []*github.Commit, commitDiff string,
 	reviews []*github.Review, reviewComments []*github.ReviewComment,
 	members []*github.Member,
 ) *github.Import {
@@ -36,6 +38,7 @@ func buildImport(
 		issue:          issue,
 		pullReq:        pullReq,
 		comments:       comments,
+		events:         events,
 		commits:        commits,
 		commitDiff:     commitDiff,
 		reviews:        reviews,
@@ -128,17 +131,13 @@ func (b *builder) buildCommitDetails() string {
 	return b.buildDetails("", summary, b.buildTable(1, commitRows...))
 }
 
-func plural(count int, unit string) string {
-	if count == 1 {
-		return fmt.Sprintf("%d %s", count, unit)
-	}
-	return fmt.Sprintf("%d %ss", count, unit)
-}
-
 func (b *builder) buildImportComments() []*github.ImportComment {
 	cs := append(
 		append(
-			b.buildImportIssueComments(),
+			append(
+				b.buildImportIssueComments(),
+				b.buildImportEventComments()...,
+			),
 			b.buildImportReviewComments()...,
 		),
 		b.buildImportReviews()...,

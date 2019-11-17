@@ -89,6 +89,8 @@
         login: sample-user-1
       - &user2
         login: sample-user-2
+      - &user3
+        login: sample-user-3
     labels:
       - &label1
         id: 1
@@ -134,6 +136,30 @@
               Ref: http://localhost/example/source/issues/1.
             html_url: http://localhost/example/source/issues/2#issuecomment-2
             user: *user2
+        events:
+          - actor: *user1
+            event: labeled
+            label: *label1
+            created_at: 2019-11-18T12:00:00Z
+          - actor: *user1
+            event: labeled
+            label: *label2
+            created_at: 2019-11-18T12:00:00Z
+          - actor: *user1
+            event: unlabeled
+            label:
+              name: "test1"
+            created_at: 2019-11-18T12:00:00Z
+          - actor: *user2
+            event: labeled
+            label:
+              name: "test2"
+            created_at: 2019-11-18T13:00:00Z
+          - actor: *user3
+            event: unlabeled
+            label:
+              name: "test2"
+            created_at: 2019-11-18T13:00:00Z
 
   target:
     repo:
@@ -231,6 +257,42 @@
 
               Example comment body 2
               Ref: http://localhost/example/target/issues/1.
+          - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/sample-user-1.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1 added <code>bug</code> <code>design</code> and removed <code>test1</code> labels
+                </td>
+              </tr>
+              </table>
+            created_at: 2019-11-18T12:00:00Z
+          - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/sample-user-2.png" width="35">
+                </td>
+                <td>
+                  @sample-user-2 added <code>test2</code> label
+                </td>
+              </tr>
+              </table>
+            created_at: 2019-11-18T13:00:00Z
+          - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/sample-user-3.png" width="35">
+                </td>
+                <td>
+                  @sample-user-3 removed <code>test2</code> label
+                </td>
+              </tr>
+              </table>
+            created_at: 2019-11-18T13:00:00Z
 
 -
   name: pull requests

@@ -30,6 +30,7 @@ type testRepo struct {
 	Issues       []struct {
 		*github.PullReq
 		Comments       []*github.Comment       `json:"comments"`
+		Events         []*github.Event         `json:"events"`
 		Commits        []*github.Commit        `json:"commit_details"`
 		Reviews        []*github.Review        `json:"reviews"`
 		ReviewComments []*github.ReviewComment `json:"review_comments"`
@@ -106,6 +107,15 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			for _, s := range r.Issues {
 				if s.Issue.Number == issueNumber {
 					return github.CommentsFromSlice(s.Comments)
+				}
+			}
+			panic(fmt.Sprintf("unexpected issue number: %d", issueNumber))
+		}),
+		github.MockListEvents(func(path string, issueNumber int) github.Events {
+			assert.True(t, !isTarget)
+			for _, s := range r.Issues {
+				if s.Issue.Number == issueNumber {
+					return github.EventsFromSlice(s.Events)
 				}
 			}
 			panic(fmt.Sprintf("unexpected issue number: %d", issueNumber))

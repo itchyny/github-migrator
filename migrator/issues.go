@@ -67,6 +67,10 @@ func (m *migrator) migrateIssue(
 	if err != nil {
 		return nil, err
 	}
+	events, err := github.EventsToSlice(m.source.ListEvents(sourceIssue.Number))
+	if err != nil {
+		return nil, err
+	}
 	var sourcePullReq *github.PullReq
 	var commits []*github.Commit
 	var commitDiff string
@@ -112,8 +116,8 @@ func (m *migrator) migrateIssue(
 	return m.target.Import(
 		buildImport(
 			sourceRepo, targetRepo, commentFilters,
-			sourceIssue, sourcePullReq, comments, commits, commitDiff,
-			reviews, reviewComments, members,
+			sourceIssue, sourcePullReq, comments, events,
+			commits, commitDiff, reviews, reviewComments, members,
 		),
 	)
 }
