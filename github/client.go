@@ -21,6 +21,7 @@ type Client interface {
 	ListIssues(string, *ListIssuesParams) Issues
 	GetIssue(string, int) (*Issue, error)
 	ListComments(string, int) Comments
+	ListEvents(string, int) Events
 	ListPullReqs(string, *ListPullReqsParams) PullReqs
 	GetPullReq(string, int) (*PullReq, error)
 	ListPullReqCommits(string, int) Commits

@@ -14,6 +14,7 @@ type Repo interface {
 	ListIssues() github.Issues
 	GetIssue(int) (*github.Issue, error)
 	ListComments(int) github.Comments
+	ListEvents(int) github.Events
 	ListPullReqs() github.PullReqs
 	GetPullReq(int) (*github.PullReq, error)
 	ListPullReqCommits(int) github.Commits
