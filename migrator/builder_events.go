@@ -145,7 +145,7 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) string {
 func quoteLabels(xs []string) string {
 	ys := make([]string, len(xs))
 	for i, x := range xs {
-		ys[i] = "<code>" + html.EscapeString(x) + "</code>"
+		ys[i] = "<b><code>" + html.EscapeString(x) + "</code></b>"
 	}
 	return strings.Join(ys, " ")
 }

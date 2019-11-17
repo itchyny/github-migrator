@@ -280,7 +280,7 @@
                   <img src="https://github.com/sample-user-1.png" width="35">
                 </td>
                 <td>
-                  @sample-user-1 added <code>bug</code> <code>design</code> and removed <code>test1</code> labels
+                  @sample-user-1 added <b><code>bug</code></b> <b><code>design</code></b> and removed <b><code>test1</code></b> labels
                 </td>
               </tr>
               </table>
@@ -292,7 +292,7 @@
                   <img src="https://github.com/sample-user-2.png" width="35">
                 </td>
                 <td>
-                  @sample-user-2 added <code>test2</code> label
+                  @sample-user-2 added <b><code>test2</code></b> label
                 </td>
               </tr>
               </table>
@@ -304,7 +304,7 @@
                   <img src="https://github.com/sample-user-3.png" width="35">
                 </td>
                 <td>
-                  @sample-user-3 removed <code>test2</code> label
+                  @sample-user-3 removed <b><code>test2</code></b> label
                 </td>
               </tr>
               </table>
