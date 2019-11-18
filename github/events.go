@@ -38,9 +38,10 @@ type EventRename struct {
 
 // EventProjectCard ...
 type EventProjectCard struct {
-	ID         int    `json:"id"`
-	ProjectID  int    `json:"project_id"`
-	ColumnName string `json:"column_name"`
+	ID                 int    `json:"id"`
+	ProjectID          int    `json:"project_id"`
+	ColumnName         string `json:"column_name"`
+	PreviousColumnName string `json:"previous_column_name"`
 }
 
 // Events represents a collection of events.

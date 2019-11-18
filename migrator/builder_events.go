@@ -40,20 +40,22 @@ func getEventUser(e *github.Event) *github.User {
 func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 	ess := make([][]*github.Event, 0, len(xs))
 	eventGroupTypes := map[string]int{
-		"closed":                1,
-		"merged":                1,
-		"reopened":              1,
-		"labeled":               2,
-		"unlabeled":             2,
-		"rename":                3,
-		"head_ref_deleted":      4,
-		"head_ref_restored":     4,
-		"head_ref_force_pushed": 5,
-		"locked":                6,
-		"unlocked":              6,
-		"assigned":              7,
-		"unassigned":            7,
-		"review_requested":      8,
+		"closed":                   1,
+		"merged":                   1,
+		"reopened":                 1,
+		"labeled":                  2,
+		"unlabeled":                2,
+		"rename":                   3,
+		"head_ref_deleted":         4,
+		"head_ref_restored":        4,
+		"head_ref_force_pushed":    5,
+		"locked":                   6,
+		"unlocked":                 6,
+		"assigned":                 7,
+		"unassigned":               7,
+		"review_requested":         8,
+		"converted_note_to_issue":  9,
+		"moved_columns_in_project": 9,
 	}
 	for _, x := range xs {
 		var appended bool
@@ -199,6 +201,19 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 					`created this issue from a note in <b><a href="%s">%s</a></b> (<code>%s</code>)`,
 					p.HTMLURL, html.EscapeString(p.Name),
 					html.EscapeString(e.ProjectCard.ColumnName),
+				),
+			)
+		case "moved_columns_in_project":
+			p, err := b.getProject(e.ProjectCard.ProjectID)
+			if err != nil {
+				return "", err
+			}
+			actions = append(actions,
+				fmt.Sprintf(
+					`moved this from <code>%s</code> to <code>%s</code> in <b><a href="%s">%s</a></b>`,
+					html.EscapeString(e.ProjectCard.PreviousColumnName),
+					html.EscapeString(e.ProjectCard.ColumnName),
+					p.HTMLURL, html.EscapeString(p.Name),
 				),
 			)
 		case "referenced", "mentioned", "subscribed", "base_ref_changed":
