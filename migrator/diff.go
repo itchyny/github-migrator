@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-const truncateLength = 65536
+const truncateLength = 32768
 
 // Since import fails on too large diff, truncate it.
 // You may wonder building the diff from the api (without vnd.github.v3.diff header),
