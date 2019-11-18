@@ -185,7 +185,7 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) string {
 				targets = append(targets, e.Reviewer)
 			}
 			actions = append(actions, "requested a review from "+b.mentionAll(targets))
-		case "referenced", "mentioned", "subscribed":
+		case "referenced", "mentioned", "subscribed", "base_ref_changed":
 		default:
 			fmt.Printf("%#v\n", e)
 			panic(e.Event)
