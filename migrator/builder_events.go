@@ -16,12 +16,21 @@ func (b *builder) buildImportEventComments() []*github.ImportComment {
 	for _, eg := range egs {
 		if body := b.buildImportEventGroupBody(eg); body != "" {
 			xs = append(xs, &github.ImportComment{
-				Body:      b.buildUserActionBody(eg[0].Actor, body, ""),
+				Body:      b.buildUserActionBody(getEventUser(eg[0]), body, ""),
 				CreatedAt: eg[0].CreatedAt,
 			})
 		}
 	}
 	return xs
+}
+
+func getEventUser(e *github.Event) *github.User {
+	switch e.Event {
+	case "assigned", "unassigned":
+		return e.Assigner
+	default:
+		return e.Actor
+	}
 }
 
 func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
@@ -37,11 +46,13 @@ func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 		"head_ref_restored": 4,
 		"locked":            5,
 		"unlocked":          5,
+		"assigned":          6,
+		"unassigned":        6,
 	}
 	for _, x := range xs {
 		var appended bool
 		for i, es := range ess {
-			if es[0].Actor.Login == x.Actor.Login &&
+			if getEventUser(es[0]).Login == getEventUser(x).Login &&
 				nearTime(es[0].CreatedAt, x.CreatedAt) &&
 				eventGroupTypes[es[0].Event] == eventGroupTypes[x.Event] {
 				ess[i] = append(ess[i], x)
@@ -136,6 +147,26 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) string {
 			)
 		case "unlocked":
 			actions = append(actions, "unlocked this conversation")
+		case "assigned", "unassigned":
+			if len(eg) == 1 && len(e.Assignees) <= 1 && e.Assigner.Login == e.Assignee.Login {
+				if e.Event == "assigned" {
+					return "self-assigned this"
+				}
+				return "removed their assignment"
+			}
+			var targets []*github.User
+			if len(e.Assignees) > 0 {
+				for _, u := range e.Assignees {
+					targets = append(targets, u)
+				}
+			} else {
+				targets = append(targets, e.Assignee)
+			}
+			actions = append(actions, e.Event+" "+b.mentionAll(targets))
+		case "referenced":
+		default:
+			fmt.Printf("%#v\n", e)
+			panic(e.Event)
 		}
 	}
 
@@ -167,6 +198,17 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) string {
 		action += pluralUnit(len(addedLabels)+len(removedLabels), " label")
 	}
 	return action
+}
+
+func (b *builder) mentionAll(users []*github.User) string {
+	var s string
+	for i, u := range users {
+		if i > 0 {
+			s += " "
+		}
+		s += "@" + b.commentFilters.apply(u.Login)
+	}
+	return s
 }
 
 func quoteLabels(xs []string) string {

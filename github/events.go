@@ -13,9 +13,12 @@ type Event struct {
 	Event      string       `json:"event"`
 	Label      *EventLabel  `json:"label"`
 	CommitID   string       `json:"commit_id"`
-	CreatedAt  string       `json:"created_at"`
 	Rename     *EventRename `json:"rename"`
 	LockReason string       `json:"lock_reason"`
+	Assignee   *User        `json:"assignee"`
+	Assignees  []*User      `json:"assignees"`
+	Assigner   *User        `json:"assigner"`
+	CreatedAt  string       `json:"created_at"`
 }
 
 // EventLabel ...
