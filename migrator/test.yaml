@@ -474,6 +474,13 @@
           - actor: *user2
             event: head_ref_restored
             created_at: 2019-11-18T12:00:18Z
+          - actor: *user3
+            event: locked
+            created_at: 2019-11-18T13:00:00Z
+            lock_reason: off-topic
+          - actor: *user2
+            event: unlocked
+            created_at: 2019-11-18T14:00:00Z
     compare:
       sha000000...sha111111: |
         diff --git a/README.md b/README.md
@@ -621,6 +628,30 @@
               </tr>
               </table>
             created_at: 2019-11-18T12:00:10Z
+          - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/github.png" width="35">
+                </td>
+                <td>
+                  @sample-user-3 locked as <b>off topic</b> and limited conversation to collaborators
+                </td>
+              </tr>
+              </table>
+            created_at: 2019-11-18T13:00:00Z
+          - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/sample-user-1-2.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1-2 unlocked this conversation
+                </td>
+              </tr>
+              </table>
+            created_at: 2019-11-18T14:00:00Z
           - body: |
               ```diff
               # sample.txt

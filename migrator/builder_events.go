@@ -35,6 +35,8 @@ func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 		"rename":            3,
 		"head_ref_deleted":  4,
 		"head_ref_restored": 4,
+		"locked":            5,
+		"unlocked":          5,
 	}
 	for _, x := range xs {
 		var appended bool
@@ -125,6 +127,15 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) string {
 					html.EscapeString(b.pullReq.Head.Ref),
 				),
 			)
+		case "locked":
+			actions = append(actions,
+				fmt.Sprintf(
+					"locked as <b>%s</b> and limited conversation to collaborators",
+					html.EscapeString(strings.ReplaceAll(e.LockReason, "-", " ")),
+				),
+			)
+		case "unlocked":
+			actions = append(actions, "unlocked this conversation")
 		}
 	}
 
