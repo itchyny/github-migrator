@@ -117,6 +117,9 @@ func (b *builder) buildCommitDetails() string {
 		if committer == nil {
 			committer = c.Author
 		}
+		if committer == nil {
+			committer = &github.User{Login: c.Commit.Committer.Name}
+		}
 		t, err := time.Parse(time.RFC3339, c.Commit.Committer.Date)
 		if err == nil {
 			dateString = t.Format(" on Mon 2, 2006")
