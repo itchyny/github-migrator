@@ -36,19 +36,20 @@ func getEventUser(e *github.Event) *github.User {
 func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 	ess := make([][]*github.Event, 0, len(xs))
 	eventGroupTypes := map[string]int{
-		"closed":            1,
-		"merged":            1,
-		"reopened":          1,
-		"labeled":           2,
-		"unlabeled":         2,
-		"rename":            3,
-		"head_ref_deleted":  4,
-		"head_ref_restored": 4,
-		"locked":            5,
-		"unlocked":          5,
-		"assigned":          6,
-		"unassigned":        6,
-		"review_requested":  7,
+		"closed":                1,
+		"merged":                1,
+		"reopened":              1,
+		"labeled":               2,
+		"unlabeled":             2,
+		"rename":                3,
+		"head_ref_deleted":      4,
+		"head_ref_restored":     4,
+		"head_ref_force_pushed": 5,
+		"locked":                6,
+		"unlocked":              6,
+		"assigned":              7,
+		"unassigned":            7,
+		"review_requested":      8,
 	}
 	for _, x := range xs {
 		var appended bool
@@ -136,6 +137,13 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) string {
 			actions = append(actions,
 				fmt.Sprintf(
 					"restored the <code>%s</code> branch",
+					html.EscapeString(b.pullReq.Head.Ref),
+				),
+			)
+		case "head_ref_force_pushed":
+			actions = append(actions,
+				fmt.Sprintf(
+					"force-pushed the <code>%s</code> branch",
 					html.EscapeString(b.pullReq.Head.Ref),
 				),
 			)
