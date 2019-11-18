@@ -8,19 +8,20 @@ import (
 
 // Event represents an event.
 type Event struct {
-	ID         int          `json:"id"`
-	Actor      *User        `json:"actor"`
-	Event      string       `json:"event"`
-	Label      *EventLabel  `json:"label"`
-	CommitID   string       `json:"commit_id"`
-	Rename     *EventRename `json:"rename"`
-	LockReason string       `json:"lock_reason"`
-	Assignee   *User        `json:"assignee"`
-	Assignees  []*User      `json:"assignees"`
-	Assigner   *User        `json:"assigner"`
-	Reviewer   *User        `json:"requested_reviewer"`
-	Reviewers  []*User      `json:"requested_reviewers"`
-	CreatedAt  string       `json:"created_at"`
+	ID          int               `json:"id"`
+	Actor       *User             `json:"actor"`
+	Event       string            `json:"event"`
+	Label       *EventLabel       `json:"label"`
+	CommitID    string            `json:"commit_id"`
+	Rename      *EventRename      `json:"rename"`
+	LockReason  string            `json:"lock_reason"`
+	Assignee    *User             `json:"assignee"`
+	Assignees   []*User           `json:"assignees"`
+	Assigner    *User             `json:"assigner"`
+	Reviewer    *User             `json:"requested_reviewer"`
+	Reviewers   []*User           `json:"requested_reviewers"`
+	ProjectCard *EventProjectCard `json:"project_card"`
+	CreatedAt   string            `json:"created_at"`
 }
 
 // EventLabel ...
@@ -33,6 +34,13 @@ type EventLabel struct {
 type EventRename struct {
 	From string `json:"from"`
 	To   string `json:"to"`
+}
+
+// EventProjectCard ...
+type EventProjectCard struct {
+	ID         int    `json:"id"`
+	ProjectID  int    `json:"project_id"`
+	ColumnName string `json:"column_name"`
 }
 
 // Events represents a collection of events.

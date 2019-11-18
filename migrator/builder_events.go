@@ -189,6 +189,18 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 				targets = append(targets, e.Reviewer)
 			}
 			actions = append(actions, "requested a review from "+b.mentionAll(targets))
+		case "converted_note_to_issue":
+			p, err := b.getProject(e.ProjectCard.ProjectID)
+			if err != nil {
+				return "", err
+			}
+			actions = append(actions,
+				fmt.Sprintf(
+					`created this issue from a note in <b><a href="%s">%s</a></b> (<code>%s</code>)`,
+					p.HTMLURL, html.EscapeString(p.Name),
+					html.EscapeString(e.ProjectCard.ColumnName),
+				),
+			)
 		case "referenced", "mentioned", "subscribed", "base_ref_changed":
 		default:
 			fmt.Printf("%#v\n", e)
@@ -243,4 +255,19 @@ func quoteLabels(xs []string) string {
 		ys[i] = "<b><code>" + html.EscapeString(x) + "</code></b>"
 	}
 	return strings.Join(ys, " ")
+}
+
+func (b *builder) getProject(id int) (*github.Project, error) {
+	if p, ok := b.projectByIDs[id]; ok {
+		return p, nil
+	}
+	p, err := b.sourceCli.GetProject(id)
+	if err != nil {
+		return nil, err
+	}
+	if b.projectByIDs == nil {
+		b.projectByIDs = make(map[int]*github.Project)
+	}
+	b.projectByIDs[id] = p
+	return p, nil
 }

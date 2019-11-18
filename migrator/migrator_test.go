@@ -35,8 +35,9 @@ type testRepo struct {
 		Reviews        []*github.Review        `json:"reviews"`
 		ReviewComments []*github.ReviewComment `json:"review_comments"`
 	}
-	Compare map[string]string
-	Imports []*github.Import `json:"imports"`
+	Compare  map[string]string
+	Imports  []*github.Import  `json:"imports"`
+	Projects []*github.Project `json:"projects"`
 }
 
 func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
@@ -153,6 +154,15 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 				}
 			}
 			panic(fmt.Sprintf("unexpected pull request number: %d", pullNumber))
+		}),
+		github.MockGetProject(func(path string, projectID int) (*github.Project, error) {
+			assert.True(t, !isTarget)
+			for _, p := range r.Projects {
+				if p.ID == projectID {
+					return p, nil
+				}
+			}
+			panic(fmt.Sprintf("unexpected project id: %d", projectID))
 		}),
 		github.MockImport((func(i int) func(string, *github.Import) (*github.ImportResult, error) {
 			return func(path string, x *github.Import) (*github.ImportResult, error) {
