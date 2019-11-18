@@ -167,7 +167,7 @@ func (c *client) CreateHook(repo string, params *CreateHookParams) (*Hook, error
 		return nil, err
 	}
 	body := bytes.NewReader(bs)
-	res, err := c.patch(c.url(createHookPath(repo)), body)
+	res, err := c.post(c.url(createHookPath(repo)), body)
 	if err != nil {
 		return nil, err
 	}

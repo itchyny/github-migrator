@@ -40,6 +40,8 @@ export GITHUB_MIGRATOR_USER_MAPPING=user-before1:user-after1,user-before2:user-a
   - Description, Homepage (only when the target repository has blank description, homepage)
 - Labels
   - Label name, description and colors
+- Webhooks
+  - Webhook URL, Content type and events the hooks is trigger for.
 - All the other things will be lost
   - Emoji reactions to issue and pull request comments
   - Label changing logs in issue and pull request
@@ -47,7 +49,7 @@ export GITHUB_MIGRATOR_USER_MAPPING=user-before1:user-after1,user-before2:user-a
   - Wiki
   - Projects, Milestones (will be implemented in the near future)
   - Default branch, Protection rules
-  - Webhooks, Notifications, Integrations
+  - Notifications, Integrations
 
 ## Disclaimer
 This tool is still under construction.

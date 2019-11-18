@@ -925,3 +925,73 @@
   user_mapping:
     bob: charlie
     sample-user-2: sample-user-1-2
+
+-
+  name: hooks
+
+  source:
+    repo:
+      name: source
+      full_name: example/source
+    hooks:
+      - id: 1
+        name: "web"
+        events: ["push"]
+        config:
+          url: http://localhost/hook1
+          content_type: json
+        active: true
+      - id: 2
+        name: "web"
+        events: ["push", "pull_request"]
+        config:
+          url: http://localhost/hook2
+          content_type: form
+        active: true
+      - id: 3
+        name: "web"
+        events: ["issue"]
+        config:
+          url: http://localhost/hook3
+          content_type: json
+        active: false
+
+  target:
+    repo:
+      name: target
+      full_name: example/target
+    hooks:
+      - id: 2
+        name: "web"
+        events: ["push"]
+        config:
+          url: http://localhost/hook2
+          content_type: form
+        active: true
+      - id: 3
+        name: "web"
+        events: ["issue"]
+        config:
+          url: http://localhost/hook3
+          content_type: json
+        active: true
+    create_hooks:
+      - name: "web"
+        events: ["push"]
+        config:
+          url: http://localhost/hook1
+          content_type: json
+        active: true
+    update_hooks:
+      - name: "web"
+        events: ["push", "pull_request"]
+        config:
+          url: http://localhost/hook2
+          content_type: form
+        active: true
+      - name: "web"
+        events: ["issue"]
+        config:
+          url: http://localhost/hook3
+          content_type: json
+        active: false

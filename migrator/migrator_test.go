@@ -35,9 +35,12 @@ type testRepo struct {
 		Reviews        []*github.Review        `json:"reviews"`
 		ReviewComments []*github.ReviewComment `json:"review_comments"`
 	}
-	Compare  map[string]string
-	Imports  []*github.Import  `json:"imports"`
-	Projects []*github.Project `json:"projects"`
+	Compare     map[string]string
+	Imports     []*github.Import  `json:"imports"`
+	Projects    []*github.Project `json:"projects"`
+	Hooks       []*github.Hook    `json:"hooks"`
+	CreateHooks []*github.Hook    `json:"create_hooks"`
+	UpdateHooks []*github.Hook    `json:"update_hooks"`
 }
 
 func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
@@ -164,6 +167,33 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			}
 			panic(fmt.Sprintf("unexpected project id: %d", projectID))
 		}),
+		github.MockListHooks(func(path string) github.Hooks {
+			return github.HooksFromSlice(r.Hooks)
+		}),
+		github.MockCreateHook((func(i int) func(string, *github.CreateHookParams) (*github.Hook, error) {
+			return func(path string, params *github.CreateHookParams) (*github.Hook, error) {
+				defer func() { i++ }()
+				assert.True(t, isTarget)
+				require.Greater(t, len(r.CreateHooks), i)
+				assert.Equal(t, "/repos/"+r.Repo.FullName+"/hooks", path)
+				assert.Equal(t, r.CreateHooks[i].Events, params.Events)
+				assert.Equal(t, r.CreateHooks[i].Config, params.Config)
+				assert.Equal(t, r.CreateHooks[i].Active, params.Active)
+				return nil, nil
+			}
+		})(0)),
+		github.MockUpdateHook((func(i int) func(string, int, *github.UpdateHookParams) (*github.Hook, error) {
+			return func(path string, hookID int, params *github.UpdateHookParams) (*github.Hook, error) {
+				defer func() { i++ }()
+				assert.True(t, isTarget)
+				require.Greater(t, len(r.UpdateHooks), i)
+				assert.Equal(t, "/repos/"+r.Repo.FullName+"/hooks/"+fmt.Sprint(hookID), path)
+				assert.Equal(t, r.UpdateHooks[i].Events, params.Events)
+				assert.Equal(t, r.UpdateHooks[i].Config, params.Config)
+				assert.Equal(t, r.UpdateHooks[i].Active, params.Active)
+				return nil, nil
+			}
+		})(0)),
 		github.MockImport((func(i int) func(string, *github.Import) (*github.ImportResult, error) {
 			return func(path string, x *github.Import) (*github.ImportResult, error) {
 				defer func() { i++ }()
