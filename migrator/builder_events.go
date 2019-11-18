@@ -56,6 +56,7 @@ func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 		"review_requested":         8,
 		"converted_note_to_issue":  9,
 		"moved_columns_in_project": 9,
+		"removed_from_project":     9,
 	}
 	for _, x := range xs {
 		var appended bool
@@ -212,6 +213,18 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 				fmt.Sprintf(
 					`moved this from <code>%s</code> to <code>%s</code> in <b><a href="%s">%s</a></b>`,
 					html.EscapeString(e.ProjectCard.PreviousColumnName),
+					html.EscapeString(e.ProjectCard.ColumnName),
+					p.HTMLURL, html.EscapeString(p.Name),
+				),
+			)
+		case "removed_from_project":
+			p, err := b.getProject(e.ProjectCard.ProjectID)
+			if err != nil {
+				return "", err
+			}
+			actions = append(actions,
+				fmt.Sprintf(
+					`removed this from <code>%s</code> in <b><a href="%s">%s</a></b>`,
 					html.EscapeString(e.ProjectCard.ColumnName),
 					p.HTMLURL, html.EscapeString(p.Name),
 				),
