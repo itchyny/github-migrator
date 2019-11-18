@@ -18,6 +18,8 @@ type Event struct {
 	Assignee   *User        `json:"assignee"`
 	Assignees  []*User      `json:"assignees"`
 	Assigner   *User        `json:"assigner"`
+	Reviewer   *User        `json:"requested_reviewer"`
+	Reviewers  []*User      `json:"requested_reviewers"`
 	CreatedAt  string       `json:"created_at"`
 }
 

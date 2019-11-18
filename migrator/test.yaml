@@ -554,6 +554,14 @@
           - actor: *user2
             event: unlocked
             created_at: 2019-11-18T14:00:00Z
+          - actor: *user3
+            event: review_requested
+            requested_reviewer: *user2
+            created_at: 2019-11-18T15:00:00Z
+          - actor: *user2
+            event: review_requested
+            requested_reviewer: *user2
+            created_at: 2019-11-18T15:10:00Z
     compare:
       sha000000...sha111111: |
         diff --git a/README.md b/README.md
@@ -725,6 +733,30 @@
               </tr>
               </table>
             created_at: 2019-11-18T14:00:00Z
+          - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/github.png" width="35">
+                </td>
+                <td>
+                  @sample-user-3 requested a review from @sample-user-1-2
+                </td>
+              </tr>
+              </table>
+            created_at: 2019-11-18T15:00:00Z
+          - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/sample-user-1-2.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1-2 self-requested a review
+                </td>
+              </tr>
+              </table>
+            created_at: 2019-11-18T15:10:00Z
           - body: |
               ```diff
               # sample.txt

@@ -48,6 +48,7 @@ func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 		"unlocked":          5,
 		"assigned":          6,
 		"unassigned":        6,
+		"review_requested":  7,
 	}
 	for _, x := range xs {
 		var appended bool
@@ -163,7 +164,20 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) string {
 				targets = append(targets, e.Assignee)
 			}
 			actions = append(actions, e.Event+" "+b.mentionAll(targets))
-		case "referenced":
+		case "review_requested":
+			if len(eg) == 1 && len(e.Reviewers) <= 1 && e.Actor.Login == e.Reviewer.Login {
+				return "self-requested a review"
+			}
+			var targets []*github.User
+			if len(e.Reviewers) > 0 {
+				for _, u := range e.Reviewers {
+					targets = append(targets, u)
+				}
+			} else {
+				targets = append(targets, e.Reviewer)
+			}
+			actions = append(actions, "requested a review from "+b.mentionAll(targets))
+		case "referenced", "mentioned", "subscribed":
 		default:
 			fmt.Printf("%#v\n", e)
 			panic(e.Event)
