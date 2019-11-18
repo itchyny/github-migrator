@@ -30,7 +30,7 @@ func buildImport(
 	commits []*github.Commit, commitDiff string,
 	reviews []*github.Review, reviewComments []*github.ReviewComment,
 	members []*github.Member,
-) *github.Import {
+) (*github.Import, error) {
 	return (&builder{
 		source:         sourceRepo,
 		target:         targetRepo,
@@ -47,7 +47,7 @@ func buildImport(
 	}).build()
 }
 
-func (b *builder) build() *github.Import {
+func (b *builder) build() (*github.Import, error) {
 	importIssue := &github.ImportIssue{
 		Title:     b.issue.Title,
 		Body:      b.buildImportBody(),
@@ -63,10 +63,11 @@ func (b *builder) build() *github.Import {
 			importIssue.Assignee = target
 		}
 	}
-	return &github.Import{
-		Issue:    importIssue,
-		Comments: b.buildImportComments(),
+	comments, err := b.buildImportComments()
+	if err != nil {
+		return nil, err
 	}
+	return &github.Import{Issue: importIssue, Comments: comments}, nil
 }
 
 func (b *builder) buildImportBody() string {
@@ -134,17 +135,24 @@ func (b *builder) buildCommitDetails() string {
 	return b.buildDetails("", summary, b.buildTable(1, commitRows...))
 }
 
-func (b *builder) buildImportComments() []*github.ImportComment {
+func (b *builder) buildImportComments() ([]*github.ImportComment, error) {
+	issueComments := b.buildImportIssueComments()
+	eventComments, err := b.buildImportEventComments()
+	if err != nil {
+		return nil, err
+	}
+	reviewComments := b.buildImportReviewComments()
+	importReviews := b.buildImportReviews()
 	return append(
 		append(
 			append(
-				b.buildImportIssueComments(),
-				b.buildImportEventComments()...,
+				issueComments,
+				eventComments...,
 			),
-			b.buildImportReviewComments()...,
+			reviewComments...,
 		),
-		b.buildImportReviews()...,
-	)
+		importReviews...,
+	), nil
 }
 
 func (b *builder) buildImportIssueComments() []*github.ImportComment {

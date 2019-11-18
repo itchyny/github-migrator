@@ -10,18 +10,22 @@ import (
 	"github.com/itchyny/github-migrator/github"
 )
 
-func (b *builder) buildImportEventComments() []*github.ImportComment {
+func (b *builder) buildImportEventComments() ([]*github.ImportComment, error) {
 	xs := make([]*github.ImportComment, 0, len(b.events))
 	egs := groupEventsByCreated(b.events)
 	for _, eg := range egs {
-		if body := b.buildImportEventGroupBody(eg); body != "" {
+		body, err := b.buildImportEventGroupBody(eg)
+		if err != nil {
+			return nil, err
+		}
+		if body != "" {
 			xs = append(xs, &github.ImportComment{
 				Body:      b.buildUserActionBody(getEventUser(eg[0]), body, ""),
 				CreatedAt: eg[0].CreatedAt,
 			})
 		}
 	}
-	return xs
+	return xs, nil
 }
 
 func getEventUser(e *github.Event) *github.User {
@@ -89,7 +93,7 @@ const (
 	actionReopened
 )
 
-func (b *builder) buildImportEventGroupBody(eg []*github.Event) string {
+func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) {
 	var actions []string
 	var merged bool
 	var addedLabels []string
@@ -159,9 +163,9 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) string {
 		case "assigned", "unassigned":
 			if len(eg) == 1 && len(e.Assignees) <= 1 && e.Assigner.Login == e.Assignee.Login {
 				if e.Event == "assigned" {
-					return "self-assigned this"
+					return "self-assigned this", nil
 				}
-				return "removed their assignment"
+				return "removed their assignment", nil
 			}
 			var targets []*github.User
 			if len(e.Assignees) > 0 {
@@ -174,7 +178,7 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) string {
 			actions = append(actions, e.Event+" "+b.mentionAll(targets))
 		case "review_requested":
 			if len(eg) == 1 && len(e.Reviewers) <= 1 && e.Actor.Login == e.Reviewer.Login {
-				return "self-requested a review"
+				return "self-requested a review", nil
 			}
 			var targets []*github.User
 			if len(e.Reviewers) > 0 {
@@ -204,7 +208,7 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) string {
 			}
 			action += a
 		}
-		return action
+		return action, nil
 	}
 
 	if len(addedLabels) > 0 {
@@ -219,7 +223,7 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) string {
 	if len(addedLabels) > 0 || len(removedLabels) > 0 {
 		action += pluralUnit(len(addedLabels)+len(removedLabels), " label")
 	}
-	return action
+	return action, nil
 }
 
 func (b *builder) mentionAll(users []*github.User) string {

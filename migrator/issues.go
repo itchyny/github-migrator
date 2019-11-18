@@ -104,13 +104,15 @@ func (m *migrator) migrateIssue(
 		return nil, err
 	}
 	time.Sleep(beforeImportIssueDuration)
-	return m.target.Import(
-		buildImport(
-			sourceRepo, targetRepo, commentFilters,
-			sourceIssue, sourcePullReq, comments, events,
-			commits, commitDiff, reviews, reviewComments, members,
-		),
+	imp, err := buildImport(
+		sourceRepo, targetRepo, commentFilters,
+		sourceIssue, sourcePullReq, comments, events,
+		commits, commitDiff, reviews, reviewComments, members,
 	)
+	if err != nil {
+		return nil, err
+	}
+	return m.target.Import(imp)
 }
 
 func (m *migrator) waitImportIssue(id int, issue *github.Issue) error {
