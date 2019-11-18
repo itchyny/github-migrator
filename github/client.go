@@ -31,6 +31,10 @@ type Client interface {
 	ListReviewComments(string, int) ReviewComments
 	ListProjects(string, *ListProjectsParams) Projects
 	GetProject(int) (*Project, error)
+	ListHooks(string) Hooks
+	GetHook(string, int) (*Hook, error)
+	CreateHook(string, *CreateHookParams) (*Hook, error)
+	UpdateHook(string, int, *UpdateHookParams) (*Hook, error)
 	Import(string, *Import) (*ImportResult, error)
 	GetImport(string, int) (*ImportResult, error)
 }

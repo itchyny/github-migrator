@@ -22,6 +22,10 @@ type MockClient struct {
 	listReviewCommentsCallback func(string, int) ReviewComments
 	listProjectsCallback       func(string, *ListProjectsParams) Projects
 	getProjectCallback         func(int) (*Project, error)
+	listHooksCallback          func(string) Hooks
+	getHookCallback            func(string, int) (*Hook, error)
+	createHookCallback         func(string, *CreateHookParams) (*Hook, error)
+	updateHookCallback         func(string, int, *UpdateHookParams) (*Hook, error)
 	importCallback             func(string, *Import) (*ImportResult, error)
 	getImportCallback          func(string, int) (*ImportResult, error)
 }
@@ -335,6 +339,66 @@ func (c *MockClient) GetProject(projectID int) (*Project, error) {
 func MockGetProject(callback func(int) (*Project, error)) MockClientOption {
 	return func(c *MockClient) {
 		c.getProjectCallback = callback
+	}
+}
+
+// ListHooks ...
+func (c *MockClient) ListHooks(repo string) Hooks {
+	if c.listHooksCallback != nil {
+		return c.listHooksCallback(listHooksPath(repo))
+	}
+	panic("MockClient#ListHooks")
+}
+
+// MockListHooks ...
+func MockListHooks(callback func(string) Hooks) MockClientOption {
+	return func(c *MockClient) {
+		c.listHooksCallback = callback
+	}
+}
+
+// GetHook ...
+func (c *MockClient) GetHook(repo string, hookID int) (*Hook, error) {
+	if c.getHookCallback != nil {
+		return c.getHookCallback(getHookPath(repo, hookID), hookID)
+	}
+	panic("MockClient#GetHook")
+}
+
+// MockGetHook ...
+func MockGetHook(callback func(string, int) (*Hook, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.getHookCallback = callback
+	}
+}
+
+// CreateHook ...
+func (c *MockClient) CreateHook(repo string, params *CreateHookParams) (*Hook, error) {
+	if c.createHookCallback != nil {
+		return c.createHookCallback(createHookPath(repo), params)
+	}
+	panic("MockClient#CreateHook")
+}
+
+// MockCreateHook ...
+func MockCreateHook(callback func(string, *CreateHookParams) (*Hook, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.createHookCallback = callback
+	}
+}
+
+// UpdateHook ...
+func (c *MockClient) UpdateHook(repo string, hookID int, params *UpdateHookParams) (*Hook, error) {
+	if c.updateHookCallback != nil {
+		return c.updateHookCallback(updateHookPath(repo, hookID), hookID, params)
+	}
+	panic("MockClient#UpdateHook")
+}
+
+// MockUpdateHook ...
+func MockUpdateHook(callback func(string, int, *UpdateHookParams) (*Hook, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.updateHookCallback = callback
 	}
 }
 
