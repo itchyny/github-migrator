@@ -105,7 +105,7 @@ func (m *migrator) migrateIssue(
 	}
 	time.Sleep(beforeImportIssueDuration)
 	imp, err := buildImport(
-		sourceRepo, targetRepo, commentFilters,
+		m.source, sourceRepo, targetRepo, commentFilters,
 		sourceIssue, sourcePullReq, comments, events,
 		commits, commitDiff, reviews, reviewComments, members,
 	)

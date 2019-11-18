@@ -7,9 +7,11 @@ import (
 	"time"
 
 	"github.com/itchyny/github-migrator/github"
+	"github.com/itchyny/github-migrator/repo"
 )
 
 type builder struct {
+	sourceCli      repo.Repo
 	source, target *github.Repo
 	commentFilters commentFilters
 	issue          *github.Issue
@@ -21,10 +23,11 @@ type builder struct {
 	reviews        []*github.Review
 	reviewComments []*github.ReviewComment
 	members        []*github.Member
+	projectByIDs   map[int]*github.Project
 }
 
 func buildImport(
-	sourceRepo, targetRepo *github.Repo, commentFilters commentFilters,
+	sourceCli repo.Repo, sourceRepo, targetRepo *github.Repo, commentFilters commentFilters,
 	issue *github.Issue, pullReq *github.PullReq,
 	comments []*github.Comment, events []*github.Event,
 	commits []*github.Commit, commitDiff string,
@@ -32,6 +35,7 @@ func buildImport(
 	members []*github.Member,
 ) (*github.Import, error) {
 	return (&builder{
+		sourceCli:      sourceCli,
 		source:         sourceRepo,
 		target:         targetRepo,
 		commentFilters: commentFilters,
