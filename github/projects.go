@@ -189,8 +189,8 @@ func (c *client) listProjects(path string) ([]*Project, string, error) {
 	return r, getNext(res.Header), nil
 }
 
-func getProjectPath(repo string, projectID int) string {
-	return newPath(fmt.Sprintf("/repos/%s/projects/%d", repo, projectID)).
+func getProjectPath(projectID int) string {
+	return newPath(fmt.Sprintf("/projects/%d", projectID)).
 		String()
 }
 
@@ -199,8 +199,8 @@ type projectOrError struct {
 	Message string `json:"message"`
 }
 
-func (c *client) GetProject(repo string, projectID int) (*Project, error) {
-	res, err := c.get(c.url(getProjectPath(repo, projectID)))
+func (c *client) GetProject(projectID int) (*Project, error) {
+	res, err := c.get(c.url(getProjectPath(projectID)))
 	if err != nil {
 		return nil, err
 	}
@@ -212,7 +212,7 @@ func (c *client) GetProject(repo string, projectID int) (*Project, error) {
 	}
 
 	if r.Message != "" {
-		return nil, fmt.Errorf("%s: %s", r.Message, "/projects/"+fmt.Sprint(projectID))
+		return nil, fmt.Errorf("%s: %s", r.Message, getProjectPath(projectID))
 	}
 
 	return &r.Project, nil

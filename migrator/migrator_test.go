@@ -155,7 +155,7 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			}
 			panic(fmt.Sprintf("unexpected pull request number: %d", pullNumber))
 		}),
-		github.MockGetProject(func(path string, projectID int) (*github.Project, error) {
+		github.MockGetProject(func(projectID int) (*github.Project, error) {
 			assert.True(t, !isTarget)
 			for _, p := range r.Projects {
 				if p.ID == projectID {

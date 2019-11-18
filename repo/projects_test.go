@@ -38,8 +38,7 @@ func TestRepoGetProject(t *testing.T) {
 		Name: "Test project 1",
 	}
 	repo := New(github.NewMockClient(
-		github.MockGetProject(func(path string, projectID int) (*github.Project, error) {
-			assert.Contains(t, path, "/repos/example/test/projects/1")
+		github.MockGetProject(func(projectID int) (*github.Project, error) {
 			return expected, nil
 		}),
 	), "example/test")

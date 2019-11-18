@@ -11,5 +11,5 @@ func (r *repo) ListProjects() github.Projects {
 
 // GetProject gets the project.
 func (r *repo) GetProject(projectID int) (*github.Project, error) {
-	return r.cli.GetProject(r.path, projectID)
+	return r.cli.GetProject(projectID)
 }
