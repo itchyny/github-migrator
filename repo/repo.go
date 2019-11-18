@@ -22,6 +22,8 @@ type Repo interface {
 	GetCompare(string, string) (string, error)
 	ListReviews(int) github.Reviews
 	ListReviewComments(int) github.ReviewComments
+	ListProjects() github.Projects
+	GetProject(int) (*github.Project, error)
 	Import(*github.Import) (*github.ImportResult, error)
 	GetImport(int) (*github.ImportResult, error)
 }

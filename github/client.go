@@ -29,6 +29,8 @@ type Client interface {
 	GetCompare(string, string, string) (string, error)
 	ListReviews(string, int) Reviews
 	ListReviewComments(string, int) ReviewComments
+	ListProjects(string, *ListProjectsParams) Projects
+	GetProject(string, int) (*Project, error)
 	Import(string, *Import) (*ImportResult, error)
 	GetImport(string, int) (*ImportResult, error)
 }
@@ -89,6 +91,7 @@ func (c *client) request(method, path string, body io.Reader) (*http.Request, er
 	req.Header.Add("Accept", "application/vnd.github.symmetra-preview+json")
 	req.Header.Add("Accept", "application/vnd.github.comfort-fade-preview+json")
 	req.Header.Add("Accept", "application/vnd.github.sailor-v-preview+json")
+	req.Header.Add("Accept", "application/vnd.github.starfox-preview+json")
 	req.Header.Add("User-Agent", "github-migrator")
 	return req, nil
 }

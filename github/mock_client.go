@@ -20,6 +20,8 @@ type MockClient struct {
 	getCompareCallback         func(string, string, string) (string, error)
 	listReviewsCallback        func(string, int) Reviews
 	listReviewCommentsCallback func(string, int) ReviewComments
+	listProjectsCallback       func(string, *ListProjectsParams) Projects
+	getProjectCallback         func(string, int) (*Project, error)
 	importCallback             func(string, *Import) (*ImportResult, error)
 	getImportCallback          func(string, int) (*ImportResult, error)
 }
@@ -303,6 +305,36 @@ func (c *MockClient) ListReviewComments(repo string, pullNumber int) ReviewComme
 func MockListReviewComments(callback func(string, int) ReviewComments) MockClientOption {
 	return func(c *MockClient) {
 		c.listReviewCommentsCallback = callback
+	}
+}
+
+// ListProjects ...
+func (c *MockClient) ListProjects(repo string, params *ListProjectsParams) Projects {
+	if c.listProjectsCallback != nil {
+		return c.listProjectsCallback(listProjectsPath(repo, params), params)
+	}
+	panic("MockClient#ListProjects")
+}
+
+// MockListProjects ...
+func MockListProjects(callback func(string, *ListProjectsParams) Projects) MockClientOption {
+	return func(c *MockClient) {
+		c.listProjectsCallback = callback
+	}
+}
+
+// GetProject ...
+func (c *MockClient) GetProject(repo string, projectID int) (*Project, error) {
+	if c.getProjectCallback != nil {
+		return c.getProjectCallback(getProjectPath(repo, projectID), projectID)
+	}
+	panic("MockClient#GetProject")
+}
+
+// MockGetProject ...
+func MockGetProject(callback func(string, int) (*Project, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.getProjectCallback = callback
 	}
 }
 
