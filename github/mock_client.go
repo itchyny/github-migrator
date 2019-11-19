@@ -2,34 +2,38 @@ package github
 
 // MockClient represents a mock for GitHub client.
 type MockClient struct {
-	getUserCallback            func() (*User, error)
-	listMembersCallback        func(string) Members
-	getRepoCallback            func(string) (*Repo, error)
-	updateRepoCallback         func(string, *UpdateRepoParams) (*Repo, error)
-	listLabelsCallback         func(string) Labels
-	createLabelCallback        func(string, *CreateLabelParams) (*Label, error)
-	updateLabelCallback        func(string, string, *UpdateLabelParams) (*Label, error)
-	listIssuesCallback         func(string, *ListIssuesParams) Issues
-	getIssueCallback           func(string, int) (*Issue, error)
-	listCommentsCallback       func(string, int) Comments
-	listEventsCallback         func(string, int) Events
-	listPullReqsCallback       func(string, *ListPullReqsParams) PullReqs
-	getPullReqCallback         func(string, int) (*PullReq, error)
-	listPullReqCommitsCallback func(string, int) Commits
-	getDiffCallback            func(string, string) (string, error)
-	getCompareCallback         func(string, string, string) (string, error)
-	listReviewsCallback        func(string, int) Reviews
-	listReviewCommentsCallback func(string, int) ReviewComments
-	listProjectsCallback       func(string, *ListProjectsParams) Projects
-	getProjectCallback         func(int) (*Project, error)
-	createProjectCallback      func(string, *CreateProjectParams) (*Project, error)
-	updateProjectCallback      func(string, int, *UpdateProjectParams) (*Project, error)
-	listHooksCallback          func(string) Hooks
-	getHookCallback            func(string, int) (*Hook, error)
-	createHookCallback         func(string, *CreateHookParams) (*Hook, error)
-	updateHookCallback         func(string, int, *UpdateHookParams) (*Hook, error)
-	importCallback             func(string, *Import) (*ImportResult, error)
-	getImportCallback          func(string, int) (*ImportResult, error)
+	getUserCallback             func() (*User, error)
+	listMembersCallback         func(string) Members
+	getRepoCallback             func(string) (*Repo, error)
+	updateRepoCallback          func(string, *UpdateRepoParams) (*Repo, error)
+	listLabelsCallback          func(string) Labels
+	createLabelCallback         func(string, *CreateLabelParams) (*Label, error)
+	updateLabelCallback         func(string, string, *UpdateLabelParams) (*Label, error)
+	listIssuesCallback          func(string, *ListIssuesParams) Issues
+	getIssueCallback            func(string, int) (*Issue, error)
+	listCommentsCallback        func(string, int) Comments
+	listEventsCallback          func(string, int) Events
+	listPullReqsCallback        func(string, *ListPullReqsParams) PullReqs
+	getPullReqCallback          func(string, int) (*PullReq, error)
+	listPullReqCommitsCallback  func(string, int) Commits
+	getDiffCallback             func(string, string) (string, error)
+	getCompareCallback          func(string, string, string) (string, error)
+	listReviewsCallback         func(string, int) Reviews
+	listReviewCommentsCallback  func(string, int) ReviewComments
+	listProjectsCallback        func(string, *ListProjectsParams) Projects
+	getProjectCallback          func(int) (*Project, error)
+	createProjectCallback       func(string, *CreateProjectParams) (*Project, error)
+	updateProjectCallback       func(string, int, *UpdateProjectParams) (*Project, error)
+	listProjectColumnsCallback  func(int) ProjectColumns
+	getProjectColumnCallback    func(int) (*ProjectColumn, error)
+	createProjectColumnCallback func(int, string) (*ProjectColumn, error)
+	updateProjectColumnCallback func(int, string) (*ProjectColumn, error)
+	listHooksCallback           func(string) Hooks
+	getHookCallback             func(string, int) (*Hook, error)
+	createHookCallback          func(string, *CreateHookParams) (*Hook, error)
+	updateHookCallback          func(string, int, *UpdateHookParams) (*Hook, error)
+	importCallback              func(string, *Import) (*ImportResult, error)
+	getImportCallback           func(string, int) (*ImportResult, error)
 }
 
 // MockClientOption is an option of mock client.
@@ -371,6 +375,66 @@ func (c *MockClient) UpdateProject(projectID int, params *UpdateProjectParams) (
 func MockUpdateProject(callback func(string, int, *UpdateProjectParams) (*Project, error)) MockClientOption {
 	return func(c *MockClient) {
 		c.updateProjectCallback = callback
+	}
+}
+
+// ListProjectColumns ...
+func (c *MockClient) ListProjectColumns(projectID int) ProjectColumns {
+	if c.listProjectColumnsCallback != nil {
+		return c.listProjectColumnsCallback(projectID)
+	}
+	panic("MockClient#ListProjectColumns")
+}
+
+// MockListProjectColumns ...
+func MockListProjectColumns(callback func(int) ProjectColumns) MockClientOption {
+	return func(c *MockClient) {
+		c.listProjectColumnsCallback = callback
+	}
+}
+
+// GetProjectColumn ...
+func (c *MockClient) GetProjectColumn(projectColumnID int) (*ProjectColumn, error) {
+	if c.getProjectColumnCallback != nil {
+		return c.getProjectColumnCallback(projectColumnID)
+	}
+	panic("MockClient#GetProjectColumn")
+}
+
+// MockGetProjectColumn ...
+func MockGetProjectColumn(callback func(int) (*ProjectColumn, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.getProjectColumnCallback = callback
+	}
+}
+
+// CreateProjectColumn ...
+func (c *MockClient) CreateProjectColumn(projectID int, name string) (*ProjectColumn, error) {
+	if c.createProjectColumnCallback != nil {
+		return c.createProjectColumnCallback(projectID, name)
+	}
+	panic("MockClient#CreateProjectColumn")
+}
+
+// MockCreateProjectColumn ...
+func MockCreateProjectColumn(callback func(int, string) (*ProjectColumn, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.createProjectColumnCallback = callback
+	}
+}
+
+// UpdateProjectColumn ...
+func (c *MockClient) UpdateProjectColumn(projectColumnID int, name string) (*ProjectColumn, error) {
+	if c.updateProjectColumnCallback != nil {
+		return c.updateProjectColumnCallback(projectColumnID, name)
+	}
+	panic("MockClient#UpdateProjectColumn")
+}
+
+// MockUpdateProjectColumn ...
+func MockUpdateProjectColumn(callback func(int, string) (*ProjectColumn, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.updateProjectColumnCallback = callback
 	}
 }
 
