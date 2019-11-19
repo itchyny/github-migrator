@@ -527,3 +527,8 @@ func MockGetImport(callback func(string, int) (*ImportResult, error)) MockClient
 		c.getImportCallback = callback
 	}
 }
+
+// WithLogger ...
+func (c *MockClient) WithLogger(*Logger) Client {
+	return c
+}

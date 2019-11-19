@@ -31,9 +31,8 @@ func (c *client) getDiff(name, path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Printf("fetching: %s\n", req.URL)
 	req.Header.Add("Accept", "application/vnd.github.v3.diff")
-	res, err := c.client.Do(req)
+	res, err := c.do(req)
 	if err != nil {
 		return "", err
 	}

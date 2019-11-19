@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 
@@ -39,7 +40,18 @@ func createGitHubClient(tokenEnv, endpointEnv string) (github.Client, error) {
 	if endpoint == "" {
 		endpoint = "https://api.github.com"
 	}
-	cli := github.New(token, endpoint)
+	cli := github.New(token, endpoint).WithLogger(github.NewLogger(
+		github.LoggerOptionPreRequest(func(req *http.Request) {
+			fmt.Printf("===> %s: %s\n", req.Method, req.URL)
+		}),
+		github.LoggerOptionPostRequest(func(res *http.Response, err error) {
+			if err != nil {
+				fmt.Printf("<=== %s: %s: %s\n", err, res.Request.Method, res.Request.URL)
+				return
+			}
+			fmt.Printf("<=== %s: %s: %s\n", res.Status, res.Request.Method, res.Request.URL)
+		}),
+	))
 	user, err := cli.GetUser()
 	if err != nil {
 		return nil, fmt.Errorf("%s (or you may want to set %s)", err, endpointEnv)
