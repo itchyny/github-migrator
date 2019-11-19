@@ -72,9 +72,10 @@ func (c *client) ListLabels(repo string) Labels {
 		defer close(ls)
 		path := c.url(listLabelsPath(repo))
 		for {
-			xs, next, err := c.listLabels(path)
+			var xs []*Label
+			next, err := c.getList(path, &xs)
 			if err != nil {
-				ls <- err
+				ls <- fmt.Errorf("ListLabels %s: %w", repo, err)
 				break
 			}
 			for _, x := range xs {
@@ -87,21 +88,6 @@ func (c *client) ListLabels(repo string) Labels {
 		}
 	}()
 	return Labels(ls)
-}
-
-func (c *client) listLabels(path string) ([]*Label, string, error) {
-	res, err := c.get(path)
-	if err != nil {
-		return nil, "", err
-	}
-	defer res.Body.Close()
-
-	var r []*Label
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, "", err
-	}
-
-	return r, getNext(res.Header), nil
 }
 
 // CreateLabelParams represents the paramter for CreateLabel API.

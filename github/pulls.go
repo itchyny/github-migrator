@@ -173,9 +173,10 @@ func (c *client) ListPullReqs(repo string, params *ListPullReqsParams) PullReqs 
 		defer close(ps)
 		path := c.url(listPullReqsPath(repo, params))
 		for {
-			xs, next, err := c.listPullReqs(path)
+			var xs []*PullReq
+			next, err := c.getList(path, &xs)
 			if err != nil {
-				ps <- err
+				ps <- fmt.Errorf("ListPullReqs %s: %w", repo, err)
 				break
 			}
 			for _, x := range xs {
@@ -188,21 +189,6 @@ func (c *client) ListPullReqs(repo string, params *ListPullReqsParams) PullReqs 
 		}
 	}()
 	return PullReqs(ps)
-}
-
-func (c *client) listPullReqs(path string) ([]*PullReq, string, error) {
-	res, err := c.get(path)
-	if err != nil {
-		return nil, "", err
-	}
-	defer res.Body.Close()
-
-	var r []*PullReq
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, "", err
-	}
-
-	return r, getNext(res.Header), nil
 }
 
 func getPullReqPath(repo string, pullNumber int) string {

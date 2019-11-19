@@ -1,7 +1,6 @@
 package github
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 )
@@ -75,9 +74,10 @@ func (c *client) ListReviewComments(repo string, pullNumber int) ReviewComments 
 		defer close(cs)
 		path := c.url(listReviewCommentsPath(repo, pullNumber))
 		for {
-			xs, next, err := c.listReviewComments(path)
+			var xs []*ReviewComment
+			next, err := c.getList(path, &xs)
 			if err != nil {
-				cs <- err
+				cs <- fmt.Errorf("ListReviewComments %s: %w", repo, err)
 				break
 			}
 			for _, x := range xs {
@@ -90,19 +90,4 @@ func (c *client) ListReviewComments(repo string, pullNumber int) ReviewComments 
 		}
 	}()
 	return ReviewComments(cs)
-}
-
-func (c *client) listReviewComments(path string) ([]*ReviewComment, string, error) {
-	res, err := c.get(path)
-	if err != nil {
-		return nil, "", err
-	}
-	defer res.Body.Close()
-
-	var r []*ReviewComment
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, "", err
-	}
-
-	return r, getNext(res.Header), nil
 }

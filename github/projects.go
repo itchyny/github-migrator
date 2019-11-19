@@ -158,9 +158,10 @@ func (c *client) ListProjects(repo string, params *ListProjectsParams) Projects 
 		defer close(ps)
 		path := c.url(listProjectsPath(repo, params))
 		for {
-			xs, next, err := c.listProjects(path)
+			var xs []*Project
+			next, err := c.getList(path, &xs)
 			if err != nil {
-				ps <- err
+				ps <- fmt.Errorf("ListProjects %s: %w", repo, err)
 				break
 			}
 			for _, x := range xs {
@@ -173,21 +174,6 @@ func (c *client) ListProjects(repo string, params *ListProjectsParams) Projects 
 		}
 	}()
 	return Projects(ps)
-}
-
-func (c *client) listProjects(path string) ([]*Project, string, error) {
-	res, err := c.get(path)
-	if err != nil {
-		return nil, "", err
-	}
-	defer res.Body.Close()
-
-	var r []*Project
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, "", err
-	}
-
-	return r, getNext(res.Header), nil
 }
 
 func getProjectPath(projectID int) string {

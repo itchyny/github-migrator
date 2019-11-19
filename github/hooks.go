@@ -84,9 +84,10 @@ func (c *client) ListHooks(repo string) Hooks {
 		defer close(hs)
 		path := c.url(listHooksPath(repo))
 		for {
-			xs, next, err := c.listHooks(path)
+			var xs []*Hook
+			next, err := c.getList(path, &xs)
 			if err != nil {
-				hs <- err
+				hs <- fmt.Errorf("ListHooks %s: %w", repo, err)
 				break
 			}
 			for _, x := range xs {
@@ -99,21 +100,6 @@ func (c *client) ListHooks(repo string) Hooks {
 		}
 	}()
 	return Hooks(hs)
-}
-
-func (c *client) listHooks(path string) ([]*Hook, string, error) {
-	res, err := c.get(path)
-	if err != nil {
-		return nil, "", err
-	}
-	defer res.Body.Close()
-
-	var r []*Hook
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, "", err
-	}
-
-	return r, getNext(res.Header), nil
 }
 
 func getHookPath(repo string, hookID int) string {

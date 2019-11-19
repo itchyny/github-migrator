@@ -1,11 +1,8 @@
 package github
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 )
 
 // Member represents a member.
@@ -67,9 +64,12 @@ func (c *client) ListMembers(org string) Members {
 		defer close(ms)
 		path := c.url(listMembersPath(org))
 		for {
-			xs, next, err := c.listMembers(path)
+			var xs []*Member
+			next, err := c.getList(path, &xs)
 			if err != nil {
-				ms <- err
+				if err.Error() != "Not Found" {
+					ms <- fmt.Errorf("ListMembers %s: %w", org, err)
+				}
 				break
 			}
 			for _, x := range xs {
@@ -82,30 +82,4 @@ func (c *client) ListMembers(org string) Members {
 		}
 	}()
 	return Members(ms)
-}
-
-func (c *client) listMembers(path string) ([]*Member, string, error) {
-	res, err := c.get(path)
-	if err != nil {
-		return nil, "", err
-	}
-	defer res.Body.Close()
-
-	bs, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, "", err
-	}
-
-	var r []*Member
-	if err := json.NewDecoder(bytes.NewReader(bs)).Decode(&r); err != nil {
-		var em map[string]string
-		if err := json.NewDecoder(bytes.NewReader(bs)).Decode(&em); err == nil {
-			if mess, ok := em["message"]; ok && mess == "Not Found" {
-				return nil, "", nil
-			}
-		}
-		return nil, "", err
-	}
-
-	return r, getNext(res.Header), nil
 }

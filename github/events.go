@@ -1,7 +1,6 @@
 package github
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 )
@@ -100,9 +99,10 @@ func (c *client) ListEvents(repo string, issueNumber int) Events {
 		defer close(es)
 		path := c.url(listEventsPath(repo, issueNumber))
 		for {
-			xs, next, err := c.listEvents(path)
+			var xs []*Event
+			next, err := c.getList(path, &xs)
 			if err != nil {
-				es <- err
+				es <- fmt.Errorf("ListEvents %s/issues/%d: %w", repo, issueNumber, err)
 				break
 			}
 			for _, x := range xs {
@@ -115,19 +115,4 @@ func (c *client) ListEvents(repo string, issueNumber int) Events {
 		}
 	}()
 	return Events(es)
-}
-
-func (c *client) listEvents(path string) ([]*Event, string, error) {
-	res, err := c.get(path)
-	if err != nil {
-		return nil, "", err
-	}
-	defer res.Body.Close()
-
-	var r []*Event
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, "", err
-	}
-
-	return r, getNext(res.Header), nil
 }

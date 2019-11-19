@@ -1,7 +1,10 @@
 package github
 
 import (
+	"bytes"
 	"crypto/tls"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -105,6 +108,27 @@ func (c *client) request(method, path string, body io.Reader) (*http.Request, er
 	req.Header.Add("Accept", "application/vnd.github.inertia-preview+json")
 	req.Header.Add("User-Agent", "github-migrator")
 	return req, nil
+}
+
+func (c *client) getList(path string, v interface{}) (string, error) {
+	res, err := c.get(path)
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+
+	var buf bytes.Buffer
+	if err := json.NewDecoder(io.TeeReader(res.Body, &buf)).Decode(&v); err != nil {
+		var errMessage struct {
+			Message string `json:"message"`
+		}
+		if err := json.NewDecoder(io.MultiReader(&buf, res.Body)).Decode(&errMessage); err == nil {
+			return "", errors.New(errMessage.Message)
+		}
+		return "", err
+	}
+
+	return getNext(res.Header), nil
 }
 
 func getNext(header http.Header) string {

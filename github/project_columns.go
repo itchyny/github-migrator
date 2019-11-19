@@ -73,9 +73,10 @@ func (c *client) ListProjectColumns(projectID int) ProjectColumns {
 		defer close(ps)
 		path := c.url(listProjectColumnsPath(projectID))
 		for {
-			xs, next, err := c.listProjectColumns(path)
+			var xs []*ProjectColumn
+			next, err := c.getList(path, &xs)
 			if err != nil {
-				ps <- err
+				ps <- fmt.Errorf("ListProjectColumns %d: %w", projectID, err)
 				break
 			}
 			for _, x := range xs {
@@ -88,21 +89,6 @@ func (c *client) ListProjectColumns(projectID int) ProjectColumns {
 		}
 	}()
 	return ProjectColumns(ps)
-}
-
-func (c *client) listProjectColumns(path string) ([]*ProjectColumn, string, error) {
-	res, err := c.get(path)
-	if err != nil {
-		return nil, "", err
-	}
-	defer res.Body.Close()
-
-	var r []*ProjectColumn
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, "", err
-	}
-
-	return r, getNext(res.Header), nil
 }
 
 func getProjectColumnPath(projectColumnID int) string {

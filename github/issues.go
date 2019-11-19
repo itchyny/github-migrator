@@ -275,9 +275,10 @@ func (c *client) ListIssues(repo string, params *ListIssuesParams) Issues {
 		defer close(is)
 		path := c.url(listIssuesPath(repo, params))
 		for {
-			xs, next, err := c.listIssues(path)
+			var xs []*Issue
+			next, err := c.getList(path, &xs)
 			if err != nil {
-				is <- err
+				is <- fmt.Errorf("ListIssues %s: %w", repo, err)
 				break
 			}
 			for _, x := range xs {
@@ -290,21 +291,6 @@ func (c *client) ListIssues(repo string, params *ListIssuesParams) Issues {
 		}
 	}()
 	return Issues(is)
-}
-
-func (c *client) listIssues(path string) ([]*Issue, string, error) {
-	res, err := c.get(path)
-	if err != nil {
-		return nil, "", err
-	}
-	defer res.Body.Close()
-
-	var r []*Issue
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, "", err
-	}
-
-	return r, getNext(res.Header), nil
 }
 
 func getIssuePath(repo string, issueNumber int) string {

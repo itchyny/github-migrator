@@ -127,9 +127,10 @@ func (c *client) ListReviews(repo string, pullNumber int) Reviews {
 		defer close(rs)
 		path := c.url(listReviewsPath(repo, pullNumber))
 		for {
-			xs, next, err := c.listReviews(path)
+			var xs []*Review
+			next, err := c.getList(path, &xs)
 			if err != nil {
-				rs <- err
+				rs <- fmt.Errorf("ListReviews %s/pull/%d: %w", repo, pullNumber, err)
 				break
 			}
 			for _, x := range xs {
@@ -142,19 +143,4 @@ func (c *client) ListReviews(repo string, pullNumber int) Reviews {
 		}
 	}()
 	return Reviews(rs)
-}
-
-func (c *client) listReviews(path string) ([]*Review, string, error) {
-	res, err := c.get(path)
-	if err != nil {
-		return nil, "", err
-	}
-	defer res.Body.Close()
-
-	var r []*Review
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, "", err
-	}
-
-	return r, getNext(res.Header), nil
 }

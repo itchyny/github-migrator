@@ -1,7 +1,6 @@
 package github
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 )
@@ -86,9 +85,10 @@ func (c *client) ListPullReqCommits(repo string, pullNumber int) Commits {
 		defer close(cs)
 		path := c.url(listPullReqCommitsPath(repo, pullNumber))
 		for {
-			xs, next, err := c.listPullReqCommits(path)
+			var xs []*Commit
+			next, err := c.getList(path, &xs)
 			if err != nil {
-				cs <- err
+				cs <- fmt.Errorf("ListPullReqCommits %s/pull/%d: %w", repo, pullNumber, err)
 				break
 			}
 			for _, x := range xs {
@@ -101,19 +101,4 @@ func (c *client) ListPullReqCommits(repo string, pullNumber int) Commits {
 		}
 	}()
 	return Commits(cs)
-}
-
-func (c *client) listPullReqCommits(path string) ([]*Commit, string, error) {
-	res, err := c.get(path)
-	if err != nil {
-		return nil, "", err
-	}
-	defer res.Body.Close()
-
-	var r []*Commit
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, "", err
-	}
-
-	return r, getNext(res.Header), nil
 }
