@@ -54,6 +54,7 @@ func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 		"assigned":                 7,
 		"unassigned":               7,
 		"review_requested":         8,
+		"review_request_removed":   8,
 		"converted_note_to_issue":  9,
 		"moved_columns_in_project": 9,
 		"removed_from_project":     9,
@@ -179,9 +180,12 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 				targets = append(targets, e.Assignee)
 			}
 			actions = append(actions, e.Event+" "+b.mentionAll(targets))
-		case "review_requested":
+		case "review_requested", "review_request_removed":
 			if len(eg) == 1 && len(e.Reviewers) <= 1 && e.Actor.Login == e.Reviewer.Login {
-				return "self-requested a review", nil
+				if e.Event == "review_requested" {
+					return "self-requested a review", nil
+				}
+				return "removed their request for review", nil
 			}
 			var targets []*github.User
 			if len(e.Reviewers) > 0 {
@@ -191,7 +195,13 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 			} else {
 				targets = append(targets, e.Reviewer)
 			}
-			actions = append(actions, "requested a review from "+b.mentionAll(targets))
+			var actionStr string
+			if e.Event == "review_requested" {
+				actionStr = "requested a review"
+			} else {
+				actionStr = "removed the request for review"
+			}
+			actions = append(actions, actionStr+" from "+b.mentionAll(targets))
 		case "converted_note_to_issue":
 			p, err := b.getProject(e.ProjectCard.ProjectID)
 			if err != nil {
