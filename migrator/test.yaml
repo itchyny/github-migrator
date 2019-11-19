@@ -493,17 +493,17 @@
         color: e6e6e6
         default: true
     issues:
-      - number: 3
+      - number: 1
         title: Example title 3
         state: closed
         body: |
           Example body 3
-        html_url: http://localhost/example/source/pull/3
+        html_url: http://localhost/example/source/pull/1
         user: *user3
         assignee: *user3
         pull_request:
-          url: http://localhost/example/source/pulls/3
-          html_url: http://localhost/example/source/pull/3
+          url: http://localhost/example/source/pulls/1
+          html_url: http://localhost/example/source/pull/1
         merged: true
         merged_by: *user2
         merge_commit_sha: sha222222
@@ -672,7 +672,7 @@
               <td>
                 @sample-user-3 created the original pull request<br>
                 <a href="http://localhost/example/target/compare/sha000000...sha111111">sha0000...sha1111</a> into <code>master</code> from <code>staging</code><br>
-                imported from <a href="http://localhost/example/source/pull/3">example/source#3</a>
+                imported from <a href="http://localhost/example/source/pull/1">example/source#1</a>
               </td>
             </tr>
             <tr></tr>
@@ -925,6 +925,95 @@
   user_mapping:
     bob: charlie
     sample-user-2: sample-user-1-2
+
+-
+  name: deleted issues
+
+  source:
+    repo:
+      name: source
+      full_name: example/source
+      html_url: http://localhost/example/source
+    issues:
+      - number: 1
+        title: Example title 1
+        state: closed
+        user: *user1
+        created_at: 2019-11-18T12:00:00Z
+      - number: 4
+        title: Example title 4
+        state: open
+        user: *user1
+        created_at: 2019-11-18T13:00:00Z
+
+  target:
+    repo:
+      name: target
+      full_name: example/target
+      html_url: http://localhost/example/target
+    imports:
+      - issue:
+          title: Example title 1
+          body: |
+            <table>
+            <tr>
+              <td width="60">
+                <img src="https://github.com/sample-user-1.png" width="35">
+              </td>
+              <td>
+                @sample-user-1 created the original issue<br>
+                imported from <a href="">example/source#1</a>
+              </td>
+            </tr>
+            </table>
+          created_at: 2019-11-18T12:00:00Z
+          closed: true
+          labels: []
+        comments: []
+      - issue:
+          title: "[Deleted issue]"
+          body: |
+            <table>
+            <tr>
+              <td>This issue was imported from <a href="http://localhost/example/source/issues/2">example/source#2</a>, which has already been deleted.</td>
+            </tr>
+            </table>
+          created_at: 2019-11-18T13:00:00Z
+          updated_at: 2019-11-18T13:00:00Z
+          closed_at: 2019-11-18T13:00:00Z
+          closed: true
+        comments: []
+      - issue:
+          title: "[Deleted issue]"
+          body: |
+            <table>
+            <tr>
+              <td>This issue was imported from <a href="http://localhost/example/source/issues/3">example/source#3</a>, which has already been deleted.</td>
+            </tr>
+            </table>
+          created_at: 2019-11-18T13:00:00Z
+          updated_at: 2019-11-18T13:00:00Z
+          closed_at: 2019-11-18T13:00:00Z
+          closed: true
+        comments: []
+      - issue:
+          title: Example title 4
+          body: |
+            <table>
+            <tr>
+              <td width="60">
+                <img src="https://github.com/sample-user-1.png" width="35">
+              </td>
+              <td>
+                @sample-user-1 created the original issue<br>
+                imported from <a href="">example/source#4</a>
+              </td>
+            </tr>
+            </table>
+          created_at: 2019-11-18T13:00:00Z
+          closed: false
+          labels: []
+        comments: []
 
 -
   name: hooks

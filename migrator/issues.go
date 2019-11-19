@@ -29,6 +29,7 @@ func (m *migrator) migrateIssues() error {
 		newRepoURLFilter(sourceRepo, targetRepo),
 		newUserMappingFilter(m.userMapping),
 	)
+	var lastIssueNumber int
 	for {
 		issue, err := sourceIssues.Next()
 		if err != nil {
@@ -37,13 +38,26 @@ func (m *migrator) migrateIssues() error {
 			}
 			break
 		}
-		result, err := m.migrateIssue(sourceRepo, targetRepo, commentFilters, issue, targetIssuesBuffer)
-		if err != nil {
-			return err
-		}
-		if result != nil {
-			if err := m.waitImportIssue(result.ID, issue); err != nil {
-				return fmt.Errorf("importing %s failed: %w", issue.HTMLURL, err)
+		for ; issue.Number > lastIssueNumber; lastIssueNumber++ {
+			issue := issue
+			var deleted bool
+			if deleted = issue.Number > lastIssueNumber+1; deleted {
+				issue = &github.Issue{
+					Number:    lastIssueNumber + 1,
+					HTMLURL:   fmt.Sprintf("%s/issues/%d", sourceRepo.HTMLURL, lastIssueNumber+1),
+					CreatedAt: issue.CreatedAt,
+					UpdatedAt: issue.CreatedAt,
+					ClosedAt:  issue.CreatedAt,
+				}
+			}
+			result, err := m.migrateIssue(sourceRepo, targetRepo, commentFilters, issue, targetIssuesBuffer, deleted)
+			if err != nil {
+				return err
+			}
+			if result != nil {
+				if err := m.waitImportIssue(result.ID, issue); err != nil {
+					return fmt.Errorf("importing %s failed: %w", issue.HTMLURL, err)
+				}
 			}
 		}
 	}
@@ -52,7 +66,7 @@ func (m *migrator) migrateIssues() error {
 
 func (m *migrator) migrateIssue(
 	sourceRepo, targetRepo *github.Repo, commentFilters commentFilters,
-	sourceIssue *github.Issue, targetIssuesBuffer *issuesBuffer,
+	sourceIssue *github.Issue, targetIssuesBuffer *issuesBuffer, deleted bool,
 ) (*github.ImportResult, error) {
 	fmt.Printf("migrating: %s\n", sourceIssue.HTMLURL)
 	targetIssue, err := targetIssuesBuffer.get(sourceIssue.Number)
@@ -62,6 +76,25 @@ func (m *migrator) migrateIssue(
 	if targetIssue != nil {
 		fmt.Printf("skipping: %s (already exists)\n", targetIssue.HTMLURL)
 		return nil, nil
+	}
+	time.Sleep(beforeImportIssueDuration)
+	if deleted {
+		return m.target.Import(&github.Import{
+			Issue: &github.ImportIssue{
+				Title: "[Deleted issue]",
+				Body: fmt.Sprintf(`<table>
+<tr>
+  <td>This issue was imported from %s, which has already been deleted.</td>
+</tr>
+</table>
+`, buildIssueLinkTag(sourceRepo, sourceIssue)),
+				CreatedAt: sourceIssue.CreatedAt,
+				UpdatedAt: sourceIssue.UpdatedAt,
+				Closed:    true,
+				ClosedAt:  sourceIssue.ClosedAt,
+			},
+			Comments: []*github.ImportComment{},
+		})
 	}
 	comments, err := github.CommentsToSlice(m.source.ListComments(sourceIssue.Number))
 	if err != nil {
@@ -103,7 +136,6 @@ func (m *migrator) migrateIssue(
 	if err != nil {
 		return nil, err
 	}
-	time.Sleep(beforeImportIssueDuration)
 	imp, err := buildImport(
 		m.source, sourceRepo, targetRepo, commentFilters,
 		sourceIssue, sourcePullReq, comments, events,
