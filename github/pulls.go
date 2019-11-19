@@ -156,7 +156,7 @@ func (f ListPullReqsParamDirection) String() string {
 }
 
 func listPullReqsPath(repo string, params *ListPullReqsParams) string {
-	return newPath("/repos/"+repo+"/pulls").
+	return newPath(fmt.Sprintf("/repos/%s/pulls", repo)).
 		query("state", params.State.String()).
 		query("head", params.Head).
 		query("base", params.Base).
@@ -214,7 +214,7 @@ func (c *client) GetPullReq(repo string, pullNumber int) (*PullReq, error) {
 	}
 
 	if r.Message != "" {
-		return nil, fmt.Errorf("%s: %s", r.Message, "/pulls/"+fmt.Sprint(pullNumber))
+		return nil, fmt.Errorf("GetPullReq %s: %s", fmt.Sprintf("%s/pulls/%d", repo, pullNumber), r.Message)
 	}
 
 	return &r.PullReq, nil

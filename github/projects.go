@@ -145,7 +145,7 @@ func (f ListProjectsParamState) String() string {
 }
 
 func listProjectsPath(repo string, params *ListProjectsParams) string {
-	return newPath("/repos/"+repo+"/projects").
+	return newPath(fmt.Sprintf("/repos/%s/projects", repo)).
 		query("state", params.State.String()).
 		query("per_page", "100").
 		String()
@@ -199,7 +199,7 @@ func (c *client) GetProject(projectID int) (*Project, error) {
 	}
 
 	if r.Message != "" {
-		return nil, fmt.Errorf("%s: %s", r.Message, getProjectPath(projectID))
+		return nil, fmt.Errorf("GetProject %s: %s", fmt.Sprintf("projects/%d", projectID), r.Message)
 	}
 
 	return &r.Project, nil
@@ -235,7 +235,7 @@ func (c *client) CreateProject(repo string, params *CreateProjectParams) (*Proje
 	}
 
 	if r.Message != "" {
-		return nil, fmt.Errorf("%s: %s", r.Message, "/projects")
+		return nil, fmt.Errorf("CreateProject %s: %s", fmt.Sprintf("%s/projects", repo), r.Message)
 	}
 
 	return &r.Project, nil
@@ -272,7 +272,7 @@ func (c *client) UpdateProject(projectID int, params *UpdateProjectParams) (*Pro
 	}
 
 	if r.Message != "" {
-		return nil, fmt.Errorf("%s: %s", r.Message, "/projects/"+fmt.Sprint(projectID))
+		return nil, fmt.Errorf("UpdateProject %s: %s", fmt.Sprintf("projects/%d", projectID), r.Message)
 	}
 
 	return &r.Project, nil

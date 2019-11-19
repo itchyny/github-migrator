@@ -259,7 +259,7 @@ func (f ListIssuesParamDirection) String() string {
 }
 
 func listIssuesPath(repo string, params *ListIssuesParams) string {
-	return newPath("/repos/"+repo+"/issues").
+	return newPath(fmt.Sprintf("/repos/%s/issues", repo)).
 		query("filter", params.Filter.String()).
 		query("state", params.State.String()).
 		query("sort", params.Sort.String()).
@@ -316,7 +316,7 @@ func (c *client) GetIssue(repo string, issueNumber int) (*Issue, error) {
 	}
 
 	if r.Message != "" {
-		return nil, fmt.Errorf("%s: %s", r.Message, "/issues/"+fmt.Sprint(issueNumber))
+		return nil, fmt.Errorf("GetIssue %s: %s", fmt.Sprintf("%s/issues/%d", repo, issueNumber), r.Message)
 	}
 
 	return &r.Issue, nil

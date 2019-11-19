@@ -22,12 +22,12 @@ type repoOrError struct {
 }
 
 func getRepoPath(repo string) string {
-	return newPath("/repos/" + repo).
+	return newPath(fmt.Sprintf("/repos/%s", repo)).
 		String()
 }
 
-func (c *client) GetRepo(path string) (*Repo, error) {
-	res, err := c.get(c.url(getRepoPath(path)))
+func (c *client) GetRepo(repo string) (*Repo, error) {
+	res, err := c.get(c.url(getRepoPath(repo)))
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func (c *client) GetRepo(path string) (*Repo, error) {
 	}
 
 	if r.Message != "" {
-		return nil, fmt.Errorf("%s: %s", r.Message, path)
+		return nil, fmt.Errorf("GetRepo %s: %s", repo, r.Message)
 	}
 
 	return &r.Repo, nil
@@ -54,18 +54,18 @@ type UpdateRepoParams struct {
 }
 
 func updateRepoPath(repo string) string {
-	return newPath("/repos/" + repo).
+	return newPath(fmt.Sprintf("/repos/%s", repo)).
 		String()
 }
 
 // UpdateRepo updates a repository.
-func (c *client) UpdateRepo(path string, params *UpdateRepoParams) (*Repo, error) {
+func (c *client) UpdateRepo(repo string, params *UpdateRepoParams) (*Repo, error) {
 	bs, err := json.Marshal(params)
 	if err != nil {
 		return nil, err
 	}
 	body := bytes.NewReader(bs)
-	res, err := c.patch(c.url(updateRepoPath(path)), body)
+	res, err := c.patch(c.url(updateRepoPath(repo)), body)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (c *client) UpdateRepo(path string, params *UpdateRepoParams) (*Repo, error
 	}
 
 	if r.Message != "" {
-		return nil, fmt.Errorf("%s: %s", r.Message, path)
+		return nil, fmt.Errorf("UpdateRepo %s: %s", repo, r.Message)
 	}
 
 	return &r.Repo, nil

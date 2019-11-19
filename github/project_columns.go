@@ -114,7 +114,7 @@ func (c *client) GetProjectColumn(projectColumnID int) (*ProjectColumn, error) {
 	}
 
 	if r.Message != "" {
-		return nil, fmt.Errorf("%s: %s", r.Message, getProjectColumnPath(projectColumnID))
+		return nil, fmt.Errorf("GetProjectColumn %s: %s", fmt.Sprintf("projects/columns/%d", projectColumnID), r.Message)
 	}
 
 	return &r.ProjectColumn, nil
@@ -149,7 +149,7 @@ func (c *client) CreateProjectColumn(projectID int, name string) (*ProjectColumn
 	}
 
 	if r.Message != "" {
-		return nil, fmt.Errorf("%s: %s", r.Message, createProjectColumnPath(projectID))
+		return nil, fmt.Errorf("CreateProjectColumn %s: %s", fmt.Sprintf("projects/%d/columns", projectID), r.Message)
 	}
 
 	return &r.ProjectColumn, nil
@@ -179,7 +179,7 @@ func (c *client) UpdateProjectColumn(projectColumnID int, name string) (*Project
 	}
 
 	if r.Message != "" {
-		return nil, fmt.Errorf("%s: %s", r.Message, updateProjectColumnPath(projectColumnID))
+		return nil, fmt.Errorf("UpdateProjectColumn %s: %s", fmt.Sprintf("projects/columns/%d", projectColumnID), r.Message)
 	}
 
 	return &r.ProjectColumn, nil

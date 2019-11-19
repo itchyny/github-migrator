@@ -3,9 +3,9 @@ package github
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
+	"strings"
 )
 
 func getDiffPath(repo string, sha string) string {
@@ -14,7 +14,7 @@ func getDiffPath(repo string, sha string) string {
 }
 
 func (c *client) GetDiff(repo string, sha string) (string, error) {
-	return c.getDiff(getDiffPath(repo, sha))
+	return c.getDiff("GetDiff", getDiffPath(repo, sha))
 }
 
 func getComparePath(repo string, base, head string) string {
@@ -23,10 +23,10 @@ func getComparePath(repo string, base, head string) string {
 }
 
 func (c *client) GetCompare(repo string, base, head string) (string, error) {
-	return c.getDiff(getComparePath(repo, base, head))
+	return c.getDiff("GetCompare", getComparePath(repo, base, head))
 }
 
-func (c *client) getDiff(path string) (string, error) {
+func (c *client) getDiff(name, path string) (string, error) {
 	req, err := c.request("GET", c.url(path), nil)
 	if err != nil {
 		return "", err
@@ -52,7 +52,7 @@ func (c *client) getDiff(path string) (string, error) {
 			return "", err
 		}
 		if r.Message != "" {
-			return "", errors.New(r.Message)
+			return "", fmt.Errorf("%s %s: %s", name, strings.TrimPrefix(path, "/repos/"), r.Message)
 		}
 		return "", fmt.Errorf("failed to get %s", path)
 	}

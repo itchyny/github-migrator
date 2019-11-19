@@ -72,7 +72,7 @@ func HooksToSlice(hs Hooks) ([]*Hook, error) {
 }
 
 func listHooksPath(repo string) string {
-	return newPath("/repos/"+repo+"/hooks").
+	return newPath(fmt.Sprintf("/repos/%s/hooks", repo)).
 		query("per_page", "100").
 		String()
 }
@@ -126,7 +126,7 @@ func (c *client) GetHook(repo string, hookID int) (*Hook, error) {
 	}
 
 	if r.Message != "" {
-		return nil, fmt.Errorf("%s: %s", r.Message, "/hooks/"+fmt.Sprint(hookID))
+		return nil, fmt.Errorf("GetHook %s: %s", fmt.Sprintf("%s/hooks/%d", repo, hookID), r.Message)
 	}
 
 	return &r.Hook, nil
@@ -165,7 +165,7 @@ func (c *client) CreateHook(repo string, params *CreateHookParams) (*Hook, error
 	}
 
 	if r.Message != "" {
-		return nil, fmt.Errorf("%s: %s", r.Message, "/hooks")
+		return nil, fmt.Errorf("CreateHook %s: %s", fmt.Sprintf("%s/hooks", repo), r.Message)
 	}
 
 	return &r.Hook, nil
@@ -202,7 +202,7 @@ func (c *client) UpdateHook(repo string, hookID int, params *UpdateHookParams) (
 	}
 
 	if r.Message != "" {
-		return nil, fmt.Errorf("%s: %s", r.Message, "/hooks/"+fmt.Sprint(hookID))
+		return nil, fmt.Errorf("UpdateHook %s: %s", fmt.Sprintf("%s/hooks/%d", repo, hookID), r.Message)
 	}
 
 	return &r.Hook, nil

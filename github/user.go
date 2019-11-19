@@ -29,7 +29,7 @@ func (c *client) GetUser() (*User, error) {
 	}
 
 	if r.Message != "" {
-		return nil, fmt.Errorf("%s: %s", r.Message, "/user")
+		return nil, fmt.Errorf("GetUser %s: %s", "/user", r.Message)
 	}
 
 	return &r.User, nil
