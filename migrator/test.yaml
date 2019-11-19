@@ -453,6 +453,10 @@
               </tr>
               </table>
             created_at: 2019-11-18T18:00:00Z
+    create_projects:
+      - id: 200
+        name: project 100
+        html_url: http://localhost/example/source/target/1
 
 -
   name: pull requests
@@ -1116,3 +1120,58 @@
           url: http://localhost/hook3
           content_type: json
         active: false
+
+-
+  name: projects
+
+  source:
+    repo:
+      name: source
+      full_name: example/source
+    projects:
+      - id: 1
+        name: project 1
+        state: open
+      - id: 2
+        name: project 2
+        body: body 2
+        state: closed
+      - id: 3
+        name: project 3
+        body: body 3
+        state: open
+      - id: 4
+        name: project 4
+        body: body 4
+        state: open
+
+  target:
+    repo:
+      name: target
+      full_name: example/target
+    projects:
+      - id: 1
+        name: project 1
+        state: open
+      - id: 2
+        name: project 2
+        body: body 2
+        state: open
+      - id: 3
+        name: project 3
+        body: body
+        state: open
+    update_projects:
+      - id: 2
+        name: project 2
+        body: body 2
+        state: closed
+      - id: 3
+        name: project 3
+        body: body 3
+        state: open
+    create_projects:
+      - id: 4
+        name: project 4
+        body: body 4
+        state: open

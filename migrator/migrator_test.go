@@ -35,12 +35,14 @@ type testRepo struct {
 		Reviews        []*github.Review        `json:"reviews"`
 		ReviewComments []*github.ReviewComment `json:"review_comments"`
 	}
-	Compare     map[string]string
-	Imports     []*github.Import  `json:"imports"`
-	Projects    []*github.Project `json:"projects"`
-	Hooks       []*github.Hook    `json:"hooks"`
-	CreateHooks []*github.Hook    `json:"create_hooks"`
-	UpdateHooks []*github.Hook    `json:"update_hooks"`
+	Compare        map[string]string
+	Imports        []*github.Import  `json:"imports"`
+	Projects       []*github.Project `json:"projects"`
+	CreateProjects []*github.Project `json:"create_projects"`
+	UpdateProjects []*github.Project `json:"update_projects"`
+	Hooks          []*github.Hook    `json:"hooks"`
+	CreateHooks    []*github.Hook    `json:"create_hooks"`
+	UpdateHooks    []*github.Hook    `json:"update_hooks"`
 }
 
 func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
@@ -158,6 +160,13 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			}
 			panic(fmt.Sprintf("unexpected pull request number: %d", pullNumber))
 		}),
+		github.MockListProjects(func(path string, _ *github.ListProjectsParams) github.Projects {
+			ps := make([]*github.Project, len(r.Projects))
+			for i, p := range r.Projects {
+				ps[i] = p
+			}
+			return github.ProjectsFromSlice(ps)
+		}),
 		github.MockGetProject(func(projectID int) (*github.Project, error) {
 			assert.True(t, !isTarget)
 			for _, p := range r.Projects {
@@ -167,6 +176,29 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			}
 			panic(fmt.Sprintf("unexpected project id: %d", projectID))
 		}),
+		github.MockCreateProject((func(i int) func(string, *github.CreateProjectParams) (*github.Project, error) {
+			return func(path string, params *github.CreateProjectParams) (*github.Project, error) {
+				defer func() { i++ }()
+				assert.True(t, isTarget)
+				require.Greater(t, len(r.CreateProjects), i)
+				assert.Equal(t, "/repos/"+r.Repo.FullName+"/projects", path)
+				assert.Equal(t, r.CreateProjects[i].Name, params.Name)
+				assert.Equal(t, r.CreateProjects[i].Body, params.Body)
+				return r.CreateProjects[i], nil
+			}
+		})(0)),
+		github.MockUpdateProject((func(i int) func(string, int, *github.UpdateProjectParams) (*github.Project, error) {
+			return func(path string, projectID int, params *github.UpdateProjectParams) (*github.Project, error) {
+				defer func() { i++ }()
+				assert.True(t, isTarget)
+				require.Greater(t, len(r.UpdateProjects), i)
+				assert.Equal(t, "/projects/"+fmt.Sprint(projectID), path)
+				assert.Equal(t, "", params.Name)
+				assert.Equal(t, r.UpdateProjects[i].Body, params.Body)
+				assert.Equal(t, r.UpdateProjects[i].State, params.State)
+				return r.UpdateProjects[i], nil
+			}
+		})(0)),
 		github.MockListHooks(func(path string) github.Hooks {
 			return github.HooksFromSlice(r.Hooks)
 		}),
