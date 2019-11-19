@@ -159,7 +159,7 @@ func createHookPath(repo string) string {
 		String()
 }
 
-// CreateHook creates the hook.
+// CreateHook creates a hook.
 func (c *client) CreateHook(repo string, params *CreateHookParams) (*Hook, error) {
 	params.Name = "web"
 	bs, err := json.Marshal(params)

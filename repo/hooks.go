@@ -12,7 +12,7 @@ func (r *repo) GetHook(hookID int) (*github.Hook, error) {
 	return r.cli.GetHook(r.path, hookID)
 }
 
-// CreateHook updates the hook.
+// CreateHook creates a hook.
 func (r *repo) CreateHook(params *github.CreateHookParams) (*github.Hook, error) {
 	return r.cli.CreateHook(r.path, params)
 }
