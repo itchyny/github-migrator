@@ -37,6 +37,9 @@ func (m *migrator) migrateProjects() error {
 				return err
 			}
 		}
+		if err := m.migrateProjectColumns(p.ID, q.ID); err != nil {
+			return err
+		}
 	}
 }
 

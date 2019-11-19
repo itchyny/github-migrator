@@ -35,22 +35,28 @@ type testRepo struct {
 		Reviews        []*github.Review        `json:"reviews"`
 		ReviewComments []*github.ReviewComment `json:"review_comments"`
 	}
-	Compare        map[string]string
-	Imports        []*github.Import  `json:"imports"`
-	Projects       []*github.Project `json:"projects"`
-	CreateProjects []*github.Project `json:"create_projects"`
-	UpdateProjects []*github.Project `json:"update_projects"`
-	Hooks          []*github.Hook    `json:"hooks"`
-	CreateHooks    []*github.Hook    `json:"create_hooks"`
-	UpdateHooks    []*github.Hook    `json:"update_hooks"`
+	Compare  map[string]string
+	Imports  []*github.Import `json:"imports"`
+	Projects []*struct {
+		*github.Project
+		Columns []*github.ProjectColumn `json:"columns"`
+	} `json:"projects"`
+	CreateProjects       []*github.Project       `json:"create_projects"`
+	UpdateProjects       []*github.Project       `json:"update_projects"`
+	CreateProjectColumns []*github.ProjectColumn `json:"create_project_columns"`
+	Hooks                []*github.Hook          `json:"hooks"`
+	CreateHooks          []*github.Hook          `json:"create_hooks"`
+	UpdateHooks          []*github.Hook          `json:"update_hooks"`
 }
 
 func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 	return repo.New(github.NewMockClient(
+
 		github.MockListMembers(func(path string) github.Members {
 			assert.True(t, isTarget)
 			return github.MembersFromSlice(r.Members)
 		}),
+
 		github.MockGetRepo(func(path string) (*github.Repo, error) {
 			return r.Repo, nil
 		}),
@@ -64,6 +70,7 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			assert.Equal(t, r.UpdateRepo.Private, params.Private)
 			return r.UpdateRepo, nil
 		}),
+
 		github.MockListLabels(func(path string) github.Labels {
 			return github.LabelsFromSlice(r.Labels)
 		}),
@@ -92,6 +99,7 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 				return nil, nil
 			}
 		})(0)),
+
 		github.MockListIssues(func(path string, _ *github.ListIssuesParams) github.Issues {
 			xs := make([]*github.Issue, len(r.Issues))
 			for i, s := range r.Issues {
@@ -117,6 +125,7 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			}
 			panic(fmt.Sprintf("unexpected issue number: %d", issueNumber))
 		}),
+
 		github.MockGetPullReq(func(path string, pullNumber int) (*github.PullReq, error) {
 			assert.True(t, !isTarget)
 			for _, s := range r.Issues {
@@ -160,10 +169,11 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			}
 			panic(fmt.Sprintf("unexpected pull request number: %d", pullNumber))
 		}),
+
 		github.MockListProjects(func(path string, _ *github.ListProjectsParams) github.Projects {
 			ps := make([]*github.Project, len(r.Projects))
 			for i, p := range r.Projects {
-				ps[i] = p
+				ps[i] = p.Project
 			}
 			return github.ProjectsFromSlice(ps)
 		}),
@@ -171,7 +181,7 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			assert.True(t, !isTarget)
 			for _, p := range r.Projects {
 				if p.ID == projectID {
-					return p, nil
+					return p.Project, nil
 				}
 			}
 			panic(fmt.Sprintf("unexpected project id: %d", projectID))
@@ -199,6 +209,25 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 				return r.UpdateProjects[i], nil
 			}
 		})(0)),
+
+		github.MockListProjectColumns(func(projectID int) github.ProjectColumns {
+			for _, p := range r.Projects {
+				if p.ID == projectID {
+					return github.ProjectColumnsFromSlice(p.Columns)
+				}
+			}
+			return github.ProjectColumnsFromSlice([]*github.ProjectColumn{})
+		}),
+		github.MockCreateProjectColumn((func(i int) func(int, string) (*github.ProjectColumn, error) {
+			return func(projectID int, name string) (*github.ProjectColumn, error) {
+				defer func() { i++ }()
+				assert.True(t, isTarget)
+				require.Greater(t, len(r.CreateProjectColumns), i)
+				assert.Equal(t, r.CreateProjectColumns[i].Name, name)
+				return r.CreateProjectColumns[i], nil
+			}
+		})(0)),
+
 		github.MockListHooks(func(path string) github.Hooks {
 			return github.HooksFromSlice(r.Hooks)
 		}),
@@ -226,6 +255,7 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 				return nil, nil
 			}
 		})(0)),
+
 		github.MockImport((func(i int) func(string, *github.Import) (*github.ImportResult, error) {
 			return func(path string, x *github.Import) (*github.ImportResult, error) {
 				defer func() { i++ }()
