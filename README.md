@@ -28,6 +28,7 @@ export GITHUB_MIGRATOR_USER_MAPPING=user-before1:user-after1,user-before2:user-a
   - Issue comments with the user name and icon (within the comment)
   - Created dates, Labels
   - Issue numbers are same as the original repository
+  - Various events (including title changes, issue locking, assignments, review requests and branch deletion in a pull request)
 - Pull requests
   - A pull request is converted to an issue
   - Comments and review comments are migrated as issue comments
@@ -40,11 +41,11 @@ export GITHUB_MIGRATOR_USER_MAPPING=user-before1:user-after1,user-before2:user-a
   - Description, Homepage (only when the target repository has blank description, homepage)
 - Labels
   - Label name, description and colors
+  - Label changes in issue and pull request
 - Webhooks
-  - Webhook URL, Content type and events the hooks is trigger for.
+  - Webhook URL, content type and events the hooks is trigger for.
 - All the other things will be lost
   - Emoji reactions to issue and pull request comments
-  - Label changing logs in issue and pull request
   - Diffs (split) view of pull requests
   - Wiki
   - Projects, Milestones (will be implemented in the near future)
