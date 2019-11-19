@@ -1,6 +1,7 @@
 package migrator
 
 import (
+	"fmt"
 	"io"
 
 	"github.com/itchyny/github-migrator/github"
@@ -20,8 +21,10 @@ func (m *migrator) migrateProjects() error {
 			}
 			return nil
 		}
+		fmt.Printf("[=>] migrating a project: %s\n", p.Name)
 		q := lookupProject(targetProjects, p)
 		if q == nil {
+			fmt.Printf("[>>] creating a new project: %s\n", p.Name)
 			if q, err = m.target.CreateProject(&github.CreateProjectParams{
 				Name: p.Name, Body: p.Body,
 			}); err != nil {
@@ -29,6 +32,7 @@ func (m *migrator) migrateProjects() error {
 			}
 		}
 		if p.Body != q.Body || p.State != q.State {
+			fmt.Printf("[|>] updating an existing project: %s\n", p.Name)
 			if q, err = m.target.UpdateProject(q.ID, &github.UpdateProjectParams{
 				// Do not update name.
 				Body:  p.Body,

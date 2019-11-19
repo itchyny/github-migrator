@@ -68,17 +68,18 @@ func (m *migrator) migrateIssue(
 	sourceRepo, targetRepo *github.Repo, commentFilters commentFilters,
 	sourceIssue *github.Issue, targetIssuesBuffer *issuesBuffer, deleted bool,
 ) (*github.ImportResult, error) {
-	fmt.Printf("migrating: %s\n", sourceIssue.HTMLURL)
+	fmt.Printf("[=>] migrating an issue: %s\n", sourceIssue.HTMLURL)
 	targetIssue, err := targetIssuesBuffer.get(sourceIssue.Number)
 	if err != nil {
 		return nil, err
 	}
 	if targetIssue != nil {
-		fmt.Printf("skipping: %s (already exists)\n", targetIssue.HTMLURL)
+		fmt.Printf("[--] skipping: %s (already exists)\n", targetIssue.HTMLURL)
 		return nil, nil
 	}
 	time.Sleep(beforeImportIssueDuration)
 	if deleted {
+		fmt.Printf("[>>] creating a new issue: (original: %s is deleted)\n", sourceIssue.HTMLURL)
 		return m.target.Import(&github.Import{
 			Issue: &github.ImportIssue{
 				Title: "[Deleted issue]",
@@ -144,6 +145,7 @@ func (m *migrator) migrateIssue(
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("[>>] creating a new issue: (original: %s)\n", sourceIssue.HTMLURL)
 	return m.target.Import(imp)
 }
 
@@ -159,12 +161,15 @@ func (m *migrator) waitImportIssue(id int, issue *github.Issue) error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("status check: %s (importing %s)\n", res.Status, issue.HTMLURL)
 		switch res.Status {
 		case "imported":
+			fmt.Printf("[<>] checking status: %s (importing %s)\n", res.Status, issue.HTMLURL)
 			return nil
 		case "failed":
+			fmt.Printf("[!!] checking status: %s (importing %s)\n", res.Status, issue.HTMLURL)
 			return errors.New("failed status")
+		default:
+			fmt.Printf("[??] checking status: %s (importing %s)\n", res.Status, issue.HTMLURL)
 		}
 		retry++
 		if retry >= 5 {

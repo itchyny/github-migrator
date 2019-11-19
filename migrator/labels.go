@@ -1,6 +1,10 @@
 package migrator
 
-import "github.com/itchyny/github-migrator/github"
+import (
+	"fmt"
+
+	"github.com/itchyny/github-migrator/github"
+)
 
 func (m *migrator) migrateLabels() error {
 	sourceLabels, err := github.LabelsToSlice(m.source.ListLabels())
@@ -12,18 +16,22 @@ func (m *migrator) migrateLabels() error {
 		return err
 	}
 	for _, sourceLabel := range sourceLabels {
+		fmt.Printf("[=>] migrating a label: %s\n", sourceLabel.Name)
 		var exists bool
 		for _, targetLabel := range targetLabels {
 			if sourceLabel.Name == targetLabel.Name {
 				if sourceLabel.Description != targetLabel.Description ||
 					sourceLabel.Color != targetLabel.Color {
-					if _, err := m.target.UpdateLabel(sourceLabel.Name, &github.UpdateLabelParams{
+					fmt.Printf("[|>] updating an existing label: %s\n", targetLabel.Name)
+					if _, err := m.target.UpdateLabel(targetLabel.Name, &github.UpdateLabelParams{
 						Name:        sourceLabel.Name,
 						Description: sourceLabel.Description,
 						Color:       sourceLabel.Color,
 					}); err != nil {
 						return err
 					}
+				} else {
+					fmt.Printf("[--] skipping: %s (already exists)\n", sourceLabel.Name)
 				}
 				exists = true
 				break
@@ -32,6 +40,7 @@ func (m *migrator) migrateLabels() error {
 		if exists {
 			continue
 		}
+		fmt.Printf("[>>] creating a new label: %s\n", sourceLabel.Name)
 		if _, err := m.target.CreateLabel(&github.CreateLabelParams{
 			Name:        sourceLabel.Name,
 			Description: sourceLabel.Description,

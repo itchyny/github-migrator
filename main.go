@@ -56,7 +56,7 @@ func createGitHubClient(tokenEnv, endpointEnv string) (github.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%s (or you may want to set %s)", err, endpointEnv)
 	}
-	fmt.Printf("login succeeded: %s\n", user.Login)
+	fmt.Printf("[<>] login succeeded: %s\n", user.Login)
 	return cli, nil
 }
 

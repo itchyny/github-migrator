@@ -1,6 +1,7 @@
 package migrator
 
 import (
+	"fmt"
 	"io"
 
 	"github.com/itchyny/github-migrator/github"
@@ -22,8 +23,10 @@ func (m *migrator) migrateProjectColumns(sourceID, targetID int) error {
 			}
 			return nil
 		}
+		fmt.Printf("[=>] migrating a project column: %s\n", c.Name)
 		d := lookupProjectColumn(targetColumns, c)
 		if d == nil {
+			fmt.Printf("[>>] creating a new project column: %s\n", c.Name)
 			if d, err = m.target.CreateProjectColumn(targetID, c.Name); err != nil {
 				return err
 			}

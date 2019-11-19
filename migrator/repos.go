@@ -18,12 +18,13 @@ func (m *migrator) migrateRepo() error {
 	}
 
 	fmt.Printf(
-		"migrating: %s (%s) => %s (%s)\n",
+		"[=>] migrating: %s (%s) => %s (%s)\n",
 		sourceRepo.Name, sourceRepo.HTMLURL,
 		targetRepo.Name, targetRepo.HTMLURL,
 	)
 
 	if params, ok := buildUpdateRepoParams(sourceRepo, targetRepo); ok {
+		fmt.Printf("[|>] updating the repository: %s\n", targetRepo.HTMLURL)
 		_, err = m.target.Update(params)
 		if err != nil {
 			return err
