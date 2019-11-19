@@ -24,6 +24,8 @@ type Repo interface {
 	ListReviewComments(int) github.ReviewComments
 	ListProjects() github.Projects
 	GetProject(int) (*github.Project, error)
+	CreateProject(*github.CreateProjectParams) (*github.Project, error)
+	UpdateProject(int, *github.UpdateProjectParams) (*github.Project, error)
 	ListHooks() github.Hooks
 	GetHook(int) (*github.Hook, error)
 	CreateHook(*github.CreateHookParams) (*github.Hook, error)

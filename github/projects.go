@@ -1,6 +1,7 @@
 package github
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -213,6 +214,79 @@ func (c *client) GetProject(projectID int) (*Project, error) {
 
 	if r.Message != "" {
 		return nil, fmt.Errorf("%s: %s", r.Message, getProjectPath(projectID))
+	}
+
+	return &r.Project, nil
+}
+
+// CreateProjectParams represents the paramter for CreateProject API.
+type CreateProjectParams struct {
+	Name string `json:"name"`
+	Body string `json:"body"`
+}
+
+func createProjectPath(repo string) string {
+	return newPath(fmt.Sprintf("/repos/%s/projects", repo)).
+		String()
+}
+
+// CreateProject creates a project.
+func (c *client) CreateProject(repo string, params *CreateProjectParams) (*Project, error) {
+	bs, err := json.Marshal(params)
+	if err != nil {
+		return nil, err
+	}
+	body := bytes.NewReader(bs)
+	res, err := c.post(c.url(createProjectPath(repo)), body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	var r projectOrError
+	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+		return nil, err
+	}
+
+	if r.Message != "" {
+		return nil, fmt.Errorf("%s: %s", r.Message, "/projects")
+	}
+
+	return &r.Project, nil
+}
+
+// UpdateProjectParams represents the paramter for UpdateProject API.
+type UpdateProjectParams struct {
+	Name  string       `json:"name,omitempty"`
+	Body  string       `json:"body,omitempty"`
+	State ProjectState `json:"state,omitempty"`
+}
+
+func updateProjectPath(projectID int) string {
+	return newPath(fmt.Sprintf("/projects/%d", projectID)).
+		String()
+}
+
+// UpdateProject updates the project.
+func (c *client) UpdateProject(projectID int, params *UpdateProjectParams) (*Project, error) {
+	bs, err := json.Marshal(params)
+	if err != nil {
+		return nil, err
+	}
+	body := bytes.NewReader(bs)
+	res, err := c.patch(c.url(updateProjectPath(projectID)), body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	var r projectOrError
+	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+		return nil, err
+	}
+
+	if r.Message != "" {
+		return nil, fmt.Errorf("%s: %s", r.Message, "/projects/"+fmt.Sprint(projectID))
 	}
 
 	return &r.Project, nil

@@ -22,6 +22,8 @@ type MockClient struct {
 	listReviewCommentsCallback func(string, int) ReviewComments
 	listProjectsCallback       func(string, *ListProjectsParams) Projects
 	getProjectCallback         func(int) (*Project, error)
+	createProjectCallback      func(string, *CreateProjectParams) (*Project, error)
+	updateProjectCallback      func(string, int, *UpdateProjectParams) (*Project, error)
 	listHooksCallback          func(string) Hooks
 	getHookCallback            func(string, int) (*Hook, error)
 	createHookCallback         func(string, *CreateHookParams) (*Hook, error)
@@ -339,6 +341,36 @@ func (c *MockClient) GetProject(projectID int) (*Project, error) {
 func MockGetProject(callback func(int) (*Project, error)) MockClientOption {
 	return func(c *MockClient) {
 		c.getProjectCallback = callback
+	}
+}
+
+// CreateProject ...
+func (c *MockClient) CreateProject(repo string, params *CreateProjectParams) (*Project, error) {
+	if c.createProjectCallback != nil {
+		return c.createProjectCallback(createProjectPath(repo), params)
+	}
+	panic("MockClient#CreateProject")
+}
+
+// MockCreateProject ...
+func MockCreateProject(callback func(string, *CreateProjectParams) (*Project, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.createProjectCallback = callback
+	}
+}
+
+// UpdateProject ...
+func (c *MockClient) UpdateProject(projectID int, params *UpdateProjectParams) (*Project, error) {
+	if c.updateProjectCallback != nil {
+		return c.updateProjectCallback(updateProjectPath(projectID), projectID, params)
+	}
+	panic("MockClient#UpdateProject")
+}
+
+// MockUpdateProject ...
+func MockUpdateProject(callback func(string, int, *UpdateProjectParams) (*Project, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.updateProjectCallback = callback
 	}
 }
 

@@ -13,3 +13,13 @@ func (r *repo) ListProjects() github.Projects {
 func (r *repo) GetProject(projectID int) (*github.Project, error) {
 	return r.cli.GetProject(projectID)
 }
+
+// CreateProject creates a project.
+func (r *repo) CreateProject(params *github.CreateProjectParams) (*github.Project, error) {
+	return r.cli.CreateProject(r.path, params)
+}
+
+// UpdateProject updates the project.
+func (r *repo) UpdateProject(projectID int, params *github.UpdateProjectParams) (*github.Project, error) {
+	return r.cli.UpdateProject(projectID, params)
+}
