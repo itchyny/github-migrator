@@ -44,7 +44,7 @@ func (c *client) getDiff(path string) (string, error) {
 		return "", err
 	}
 
-	if !bytes.HasPrefix(bs, []byte("diff --git")) {
+	if len(bs) > 0 && !bytes.HasPrefix(bs, []byte("diff --git")) {
 		var r struct {
 			Message string `json:"message"`
 		}
