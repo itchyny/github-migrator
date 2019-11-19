@@ -15,8 +15,7 @@ func TestRepoGet(t *testing.T) {
 		HTMLURL:     "http://localhost/example/test",
 	}
 	repo := New(github.NewMockClient(
-		github.MockGetRepo(func(path string) (*github.Repo, error) {
-			assert.Equal(t, path, "/repos/example/test")
+		github.MockGetRepo(func(string) (*github.Repo, error) {
 			return expected, nil
 		}),
 	), "example/test")

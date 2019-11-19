@@ -52,17 +52,16 @@ type testRepo struct {
 func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 	return repo.New(github.NewMockClient(
 
-		github.MockListMembers(func(path string) github.Members {
+		github.MockListMembers(func(string) github.Members {
 			assert.True(t, isTarget)
 			return github.MembersFromSlice(r.Members)
 		}),
 
-		github.MockGetRepo(func(path string) (*github.Repo, error) {
+		github.MockGetRepo(func(string) (*github.Repo, error) {
 			return r.Repo, nil
 		}),
-		github.MockUpdateRepo(func(path string, params *github.UpdateRepoParams) (*github.Repo, error) {
+		github.MockUpdateRepo(func(_ string, params *github.UpdateRepoParams) (*github.Repo, error) {
 			assert.True(t, isTarget)
-			assert.Equal(t, "/repos/"+r.Repo.FullName, path)
 			assert.NotNil(t, r.UpdateRepo)
 			assert.Equal(t, r.UpdateRepo.Name, params.Name)
 			assert.Equal(t, r.UpdateRepo.Description, params.Description)
@@ -71,15 +70,14 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			return r.UpdateRepo, nil
 		}),
 
-		github.MockListLabels(func(path string) github.Labels {
+		github.MockListLabels(func(string) github.Labels {
 			return github.LabelsFromSlice(r.Labels)
 		}),
 		github.MockCreateLabel((func(i int) func(string, *github.CreateLabelParams) (*github.Label, error) {
-			return func(path string, params *github.CreateLabelParams) (*github.Label, error) {
+			return func(_ string, params *github.CreateLabelParams) (*github.Label, error) {
 				defer func() { i++ }()
 				assert.True(t, isTarget)
 				require.Greater(t, len(r.CreateLabels), i)
-				assert.Equal(t, "/repos/"+r.Repo.FullName+"/labels", path)
 				assert.Equal(t, r.CreateLabels[i].Name, params.Name)
 				assert.Equal(t, r.CreateLabels[i].Color, params.Color)
 				assert.Equal(t, r.CreateLabels[i].Description, params.Description)
@@ -91,7 +89,6 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 				defer func() { i++ }()
 				assert.True(t, isTarget)
 				require.Greater(t, len(r.UpdateLabels), i)
-				assert.Equal(t, "/repos/"+r.Repo.FullName+"/labels/"+r.UpdateLabels[i].Name, path)
 				assert.Equal(t, r.UpdateLabels[i].Name, name)
 				assert.Equal(t, r.UpdateLabels[i].Name, params.Name)
 				assert.Equal(t, r.UpdateLabels[i].Color, params.Color)
@@ -100,14 +97,14 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			}
 		})(0)),
 
-		github.MockListIssues(func(path string, _ *github.ListIssuesParams) github.Issues {
+		github.MockListIssues(func(_ string, _ *github.ListIssuesParams) github.Issues {
 			xs := make([]*github.Issue, len(r.Issues))
 			for i, s := range r.Issues {
 				xs[i] = &s.PullReq.Issue
 			}
 			return github.IssuesFromSlice(xs)
 		}),
-		github.MockListComments(func(path string, issueNumber int) github.Comments {
+		github.MockListComments(func(_ string, issueNumber int) github.Comments {
 			assert.True(t, !isTarget)
 			for _, s := range r.Issues {
 				if s.Issue.Number == issueNumber {
@@ -116,7 +113,7 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			}
 			panic(fmt.Sprintf("unexpected issue number: %d", issueNumber))
 		}),
-		github.MockListEvents(func(path string, issueNumber int) github.Events {
+		github.MockListEvents(func(_ string, issueNumber int) github.Events {
 			assert.True(t, !isTarget)
 			for _, s := range r.Issues {
 				if s.Issue.Number == issueNumber {
@@ -126,7 +123,7 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			panic(fmt.Sprintf("unexpected issue number: %d", issueNumber))
 		}),
 
-		github.MockGetPullReq(func(path string, pullNumber int) (*github.PullReq, error) {
+		github.MockGetPullReq(func(_ string, pullNumber int) (*github.PullReq, error) {
 			assert.True(t, !isTarget)
 			for _, s := range r.Issues {
 				if s.PullReq.Number == pullNumber {
@@ -135,7 +132,7 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			}
 			panic(fmt.Sprintf("unexpected pull request number: %d", pullNumber))
 		}),
-		github.MockListPullReqCommits(func(path string, pullNumber int) github.Commits {
+		github.MockListPullReqCommits(func(_ string, pullNumber int) github.Commits {
 			assert.True(t, !isTarget)
 			for _, s := range r.Issues {
 				if s.PullReq.Number == pullNumber {
@@ -144,14 +141,14 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			}
 			panic(fmt.Sprintf("unexpected pull request number: %d", pullNumber))
 		}),
-		github.MockGetCompare(func(path string, base, head string) (string, error) {
+		github.MockGetCompare(func(_ string, base, head string) (string, error) {
 			assert.True(t, !isTarget)
 			if diff, ok := r.Compare[base+"..."+head]; ok {
 				return diff, nil
 			}
 			panic(fmt.Sprintf("unexpected compare: %s...%s", base, head))
 		}),
-		github.MockListReviews(func(path string, pullNumber int) github.Reviews {
+		github.MockListReviews(func(_ string, pullNumber int) github.Reviews {
 			assert.True(t, !isTarget)
 			for _, s := range r.Issues {
 				if s.PullReq.Number == pullNumber {
@@ -160,7 +157,7 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			}
 			panic(fmt.Sprintf("unexpected pull request number: %d", pullNumber))
 		}),
-		github.MockListReviewComments(func(path string, pullNumber int) github.ReviewComments {
+		github.MockListReviewComments(func(_ string, pullNumber int) github.ReviewComments {
 			assert.True(t, !isTarget)
 			for _, s := range r.Issues {
 				if s.PullReq.Number == pullNumber {
@@ -170,7 +167,7 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			panic(fmt.Sprintf("unexpected pull request number: %d", pullNumber))
 		}),
 
-		github.MockListProjects(func(path string, _ *github.ListProjectsParams) github.Projects {
+		github.MockListProjects(func(_ string, _ *github.ListProjectsParams) github.Projects {
 			ps := make([]*github.Project, len(r.Projects))
 			for i, p := range r.Projects {
 				ps[i] = p.Project
@@ -187,22 +184,20 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			panic(fmt.Sprintf("unexpected project id: %d", projectID))
 		}),
 		github.MockCreateProject((func(i int) func(string, *github.CreateProjectParams) (*github.Project, error) {
-			return func(path string, params *github.CreateProjectParams) (*github.Project, error) {
+			return func(_ string, params *github.CreateProjectParams) (*github.Project, error) {
 				defer func() { i++ }()
 				assert.True(t, isTarget)
 				require.Greater(t, len(r.CreateProjects), i)
-				assert.Equal(t, "/repos/"+r.Repo.FullName+"/projects", path)
 				assert.Equal(t, r.CreateProjects[i].Name, params.Name)
 				assert.Equal(t, r.CreateProjects[i].Body, params.Body)
 				return r.CreateProjects[i], nil
 			}
 		})(0)),
-		github.MockUpdateProject((func(i int) func(string, int, *github.UpdateProjectParams) (*github.Project, error) {
-			return func(path string, projectID int, params *github.UpdateProjectParams) (*github.Project, error) {
+		github.MockUpdateProject((func(i int) func(int, *github.UpdateProjectParams) (*github.Project, error) {
+			return func(projectID int, params *github.UpdateProjectParams) (*github.Project, error) {
 				defer func() { i++ }()
 				assert.True(t, isTarget)
 				require.Greater(t, len(r.UpdateProjects), i)
-				assert.Equal(t, "/projects/"+fmt.Sprint(projectID), path)
 				assert.Equal(t, "", params.Name)
 				assert.Equal(t, r.UpdateProjects[i].Body, params.Body)
 				assert.Equal(t, r.UpdateProjects[i].State, params.State)
@@ -228,15 +223,14 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			}
 		})(0)),
 
-		github.MockListHooks(func(path string) github.Hooks {
+		github.MockListHooks(func(string) github.Hooks {
 			return github.HooksFromSlice(r.Hooks)
 		}),
 		github.MockCreateHook((func(i int) func(string, *github.CreateHookParams) (*github.Hook, error) {
-			return func(path string, params *github.CreateHookParams) (*github.Hook, error) {
+			return func(_ string, params *github.CreateHookParams) (*github.Hook, error) {
 				defer func() { i++ }()
 				assert.True(t, isTarget)
 				require.Greater(t, len(r.CreateHooks), i)
-				assert.Equal(t, "/repos/"+r.Repo.FullName+"/hooks", path)
 				assert.Equal(t, r.CreateHooks[i].Events, params.Events)
 				assert.Equal(t, r.CreateHooks[i].Config, params.Config)
 				assert.Equal(t, r.CreateHooks[i].Active, params.Active)
@@ -244,11 +238,10 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			}
 		})(0)),
 		github.MockUpdateHook((func(i int) func(string, int, *github.UpdateHookParams) (*github.Hook, error) {
-			return func(path string, hookID int, params *github.UpdateHookParams) (*github.Hook, error) {
+			return func(_ string, hookID int, params *github.UpdateHookParams) (*github.Hook, error) {
 				defer func() { i++ }()
 				assert.True(t, isTarget)
 				require.Greater(t, len(r.UpdateHooks), i)
-				assert.Equal(t, "/repos/"+r.Repo.FullName+"/hooks/"+fmt.Sprint(hookID), path)
 				assert.Equal(t, r.UpdateHooks[i].Events, params.Events)
 				assert.Equal(t, r.UpdateHooks[i].Config, params.Config)
 				assert.Equal(t, r.UpdateHooks[i].Active, params.Active)
@@ -257,11 +250,10 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 		})(0)),
 
 		github.MockImport((func(i int) func(string, *github.Import) (*github.ImportResult, error) {
-			return func(path string, x *github.Import) (*github.ImportResult, error) {
+			return func(_ string, x *github.Import) (*github.ImportResult, error) {
 				defer func() { i++ }()
 				assert.True(t, isTarget)
 				require.Greater(t, len(r.Imports), i)
-				assert.Equal(t, "/repos/"+r.Repo.FullName+"/import/issues", path)
 				assert.Equal(t, r.Imports[i], x)
 				return &github.ImportResult{
 					ID:     12345,
@@ -270,7 +262,7 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 				}, nil
 			}
 		})(0)),
-		github.MockGetImport(func(path string, id int) (*github.ImportResult, error) {
+		github.MockGetImport(func(_ string, id int) (*github.ImportResult, error) {
 			assert.True(t, isTarget)
 			assert.Equal(t, 12345, id)
 			return &github.ImportResult{

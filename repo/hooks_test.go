@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -21,9 +20,7 @@ func TestRepoListHooks(t *testing.T) {
 		},
 	}
 	repo := New(github.NewMockClient(
-		github.MockListHooks(func(path string) github.Hooks {
-			assert.Contains(t, path, "/repos/example/test/hooks")
-			assert.Contains(t, path, "per_page=100")
+		github.MockListHooks(func(string) github.Hooks {
 			return github.HooksFromSlice(expected)
 		}),
 	), "example/test")
@@ -38,8 +35,7 @@ func TestRepoGetHook(t *testing.T) {
 		Name: "Test hook 1",
 	}
 	repo := New(github.NewMockClient(
-		github.MockGetHook(func(path string, hookID int) (*github.Hook, error) {
-			assert.Contains(t, path, "/repos/example/test/hooks/1")
+		github.MockGetHook(func(string, int) (*github.Hook, error) {
 			return expected, nil
 		}),
 	), "example/test")
@@ -55,8 +51,7 @@ func TestRepoCreateHook(t *testing.T) {
 		Active: true,
 	}
 	repo := New(github.NewMockClient(
-		github.MockCreateHook(func(path string, params *github.CreateHookParams) (*github.Hook, error) {
-			assert.Equal(t, path, "/repos/example/test/hooks")
+		github.MockCreateHook(func(string, *github.CreateHookParams) (*github.Hook, error) {
 			return expected, nil
 		}),
 	), "example/test")
@@ -74,8 +69,7 @@ func TestRepoUpdateHook(t *testing.T) {
 		Active: true,
 	}
 	repo := New(github.NewMockClient(
-		github.MockUpdateHook(func(path string, hookID int, params *github.UpdateHookParams) (*github.Hook, error) {
-			assert.Equal(t, path, "/repos/example/test/hooks/"+fmt.Sprint(hookID))
+		github.MockUpdateHook(func(string, int, *github.UpdateHookParams) (*github.Hook, error) {
 			return expected, nil
 		}),
 	), "example/test")

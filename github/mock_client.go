@@ -23,7 +23,7 @@ type MockClient struct {
 	listProjectsCallback        func(string, *ListProjectsParams) Projects
 	getProjectCallback          func(int) (*Project, error)
 	createProjectCallback       func(string, *CreateProjectParams) (*Project, error)
-	updateProjectCallback       func(string, int, *UpdateProjectParams) (*Project, error)
+	updateProjectCallback       func(int, *UpdateProjectParams) (*Project, error)
 	listProjectColumnsCallback  func(int) ProjectColumns
 	getProjectColumnCallback    func(int) (*ProjectColumn, error)
 	createProjectColumnCallback func(int, string) (*ProjectColumn, error)
@@ -66,7 +66,7 @@ func MockGetUser(callback func() (*User, error)) MockClientOption {
 // ListMembers ...
 func (c *MockClient) ListMembers(org string) Members {
 	if c.listMembersCallback != nil {
-		return c.listMembersCallback(listMembersPath(org))
+		return c.listMembersCallback(org)
 	}
 	panic("MockClient#ListMembers")
 }
@@ -81,7 +81,7 @@ func MockListMembers(callback func(string) Members) MockClientOption {
 // GetRepo ...
 func (c *MockClient) GetRepo(repo string) (*Repo, error) {
 	if c.getRepoCallback != nil {
-		return c.getRepoCallback(getRepoPath(repo))
+		return c.getRepoCallback(repo)
 	}
 	panic("MockClient#GetRepo")
 }
@@ -96,7 +96,7 @@ func MockGetRepo(callback func(string) (*Repo, error)) MockClientOption {
 // UpdateRepo ...
 func (c *MockClient) UpdateRepo(repo string, params *UpdateRepoParams) (*Repo, error) {
 	if c.updateRepoCallback != nil {
-		return c.updateRepoCallback(updateRepoPath(repo), params)
+		return c.updateRepoCallback(repo, params)
 	}
 	panic("MockClient#UpdateRepo")
 }
@@ -111,7 +111,7 @@ func MockUpdateRepo(callback func(string, *UpdateRepoParams) (*Repo, error)) Moc
 // ListLabels ...
 func (c *MockClient) ListLabels(repo string) Labels {
 	if c.listLabelsCallback != nil {
-		return c.listLabelsCallback(listLabelsPath(repo))
+		return c.listLabelsCallback(repo)
 	}
 	panic("MockClient#ListLabels")
 }
@@ -126,7 +126,7 @@ func MockListLabels(callback func(string) Labels) MockClientOption {
 // CreateLabel ...
 func (c *MockClient) CreateLabel(repo string, params *CreateLabelParams) (*Label, error) {
 	if c.createLabelCallback != nil {
-		return c.createLabelCallback(createLabelsPath(repo), params)
+		return c.createLabelCallback(repo, params)
 	}
 	panic("MockClient#CreateLabel")
 }
@@ -141,7 +141,7 @@ func MockCreateLabel(callback func(string, *CreateLabelParams) (*Label, error)) 
 // UpdateLabel ...
 func (c *MockClient) UpdateLabel(repo, name string, params *UpdateLabelParams) (*Label, error) {
 	if c.updateLabelCallback != nil {
-		return c.updateLabelCallback(updateLabelsPath(repo, name), name, params)
+		return c.updateLabelCallback(repo, name, params)
 	}
 	panic("MockClient#UpdateLabel")
 }
@@ -156,7 +156,7 @@ func MockUpdateLabel(callback func(string, string, *UpdateLabelParams) (*Label, 
 // ListIssues ...
 func (c *MockClient) ListIssues(repo string, params *ListIssuesParams) Issues {
 	if c.listIssuesCallback != nil {
-		return c.listIssuesCallback(listIssuesPath(repo, params), params)
+		return c.listIssuesCallback(repo, params)
 	}
 	panic("MockClient#ListIssues")
 }
@@ -171,7 +171,7 @@ func MockListIssues(callback func(string, *ListIssuesParams) Issues) MockClientO
 // GetIssue ...
 func (c *MockClient) GetIssue(repo string, issueNumber int) (*Issue, error) {
 	if c.getIssueCallback != nil {
-		return c.getIssueCallback(getIssuePath(repo, issueNumber), issueNumber)
+		return c.getIssueCallback(repo, issueNumber)
 	}
 	panic("MockClient#GetIssue")
 }
@@ -186,7 +186,7 @@ func MockGetIssue(callback func(string, int) (*Issue, error)) MockClientOption {
 // ListComments ...
 func (c *MockClient) ListComments(repo string, issueNumber int) Comments {
 	if c.listCommentsCallback != nil {
-		return c.listCommentsCallback(listCommentsPath(repo, issueNumber), issueNumber)
+		return c.listCommentsCallback(repo, issueNumber)
 	}
 	panic("MockClient#ListComments")
 }
@@ -201,7 +201,7 @@ func MockListComments(callback func(string, int) Comments) MockClientOption {
 // ListEvents ...
 func (c *MockClient) ListEvents(repo string, issueNumber int) Events {
 	if c.listEventsCallback != nil {
-		return c.listEventsCallback(listEventsPath(repo, issueNumber), issueNumber)
+		return c.listEventsCallback(repo, issueNumber)
 	}
 	panic("MockClient#ListEvents")
 }
@@ -216,7 +216,7 @@ func MockListEvents(callback func(string, int) Events) MockClientOption {
 // ListPullReqs ...
 func (c *MockClient) ListPullReqs(repo string, params *ListPullReqsParams) PullReqs {
 	if c.listPullReqsCallback != nil {
-		return c.listPullReqsCallback(listPullReqsPath(repo, params), params)
+		return c.listPullReqsCallback(repo, params)
 	}
 	panic("MockClient#ListPullReqs")
 }
@@ -231,7 +231,7 @@ func MockListPullReqs(callback func(string, *ListPullReqsParams) PullReqs) MockC
 // GetPullReq ...
 func (c *MockClient) GetPullReq(repo string, pullNumber int) (*PullReq, error) {
 	if c.getPullReqCallback != nil {
-		return c.getPullReqCallback(getPullReqPath(repo, pullNumber), pullNumber)
+		return c.getPullReqCallback(repo, pullNumber)
 	}
 	panic("MockClient#GetPullReq")
 }
@@ -246,7 +246,7 @@ func MockGetPullReq(callback func(string, int) (*PullReq, error)) MockClientOpti
 // ListPullReqCommits ...
 func (c *MockClient) ListPullReqCommits(repo string, pullNumber int) Commits {
 	if c.listPullReqCommitsCallback != nil {
-		return c.listPullReqCommitsCallback(listPullReqCommitsPath(repo, pullNumber), pullNumber)
+		return c.listPullReqCommitsCallback(repo, pullNumber)
 	}
 	panic("MockClient#ListPullReqCommits")
 }
@@ -261,7 +261,7 @@ func MockListPullReqCommits(callback func(string, int) Commits) MockClientOption
 // GetDiff ...
 func (c *MockClient) GetDiff(repo string, sha string) (string, error) {
 	if c.getDiffCallback != nil {
-		return c.getDiffCallback(getDiffPath(repo, sha), sha)
+		return c.getDiffCallback(repo, sha)
 	}
 	panic("MockClient#GetDiff")
 }
@@ -276,7 +276,7 @@ func MockGetDiff(callback func(string, string) (string, error)) MockClientOption
 // GetCompare ...
 func (c *MockClient) GetCompare(repo string, base, head string) (string, error) {
 	if c.getCompareCallback != nil {
-		return c.getCompareCallback(getComparePath(repo, base, head), base, head)
+		return c.getCompareCallback(repo, base, head)
 	}
 	panic("MockClient#GetCompare")
 }
@@ -291,7 +291,7 @@ func MockGetCompare(callback func(string, string, string) (string, error)) MockC
 // ListReviews ...
 func (c *MockClient) ListReviews(repo string, pullNumber int) Reviews {
 	if c.listReviewsCallback != nil {
-		return c.listReviewsCallback(listReviewsPath(repo, pullNumber), pullNumber)
+		return c.listReviewsCallback(repo, pullNumber)
 	}
 	panic("MockClient#ListReviews")
 }
@@ -306,7 +306,7 @@ func MockListReviews(callback func(string, int) Reviews) MockClientOption {
 // ListReviewComments ...
 func (c *MockClient) ListReviewComments(repo string, pullNumber int) ReviewComments {
 	if c.listReviewCommentsCallback != nil {
-		return c.listReviewCommentsCallback(listReviewCommentsPath(repo, pullNumber), pullNumber)
+		return c.listReviewCommentsCallback(repo, pullNumber)
 	}
 	panic("MockClient#ListReviewComments")
 }
@@ -321,7 +321,7 @@ func MockListReviewComments(callback func(string, int) ReviewComments) MockClien
 // ListProjects ...
 func (c *MockClient) ListProjects(repo string, params *ListProjectsParams) Projects {
 	if c.listProjectsCallback != nil {
-		return c.listProjectsCallback(listProjectsPath(repo, params), params)
+		return c.listProjectsCallback(repo, params)
 	}
 	panic("MockClient#ListProjects")
 }
@@ -351,7 +351,7 @@ func MockGetProject(callback func(int) (*Project, error)) MockClientOption {
 // CreateProject ...
 func (c *MockClient) CreateProject(repo string, params *CreateProjectParams) (*Project, error) {
 	if c.createProjectCallback != nil {
-		return c.createProjectCallback(createProjectPath(repo), params)
+		return c.createProjectCallback(repo, params)
 	}
 	panic("MockClient#CreateProject")
 }
@@ -366,13 +366,13 @@ func MockCreateProject(callback func(string, *CreateProjectParams) (*Project, er
 // UpdateProject ...
 func (c *MockClient) UpdateProject(projectID int, params *UpdateProjectParams) (*Project, error) {
 	if c.updateProjectCallback != nil {
-		return c.updateProjectCallback(updateProjectPath(projectID), projectID, params)
+		return c.updateProjectCallback(projectID, params)
 	}
 	panic("MockClient#UpdateProject")
 }
 
 // MockUpdateProject ...
-func MockUpdateProject(callback func(string, int, *UpdateProjectParams) (*Project, error)) MockClientOption {
+func MockUpdateProject(callback func(int, *UpdateProjectParams) (*Project, error)) MockClientOption {
 	return func(c *MockClient) {
 		c.updateProjectCallback = callback
 	}
@@ -441,7 +441,7 @@ func MockUpdateProjectColumn(callback func(int, string) (*ProjectColumn, error))
 // ListHooks ...
 func (c *MockClient) ListHooks(repo string) Hooks {
 	if c.listHooksCallback != nil {
-		return c.listHooksCallback(listHooksPath(repo))
+		return c.listHooksCallback(repo)
 	}
 	panic("MockClient#ListHooks")
 }
@@ -456,7 +456,7 @@ func MockListHooks(callback func(string) Hooks) MockClientOption {
 // GetHook ...
 func (c *MockClient) GetHook(repo string, hookID int) (*Hook, error) {
 	if c.getHookCallback != nil {
-		return c.getHookCallback(getHookPath(repo, hookID), hookID)
+		return c.getHookCallback(repo, hookID)
 	}
 	panic("MockClient#GetHook")
 }
@@ -471,7 +471,7 @@ func MockGetHook(callback func(string, int) (*Hook, error)) MockClientOption {
 // CreateHook ...
 func (c *MockClient) CreateHook(repo string, params *CreateHookParams) (*Hook, error) {
 	if c.createHookCallback != nil {
-		return c.createHookCallback(createHookPath(repo), params)
+		return c.createHookCallback(repo, params)
 	}
 	panic("MockClient#CreateHook")
 }
@@ -486,7 +486,7 @@ func MockCreateHook(callback func(string, *CreateHookParams) (*Hook, error)) Moc
 // UpdateHook ...
 func (c *MockClient) UpdateHook(repo string, hookID int, params *UpdateHookParams) (*Hook, error) {
 	if c.updateHookCallback != nil {
-		return c.updateHookCallback(updateHookPath(repo, hookID), hookID, params)
+		return c.updateHookCallback(repo, hookID, params)
 	}
 	panic("MockClient#UpdateHook")
 }
@@ -501,7 +501,7 @@ func MockUpdateHook(callback func(string, int, *UpdateHookParams) (*Hook, error)
 // Import ...
 func (c *MockClient) Import(repo string, issue *Import) (*ImportResult, error) {
 	if c.importCallback != nil {
-		return c.importCallback(issueImportPath(repo), issue)
+		return c.importCallback(repo, issue)
 	}
 	panic("MockClient#Import")
 }
@@ -516,7 +516,7 @@ func MockImport(callback func(string, *Import) (*ImportResult, error)) MockClien
 // GetImport ...
 func (c *MockClient) GetImport(repo string, id int) (*ImportResult, error) {
 	if c.getImportCallback != nil {
-		return c.getImportCallback(getImportPath(repo, id), id)
+		return c.getImportCallback(repo, id)
 	}
 	panic("MockClient#MockGetImport")
 }

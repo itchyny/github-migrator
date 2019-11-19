@@ -20,9 +20,7 @@ func TestRepoListComments(t *testing.T) {
 		},
 	}
 	repo := New(github.NewMockClient(
-		github.MockListComments(func(path string, issueNumber int) github.Comments {
-			assert.Contains(t, path, "/repos/example/test/issues/1/comments")
-			assert.Equal(t, issueNumber, 1)
+		github.MockListComments(func(string, int) github.Comments {
 			return github.CommentsFromSlice(expected)
 		}),
 	), "example/test")

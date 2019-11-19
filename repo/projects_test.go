@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -21,10 +20,7 @@ func TestRepoListProjects(t *testing.T) {
 		},
 	}
 	repo := New(github.NewMockClient(
-		github.MockListProjects(func(path string, _ *github.ListProjectsParams) github.Projects {
-			assert.Contains(t, path, "/repos/example/test/projects")
-			assert.Contains(t, path, "state=all")
-			assert.Contains(t, path, "per_page=100")
+		github.MockListProjects(func(string, *github.ListProjectsParams) github.Projects {
 			return github.ProjectsFromSlice(expected)
 		}),
 	), "example/test")
@@ -56,8 +52,7 @@ func TestRepoCreateProject(t *testing.T) {
 		State: github.ProjectStateClosed,
 	}
 	repo := New(github.NewMockClient(
-		github.MockCreateProject(func(path string, params *github.CreateProjectParams) (*github.Project, error) {
-			assert.Equal(t, path, "/repos/example/test/projects")
+		github.MockCreateProject(func(string, *github.CreateProjectParams) (*github.Project, error) {
 			return expected, nil
 		}),
 	), "example/test")
@@ -77,8 +72,7 @@ func TestRepoUpdateProject(t *testing.T) {
 		State: github.ProjectStateClosed,
 	}
 	repo := New(github.NewMockClient(
-		github.MockUpdateProject(func(path string, projectID int, params *github.UpdateProjectParams) (*github.Project, error) {
-			assert.Equal(t, path, "/projects/"+fmt.Sprint(projectID))
+		github.MockUpdateProject(func(projectID int, params *github.UpdateProjectParams) (*github.Project, error) {
 			return expected, nil
 		}),
 	), "example/test")

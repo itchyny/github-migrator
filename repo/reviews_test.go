@@ -22,8 +22,7 @@ func TestRepoListReviews(t *testing.T) {
 		},
 	}
 	repo := New(github.NewMockClient(
-		github.MockListReviews(func(path string, pullNumber int) github.Reviews {
-			assert.Equal(t, path, "/repos/example/test/pulls/1/reviews")
+		github.MockListReviews(func(_ string, pullNumber int) github.Reviews {
 			assert.Equal(t, pullNumber, 1)
 			return github.ReviewsFromSlice(expected)
 		}),

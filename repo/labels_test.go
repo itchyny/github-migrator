@@ -26,8 +26,7 @@ func TestRepoListLabels(t *testing.T) {
 		},
 	}
 	repo := New(github.NewMockClient(
-		github.MockListLabels(func(path string) github.Labels {
-			assert.Equal(t, path, "/repos/example/test/labels")
+		github.MockListLabels(func(string) github.Labels {
 			return github.LabelsFromSlice(expected)
 		}),
 	), "example/test")
@@ -45,8 +44,7 @@ func TestRepoCreateLabel(t *testing.T) {
 		Default:     false,
 	}
 	repo := New(github.NewMockClient(
-		github.MockCreateLabel(func(path string, params *github.CreateLabelParams) (*github.Label, error) {
-			assert.Equal(t, path, "/repos/example/test/labels")
+		github.MockCreateLabel(func(string, *github.CreateLabelParams) (*github.Label, error) {
 			return expected, nil
 		}),
 	), "example/test")
@@ -68,8 +66,7 @@ func TestRepoUpdateLabel(t *testing.T) {
 		Default:     false,
 	}
 	repo := New(github.NewMockClient(
-		github.MockUpdateLabel(func(path, name string, params *github.UpdateLabelParams) (*github.Label, error) {
-			assert.Equal(t, path, "/repos/example/test/labels/"+name)
+		github.MockUpdateLabel(func(string, string, *github.UpdateLabelParams) (*github.Label, error) {
 			return expected, nil
 		}),
 	), "example/test")

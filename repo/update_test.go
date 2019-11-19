@@ -18,7 +18,7 @@ func TestRepoUpdate(t *testing.T) {
 		Private:     true,
 	}
 	repo := New(github.NewMockClient(
-		github.MockGetRepo(func(path string) (*github.Repo, error) {
+		github.MockGetRepo(func(string) (*github.Repo, error) {
 			return &github.Repo{
 				Name:        "test",
 				FullName:    "example/test",
@@ -28,8 +28,7 @@ func TestRepoUpdate(t *testing.T) {
 				Private:     false,
 			}, nil
 		}),
-		github.MockUpdateRepo(func(path string, params *github.UpdateRepoParams) (*github.Repo, error) {
-			assert.Equal(t, path, "/repos/example/test")
+		github.MockUpdateRepo(func(_ string, params *github.UpdateRepoParams) (*github.Repo, error) {
 			assert.Equal(t, params.Name, "test")
 			assert.Equal(t, params.Description, "New description")
 			assert.Equal(t, params.Homepage, "http://localhost/new")

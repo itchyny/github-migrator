@@ -18,8 +18,7 @@ func TestListMembers(t *testing.T) {
 		},
 	}
 	repo := New(github.NewMockClient(
-		github.MockListMembers(func(path string) github.Members {
-			assert.Equal(t, path, "/orgs/example/members")
+		github.MockListMembers(func(string) github.Members {
 			return github.MembersFromSlice(expected)
 		}),
 	), "example")

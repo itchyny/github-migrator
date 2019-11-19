@@ -19,8 +19,7 @@ index 1234567..89abcde 100644
 +added
 `
 	repo := New(github.NewMockClient(
-		github.MockGetDiff(func(path string, sha string) (string, error) {
-			assert.Contains(t, path, "/repos/example/test/commits/"+sha)
+		github.MockGetDiff(func(string, string) (string, error) {
 			return expected, nil
 		}),
 	), "example/test")
@@ -40,8 +39,7 @@ index 1234567..89abcde 100644
 +added
 `
 	repo := New(github.NewMockClient(
-		github.MockGetCompare(func(path string, base, head string) (string, error) {
-			assert.Contains(t, path, "/repos/example/test/compare/"+base+"..."+head)
+		github.MockGetCompare(func(string, string, string) (string, error) {
 			return expected, nil
 		}),
 	), "example/test")

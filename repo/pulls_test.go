@@ -37,11 +37,7 @@ func TestRepoListPullReqs(t *testing.T) {
 		},
 	}
 	repo := New(github.NewMockClient(
-		github.MockListPullReqs(func(path string, _ *github.ListPullReqsParams) github.PullReqs {
-			assert.Contains(t, path, "/repos/example/test/pulls")
-			assert.Contains(t, path, "state=all")
-			assert.Contains(t, path, "direction=asc")
-			assert.Contains(t, path, "per_page=100")
+		github.MockListPullReqs(func(string, *github.ListPullReqsParams) github.PullReqs {
 			return github.PullReqsFromSlice(expected)
 		}),
 	), "example/test")
@@ -63,8 +59,7 @@ func TestRepoGetPullReq(t *testing.T) {
 		Draft:  true,
 	}
 	repo := New(github.NewMockClient(
-		github.MockGetPullReq(func(path string, pullNumber int) (*github.PullReq, error) {
-			assert.Contains(t, path, "/repos/example/test/pulls/1")
+		github.MockGetPullReq(func(string, int) (*github.PullReq, error) {
 			return expected, nil
 		}),
 	), "example/test")

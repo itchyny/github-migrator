@@ -26,12 +26,7 @@ func TestRepoListIssues(t *testing.T) {
 		},
 	}
 	repo := New(github.NewMockClient(
-		github.MockListIssues(func(path string, _ *github.ListIssuesParams) github.Issues {
-			assert.Contains(t, path, "/repos/example/test/issues")
-			assert.Contains(t, path, "filter=all")
-			assert.Contains(t, path, "state=all")
-			assert.Contains(t, path, "direction=asc")
-			assert.Contains(t, path, "per_page=100")
+		github.MockListIssues(func(string, *github.ListIssuesParams) github.Issues {
 			return github.IssuesFromSlice(expected)
 		}),
 	), "example/test")
@@ -52,8 +47,7 @@ func TestRepoGetIssue(t *testing.T) {
 		},
 	}
 	repo := New(github.NewMockClient(
-		github.MockGetIssue(func(path string, issueNumber int) (*github.Issue, error) {
-			assert.Contains(t, path, "/repos/example/test/issues/1")
+		github.MockGetIssue(func(string, int) (*github.Issue, error) {
 			return expected, nil
 		}),
 	), "example/test")

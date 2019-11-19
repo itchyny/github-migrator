@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -21,8 +20,7 @@ func TestRepoListPullReqCommits(t *testing.T) {
 		},
 	}
 	repo := New(github.NewMockClient(
-		github.MockListPullReqCommits(func(path string, pullNumber int) github.Commits {
-			assert.Contains(t, path, fmt.Sprintf("/repos/example/test/pulls/%d/commits", pullNumber))
+		github.MockListPullReqCommits(func(string, int) github.Commits {
 			return github.CommitsFromSlice(expected)
 		}),
 	), "example/test")

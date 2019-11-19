@@ -22,9 +22,7 @@ func TestRepoListEvents(t *testing.T) {
 		},
 	}
 	repo := New(github.NewMockClient(
-		github.MockListEvents(func(path string, issueNumber int) github.Events {
-			assert.Contains(t, path, "/repos/example/test/issues/1/events")
-			assert.Equal(t, issueNumber, 1)
+		github.MockListEvents(func(string, int) github.Events {
 			return github.EventsFromSlice(expected)
 		}),
 	), "example/test")
