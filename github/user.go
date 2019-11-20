@@ -35,3 +35,23 @@ func (c *client) GetLogin() (*User, error) {
 
 	return &r.User, nil
 }
+
+// GetUser ...
+func (c *client) GetUser(name string) (*User, error) {
+	res, err := c.get(c.url(fmt.Sprintf("/users/%s", name)))
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	var r userOrError
+	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+		return nil, err
+	}
+
+	if r.Message != "" {
+		return nil, fmt.Errorf("GetUser %s: %s", fmt.Sprintf("/user/%s", name), r.Message)
+	}
+
+	return &r.User, nil
+}
