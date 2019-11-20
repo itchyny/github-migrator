@@ -16,7 +16,8 @@ type userOrError struct {
 	Message string `json:"message"`
 }
 
-func (c *client) GetUser() (*User, error) {
+// GetLogin ...
+func (c *client) GetLogin() (*User, error) {
 	res, err := c.get(c.url("/user"))
 	if err != nil {
 		return nil, err
@@ -29,7 +30,7 @@ func (c *client) GetUser() (*User, error) {
 	}
 
 	if r.Message != "" {
-		return nil, fmt.Errorf("GetUser %s: %s", "/user", r.Message)
+		return nil, fmt.Errorf("GetLogin %s: %s", "/user", r.Message)
 	}
 
 	return &r.User, nil

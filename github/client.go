@@ -13,7 +13,7 @@ import (
 
 // Client represents a GitHub client.
 type Client interface {
-	GetUser() (*User, error)
+	GetLogin() (*User, error)
 	ListMembers(string) Members
 	GetRepo(string) (*Repo, error)
 	UpdateRepo(string, *UpdateRepoParams) (*Repo, error)

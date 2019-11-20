@@ -52,7 +52,7 @@ func createGitHubClient(tokenEnv, endpointEnv string) (github.Client, error) {
 			fmt.Printf("<=== %s: %s: %s\n", res.Status, res.Request.Method, res.Request.URL)
 		}),
 	))
-	user, err := cli.GetUser()
+	user, err := cli.GetLogin()
 	if err != nil {
 		return nil, fmt.Errorf("%s (or you may want to set %s)", err, endpointEnv)
 	}
