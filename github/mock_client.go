@@ -28,6 +28,11 @@ type MockClient struct {
 	getProjectColumnCallback    func(int) (*ProjectColumn, error)
 	createProjectColumnCallback func(int, string) (*ProjectColumn, error)
 	updateProjectColumnCallback func(int, string) (*ProjectColumn, error)
+	listProjectCardsCallback    func(int) ProjectCards
+	getProjectCardCallback      func(int) (*ProjectCard, error)
+	createProjectCardCallback   func(int, *CreateProjectCardParams) (*ProjectCard, error)
+	updateProjectCardCallback   func(int, *UpdateProjectCardParams) (*ProjectCard, error)
+	moveProjectCardCallback     func(int, *MoveProjectCardParams) (*ProjectCard, error)
 	listHooksCallback           func(string) Hooks
 	getHookCallback             func(string, int) (*Hook, error)
 	createHookCallback          func(string, *CreateHookParams) (*Hook, error)
@@ -435,6 +440,81 @@ func (c *MockClient) UpdateProjectColumn(projectColumnID int, name string) (*Pro
 func MockUpdateProjectColumn(callback func(int, string) (*ProjectColumn, error)) MockClientOption {
 	return func(c *MockClient) {
 		c.updateProjectColumnCallback = callback
+	}
+}
+
+// ListProjectCards ...
+func (c *MockClient) ListProjectCards(columnID int) ProjectCards {
+	if c.listProjectCardsCallback != nil {
+		return c.listProjectCardsCallback(columnID)
+	}
+	panic("MockClient#ListProjectCards")
+}
+
+// MockListProjectCards ...
+func MockListProjectCards(callback func(int) ProjectCards) MockClientOption {
+	return func(c *MockClient) {
+		c.listProjectCardsCallback = callback
+	}
+}
+
+// GetProjectCard ...
+func (c *MockClient) GetProjectCard(projectCardID int) (*ProjectCard, error) {
+	if c.getProjectCardCallback != nil {
+		return c.getProjectCardCallback(projectCardID)
+	}
+	panic("MockClient#GetProjectCard")
+}
+
+// MockGetProjectCard ...
+func MockGetProjectCard(callback func(int) (*ProjectCard, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.getProjectCardCallback = callback
+	}
+}
+
+// CreateProjectCard ...
+func (c *MockClient) CreateProjectCard(columnID int, params *CreateProjectCardParams) (*ProjectCard, error) {
+	if c.createProjectCardCallback != nil {
+		return c.createProjectCardCallback(columnID, params)
+	}
+	panic("MockClient#CreateProjectCard")
+}
+
+// MockCreateProjectCard ...
+func MockCreateProjectCard(callback func(int, *CreateProjectCardParams) (*ProjectCard, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.createProjectCardCallback = callback
+	}
+}
+
+// UpdateProjectCard ...
+func (c *MockClient) UpdateProjectCard(projectCardID int, params *UpdateProjectCardParams) (*ProjectCard, error) {
+	if c.updateProjectCardCallback != nil {
+		return c.updateProjectCardCallback(projectCardID, params)
+	}
+	panic("MockClient#UpdateProjectCard")
+}
+
+// MockUpdateProjectCard ...
+func MockUpdateProjectCard(callback func(int, *UpdateProjectCardParams) (*ProjectCard, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.updateProjectCardCallback = callback
+	}
+}
+
+// MoveProjectCard ...
+func (c *MockClient) MoveProjectCard(projectCardID int, params *MoveProjectCardParams) (*ProjectCard, error) {
+	if c.moveProjectCardCallback != nil {
+		return c.moveProjectCardCallback(projectCardID, params)
+	}
+	panic("MockClient#MoveProjectCard")
+}
+
+// MockMoveProjectCard ...
+func MockMoveProjectCard(callback func(int, *MoveProjectCardParams) (*ProjectCard, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.moveProjectCardCallback = callback
 	}
 }
 

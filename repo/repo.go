@@ -30,6 +30,11 @@ type Repo interface {
 	GetProjectColumn(int) (*github.ProjectColumn, error)
 	CreateProjectColumn(int, string) (*github.ProjectColumn, error)
 	UpdateProjectColumn(int, string) (*github.ProjectColumn, error)
+	ListProjectCards(int) github.ProjectCards
+	GetProjectCard(int) (*github.ProjectCard, error)
+	CreateProjectCard(int, *github.CreateProjectCardParams) (*github.ProjectCard, error)
+	UpdateProjectCard(int, *github.UpdateProjectCardParams) (*github.ProjectCard, error)
+	MoveProjectCard(int, *github.MoveProjectCardParams) (*github.ProjectCard, error)
 	ListHooks() github.Hooks
 	GetHook(int) (*github.Hook, error)
 	CreateHook(*github.CreateHookParams) (*github.Hook, error)

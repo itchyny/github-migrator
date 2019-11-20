@@ -39,6 +39,11 @@ type Client interface {
 	GetProjectColumn(int) (*ProjectColumn, error)
 	CreateProjectColumn(int, string) (*ProjectColumn, error)
 	UpdateProjectColumn(int, string) (*ProjectColumn, error)
+	ListProjectCards(int) ProjectCards
+	GetProjectCard(int) (*ProjectCard, error)
+	CreateProjectCard(int, *CreateProjectCardParams) (*ProjectCard, error)
+	UpdateProjectCard(int, *UpdateProjectCardParams) (*ProjectCard, error)
+	MoveProjectCard(int, *MoveProjectCardParams) (*ProjectCard, error)
 	ListHooks(string) Hooks
 	GetHook(string, int) (*Hook, error)
 	CreateHook(string, *CreateHookParams) (*Hook, error)

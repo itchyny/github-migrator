@@ -120,11 +120,6 @@ func (c *client) GetProjectColumn(projectColumnID int) (*ProjectColumn, error) {
 	return &r.ProjectColumn, nil
 }
 
-// CreateProjectColumnParams represents the paramter for CreateProjectColumn API.
-type CreateProjectColumnParams struct {
-	Name string `json:"name"`
-}
-
 func createProjectColumnPath(projectID int) string {
 	return newPath(fmt.Sprintf("/projects/%d/columns", projectID)).
 		String()
