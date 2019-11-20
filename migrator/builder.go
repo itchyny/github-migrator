@@ -24,7 +24,6 @@ type builder struct {
 	commitDiff     string
 	reviews        []*github.Review
 	reviewComments []*github.ReviewComment
-	projects       []*github.Project
 	projectByIDs   map[int]*github.Project
 }
 
@@ -35,7 +34,6 @@ func buildImport(
 	comments []*github.Comment, events []*github.Event,
 	commits []*github.Commit, commitDiff string,
 	reviews []*github.Review, reviewComments []*github.ReviewComment,
-	projects []*github.Project,
 ) (*github.Import, error) {
 	return (&builder{
 		migrator:       migrator,
@@ -52,7 +50,6 @@ func buildImport(
 		commitDiff:     commitDiff,
 		reviews:        reviews,
 		reviewComments: reviewComments,
-		projects:       projects,
 	}).build()
 }
 

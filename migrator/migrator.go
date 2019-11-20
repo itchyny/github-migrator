@@ -37,6 +37,10 @@ func (m *migrator) Migrate() error {
 	if err := m.migrateProjects(); err != nil {
 		return err
 	}
+	_, err := m.listTargetProjects()
+	if err != nil {
+		return err
+	}
 	if err := m.migrateIssues(); err != nil {
 		return err
 	}

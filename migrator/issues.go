@@ -133,14 +133,10 @@ func (m *migrator) migrateIssue(
 			return nil, err
 		}
 	}
-	projects, err := m.listTargetProjects()
-	if err != nil {
-		return nil, err
-	}
 	imp, err := buildImport(
 		m, m.source, m.target, sourceRepo, targetRepo, commentFilters,
 		sourceIssue, sourcePullReq, comments, events,
-		commits, commitDiff, reviews, reviewComments, projects,
+		commits, commitDiff, reviews, reviewComments,
 	)
 	if err != nil {
 		return nil, err
