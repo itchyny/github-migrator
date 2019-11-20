@@ -12,6 +12,7 @@ import (
 
 type builder struct {
 	sourceCli      repo.Repo
+	targetCli      repo.Repo
 	source, target *github.Repo
 	commentFilters commentFilters
 	issue          *github.Issue
@@ -22,21 +23,22 @@ type builder struct {
 	commitDiff     string
 	reviews        []*github.Review
 	reviewComments []*github.ReviewComment
-	members        []*github.Member
 	projects       []*github.Project
 	projectByIDs   map[int]*github.Project
+	lookupUser     func(string) (*github.User, error)
 }
 
 func buildImport(
-	sourceCli repo.Repo, sourceRepo, targetRepo *github.Repo, commentFilters commentFilters,
+	sourceCli, targetCli repo.Repo, sourceRepo, targetRepo *github.Repo, commentFilters commentFilters,
 	issue *github.Issue, pullReq *github.PullReq,
 	comments []*github.Comment, events []*github.Event,
 	commits []*github.Commit, commitDiff string,
 	reviews []*github.Review, reviewComments []*github.ReviewComment,
-	members []*github.Member, projects []*github.Project,
+	projects []*github.Project, lookupUser func(string) (*github.User, error),
 ) (*github.Import, error) {
 	return (&builder{
 		sourceCli:      sourceCli,
+		targetCli:      targetCli,
 		source:         sourceRepo,
 		target:         targetRepo,
 		commentFilters: commentFilters,
@@ -48,8 +50,8 @@ func buildImport(
 		commitDiff:     commitDiff,
 		reviews:        reviews,
 		reviewComments: reviewComments,
-		members:        members,
 		projects:       projects,
+		lookupUser:     lookupUser,
 	}).build()
 }
 
@@ -65,7 +67,7 @@ func (b *builder) build() (*github.Import, error) {
 	}
 	if b.issue.Assignee != nil {
 		target := b.commentFilters.apply(b.issue.Assignee.Login)
-		if b.isTargetMember(target) {
+		if b.isAvailableUser(target) {
 			importIssue.Assignee = target
 		}
 	}
@@ -231,7 +233,7 @@ func (b *builder) buildUserActionBody(user *github.User, action, body string) st
 
 func (b *builder) buildImageTag(user *github.User, width int) string {
 	target := b.commentFilters.apply(user.Login)
-	if !b.isTargetMember(target) {
+	if !b.isAvailableUser(target) {
 		target = "github"
 	}
 	return fmt.Sprintf(`<img src="https://github.com/%s.png" width="%d">`, target, width)
@@ -309,17 +311,7 @@ func (b *builder) buildImportLabels(issue *github.Issue) []string {
 	return xs
 }
 
-func (b *builder) isTargetMember(name string) bool {
-	if !b.target.Private {
-		return true
-	}
-	if strings.HasPrefix(b.target.FullName, name+"/") {
-		return true
-	}
-	for _, m := range b.members {
-		if m.Login == name {
-			return true
-		}
-	}
-	return false
+func (b *builder) isAvailableUser(name string) bool {
+	u, _ := b.lookupUser(name)
+	return u != nil
 }

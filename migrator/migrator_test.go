@@ -22,11 +22,12 @@ func init() {
 
 type testRepo struct {
 	Repo         *github.Repo
-	UpdateRepo   *github.Repo     `json:"update_repo"`
-	Members      []*github.Member `json:"members"`
-	Labels       []*github.Label  `json:"labels"`
-	CreateLabels []*github.Label  `json:"create_labels"`
-	UpdateLabels []*github.Label  `json:"update_labels"`
+	UpdateRepo   *github.Repo            `json:"update_repo"`
+	Members      []*github.Member        `json:"members"`
+	UserByNames  map[string]*github.User `json:"users"`
+	Labels       []*github.Label         `json:"labels"`
+	CreateLabels []*github.Label         `json:"create_labels"`
+	UpdateLabels []*github.Label         `json:"update_labels"`
 	Issues       []struct {
 		*github.PullReq
 		Comments       []*github.Comment       `json:"comments"`
@@ -56,6 +57,13 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 	}
 	return repo.New(github.NewMockClient(
 
+		github.MockGetUser(func(name string) (*github.User, error) {
+			assert.True(t, isTarget)
+			if u, ok := r.UserByNames[name]; ok {
+				return u, nil
+			}
+			return nil, fmt.Errorf("user not found: %s", name)
+		}),
 		github.MockListMembers(func(string) github.Members {
 			assert.True(t, isTarget)
 			return github.MembersFromSlice(r.Members)

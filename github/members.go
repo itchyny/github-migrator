@@ -8,6 +8,12 @@ import (
 // Member represents a member.
 type Member User
 
+// ToUser converts *Member to *User.
+func (m *Member) ToUser() *User {
+	u := User(*m)
+	return &u
+}
+
 // Members represents a collection of comments.
 type Members <-chan interface{}
 

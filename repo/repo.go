@@ -6,6 +6,7 @@ import "github.com/itchyny/github-migrator/github"
 type Repo interface {
 	NewPath(string) Repo
 	Get() (*github.Repo, error)
+	GetUser(string) (*github.User, error)
 	ListMembers() github.Members
 	Update(*github.UpdateRepoParams) (*github.Repo, error)
 	ListLabels() github.Labels

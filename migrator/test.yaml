@@ -237,6 +237,7 @@
       html_url: http://localhost/example/target
     members:
       - *user1
+      - *user2
     labels:
       - *label1
       - *label2
@@ -355,7 +356,7 @@
               <table>
               <tr>
                 <td width="60">
-                  <img src="https://github.com/sample-user-3.png" width="35">
+                  <img src="https://github.com/github.png" width="35">
                 </td>
                 <td>
                   @sample-user-3 removed <b><code>test2</code></b> label
@@ -1005,6 +1006,8 @@
       name: target
       full_name: example/target
       html_url: http://localhost/example/target
+    users:
+      sample-user-1: *user1
     imports:
       - issue:
           title: Example title 1

@@ -20,6 +20,8 @@ type migrator struct {
 	sourceRepo, targetRepo *github.Repo
 	userMapping            map[string]string
 	members                []*github.Member
+	userByName             map[string]*github.User
+	errorUserByName        map[string]error
 	projects               []*github.Project
 }
 
