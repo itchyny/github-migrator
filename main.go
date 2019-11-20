@@ -46,7 +46,11 @@ func createGitHubClient(tokenEnv, endpointEnv string) (github.Client, error) {
 		}),
 		github.LoggerOptionPostRequest(func(res *http.Response, err error) {
 			if err != nil {
-				fmt.Printf("<=== %s: %s: %s\n", err, res.Request.Method, res.Request.URL)
+				var suffix string
+				if res != nil {
+					suffix = fmt.Sprintf(": %s: %s", res.Request.Method, res.Request.URL)
+				}
+				fmt.Printf("<=== %s%s\n", err, suffix)
 				return
 			}
 			fmt.Printf("<=== %s: %s: %s\n", res.Status, res.Request.Method, res.Request.URL)
