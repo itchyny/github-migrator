@@ -2,25 +2,24 @@ package migrator
 
 import (
 	"fmt"
-	"io"
+	"strings"
 
 	"github.com/itchyny/github-migrator/github"
 )
 
 func (m *migrator) migrateProjects() error {
-	sourceProjects := m.source.ListProjects()
+	sourceProjects, err := github.ProjectsToSlice(m.source.ListProjects())
+	if err != nil {
+		if strings.Contains(err.Error(), "Projects are disabled for this repository") {
+			return nil // do nothing
+		}
+		return err
+	}
 	targetProjects, err := github.ProjectsToSlice(m.target.ListProjects())
 	if err != nil {
 		return err
 	}
-	for {
-		p, err := sourceProjects.Next()
-		if err != nil {
-			if err != io.EOF {
-				return err
-			}
-			return nil
-		}
+	for _, p := range sourceProjects {
 		fmt.Printf("[=>] migrating a project: %s\n", p.Name)
 		q := lookupProject(targetProjects, p)
 		if q == nil {
@@ -45,6 +44,7 @@ func (m *migrator) migrateProjects() error {
 			return err
 		}
 	}
+	return nil
 }
 
 func lookupProject(ps []*github.Project, p *github.Project) *github.Project {
@@ -62,6 +62,10 @@ func (m *migrator) listTargetProjects() ([]*github.Project, error) {
 	}
 	projects, err := github.ProjectsToSlice(m.target.ListProjects())
 	if err != nil {
+		m.projects = []*github.Project{}
+		if strings.Contains(err.Error(), "Projects are disabled for this repository") {
+			return m.projects, nil
+		}
 		return nil, err
 	}
 	m.projects = projects
