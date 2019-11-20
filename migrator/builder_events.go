@@ -211,7 +211,7 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 			actions = append(actions,
 				fmt.Sprintf(
 					`created this issue from a note in <b><a href="%s">%s</a></b> (<code>%s</code>)`,
-					p.HTMLURL, html.EscapeString(p.Name),
+					b.lookupMigratedProject(p).HTMLURL, html.EscapeString(p.Name),
 					html.EscapeString(e.ProjectCard.ColumnName),
 				),
 			)
@@ -224,7 +224,7 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 				fmt.Sprintf(
 					`added this to <code>%s</code> in <b><a href="%s">%s</a></b>`,
 					html.EscapeString(e.ProjectCard.ColumnName),
-					p.HTMLURL, html.EscapeString(p.Name),
+					b.lookupMigratedProject(p).HTMLURL, html.EscapeString(p.Name),
 				),
 			)
 		case "moved_columns_in_project":
@@ -237,7 +237,7 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 					`moved this from <code>%s</code> to <code>%s</code> in <b><a href="%s">%s</a></b>`,
 					html.EscapeString(e.ProjectCard.PreviousColumnName),
 					html.EscapeString(e.ProjectCard.ColumnName),
-					p.HTMLURL, html.EscapeString(p.Name),
+					b.lookupMigratedProject(p).HTMLURL, html.EscapeString(p.Name),
 				),
 			)
 		case "removed_from_project":
@@ -249,7 +249,7 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 				fmt.Sprintf(
 					`removed this from <code>%s</code> in <b><a href="%s">%s</a></b>`,
 					html.EscapeString(e.ProjectCard.ColumnName),
-					p.HTMLURL, html.EscapeString(p.Name),
+					b.lookupMigratedProject(p).HTMLURL, html.EscapeString(p.Name),
 				),
 			)
 		case "referenced", "mentioned", "subscribed", "base_ref_changed":
@@ -321,4 +321,15 @@ func (b *builder) getProject(id int) (*github.Project, error) {
 	}
 	b.projectByIDs[id] = p
 	return p, nil
+}
+
+func (b *builder) lookupMigratedProject(orig *github.Project) *github.Project {
+	if !strings.HasPrefix(orig.HTMLURL, b.source.HTMLURL+"/projects/") {
+		return orig
+	}
+	found := lookupProject(b.projects, orig)
+	if found != nil {
+		return found
+	}
+	return orig
 }

@@ -50,6 +50,10 @@ type testRepo struct {
 }
 
 func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
+	projects := make([]*github.Project, len(r.Projects))
+	for i, p := range r.Projects {
+		projects[i] = p.Project
+	}
 	return repo.New(github.NewMockClient(
 
 		github.MockListMembers(func(string) github.Members {
@@ -168,11 +172,7 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 		}),
 
 		github.MockListProjects(func(_ string, _ *github.ListProjectsParams) github.Projects {
-			ps := make([]*github.Project, len(r.Projects))
-			for i, p := range r.Projects {
-				ps[i] = p.Project
-			}
-			return github.ProjectsFromSlice(ps)
+			return github.ProjectsFromSlice(projects)
 		}),
 		github.MockGetProject(func(projectID int) (*github.Project, error) {
 			assert.True(t, !isTarget)
@@ -190,6 +190,7 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 				require.Greater(t, len(r.CreateProjects), i)
 				assert.Equal(t, r.CreateProjects[i].Name, params.Name)
 				assert.Equal(t, r.CreateProjects[i].Body, params.Body)
+				projects = append(projects, r.CreateProjects[i])
 				return r.CreateProjects[i], nil
 			}
 		})(0)),

@@ -55,3 +55,15 @@ func lookupProject(ps []*github.Project, p *github.Project) *github.Project {
 	}
 	return nil
 }
+
+func (m *migrator) listTargetProjects() ([]*github.Project, error) {
+	if m.projects != nil {
+		return m.projects, nil
+	}
+	projects, err := github.ProjectsToSlice(m.target.ListProjects())
+	if err != nil {
+		return nil, err
+	}
+	m.projects = projects
+	return projects, nil
+}

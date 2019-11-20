@@ -20,6 +20,7 @@ type migrator struct {
 	sourceRepo, targetRepo *github.Repo
 	userMapping            map[string]string
 	members                []*github.Member
+	projects               []*github.Project
 }
 
 // Migrate the repository.
@@ -30,10 +31,11 @@ func (m *migrator) Migrate() error {
 	if err := m.migrateLabels(); err != nil {
 		return err
 	}
-	if err := m.migrateIssues(); err != nil {
+	// projects should be imported before issues
+	if err := m.migrateProjects(); err != nil {
 		return err
 	}
-	if err := m.migrateProjects(); err != nil {
+	if err := m.migrateIssues(); err != nil {
 		return err
 	}
 	if err := m.migrateHooks(); err != nil {

@@ -23,6 +23,7 @@ type builder struct {
 	reviews        []*github.Review
 	reviewComments []*github.ReviewComment
 	members        []*github.Member
+	projects       []*github.Project
 	projectByIDs   map[int]*github.Project
 }
 
@@ -32,7 +33,7 @@ func buildImport(
 	comments []*github.Comment, events []*github.Event,
 	commits []*github.Commit, commitDiff string,
 	reviews []*github.Review, reviewComments []*github.ReviewComment,
-	members []*github.Member,
+	members []*github.Member, projects []*github.Project,
 ) (*github.Import, error) {
 	return (&builder{
 		sourceCli:      sourceCli,
@@ -48,6 +49,7 @@ func buildImport(
 		reviews:        reviews,
 		reviewComments: reviewComments,
 		members:        members,
+		projects:       projects,
 	}).build()
 }
 

@@ -430,7 +430,7 @@
                   <img src="https://github.com/sample-user-2.png" width="35">
                 </td>
                 <td>
-                  @sample-user-2 created this issue from a note in <b><a href="http://localhost/example/source/projects/1">project 100</a></b> (<code>next week</code>)
+                  @sample-user-2 created this issue from a note in <b><a href="http://localhost/example/target/projects/1">project 100</a></b> (<code>next week</code>)
                 </td>
               </tr>
               </table>
@@ -442,7 +442,7 @@
                   <img src="https://github.com/sample-user-2.png" width="35">
                 </td>
                 <td>
-                  @sample-user-2 added this to <code>next week</code> in <b><a href="http://localhost/example/source/projects/1">project 100</a></b>
+                  @sample-user-2 added this to <code>next week</code> in <b><a href="http://localhost/example/target/projects/1">project 100</a></b>
                 </td>
               </tr>
               </table>
@@ -454,7 +454,7 @@
                   <img src="https://github.com/sample-user-2.png" width="35">
                 </td>
                 <td>
-                  @sample-user-2 moved this from <code>next week</code> to <code>this week</code> in <b><a href="http://localhost/example/source/projects/1">project 100</a></b>
+                  @sample-user-2 moved this from <code>next week</code> to <code>this week</code> in <b><a href="http://localhost/example/target/projects/1">project 100</a></b>
                 </td>
               </tr>
               </table>
@@ -466,7 +466,7 @@
                   <img src="https://github.com/sample-user-2.png" width="35">
                 </td>
                 <td>
-                  @sample-user-2 removed this from <code>this week</code> in <b><a href="http://localhost/example/source/projects/1">project 100</a></b>
+                  @sample-user-2 removed this from <code>this week</code> in <b><a href="http://localhost/example/target/projects/1">project 100</a></b>
                 </td>
               </tr>
               </table>
@@ -474,7 +474,7 @@
     create_projects:
       - id: 200
         name: project 100
-        html_url: http://localhost/example/source/target/1
+        html_url: http://localhost/example/target/projects/1
 
 -
   name: pull requests
