@@ -6,22 +6,36 @@ import (
 	"github.com/itchyny/github-migrator/github"
 )
 
-// returns the user, isMember (or owner) and error
-func (m *migrator) lookupUser(name string) (*github.User, bool, error) {
-	isOwner := strings.HasPrefix(m.targetRepo.FullName, name+"/")
-	if u, ok := m.userByName[name]; ok {
-		return u, isOwner, nil
-	}
-	if err, ok := m.errorUserByName[name]; ok {
-		return nil, false, err
+func (m *migrator) isTargetMember(name string) (bool, error) {
+	if strings.HasPrefix(m.targetRepo.FullName, name+"/") {
+		return true, nil
 	}
 	members, err := m.listTargetMembers()
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 	for _, mem := range members {
 		if mem.Login == name {
-			return mem.ToUser(), true, nil
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func (m *migrator) lookupUser(name string) (*github.User, error) {
+	if u, ok := m.userByName[name]; ok {
+		return u, nil
+	}
+	if err, ok := m.errorUserByName[name]; ok {
+		return nil, err
+	}
+	members, err := m.listTargetMembers()
+	if err != nil {
+		return nil, err
+	}
+	for _, mem := range members {
+		if mem.Login == name {
+			return mem.ToUser(), nil
 		}
 	}
 	u, err := m.target.GetUser(name)
@@ -30,11 +44,11 @@ func (m *migrator) lookupUser(name string) (*github.User, bool, error) {
 			m.errorUserByName = make(map[string]error)
 		}
 		m.errorUserByName[name] = err
-		return nil, false, err
+		return nil, err
 	}
 	if m.userByName == nil {
 		m.userByName = make(map[string]*github.User)
 	}
 	m.userByName[name] = u
-	return u, isOwner, nil
+	return u, nil
 }

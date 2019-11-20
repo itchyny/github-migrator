@@ -11,6 +11,7 @@ import (
 )
 
 type builder struct {
+	*migrator
 	sourceCli      repo.Repo
 	targetCli      repo.Repo
 	source, target *github.Repo
@@ -25,18 +26,19 @@ type builder struct {
 	reviewComments []*github.ReviewComment
 	projects       []*github.Project
 	projectByIDs   map[int]*github.Project
-	lookupUser     func(string) (*github.User, bool, error)
 }
 
 func buildImport(
+	migrator *migrator,
 	sourceCli, targetCli repo.Repo, sourceRepo, targetRepo *github.Repo, commentFilters commentFilters,
 	issue *github.Issue, pullReq *github.PullReq,
 	comments []*github.Comment, events []*github.Event,
 	commits []*github.Commit, commitDiff string,
 	reviews []*github.Review, reviewComments []*github.ReviewComment,
-	projects []*github.Project, lookupUser func(string) (*github.User, bool, error),
+	projects []*github.Project,
 ) (*github.Import, error) {
 	return (&builder{
+		migrator:       migrator,
 		sourceCli:      sourceCli,
 		targetCli:      targetCli,
 		source:         sourceRepo,
@@ -51,7 +53,6 @@ func buildImport(
 		reviews:        reviews,
 		reviewComments: reviewComments,
 		projects:       projects,
-		lookupUser:     lookupUser,
 	}).build()
 }
 
@@ -67,7 +68,11 @@ func (b *builder) build() (*github.Import, error) {
 	}
 	if b.issue.Assignee != nil {
 		target := b.commentFilters.apply(b.issue.Assignee.Login)
-		if b.isAssignableUser(target) {
+		isMember, err := b.isTargetMember(target)
+		if err != nil {
+			return nil, err
+		}
+		if isMember {
 			importIssue.Assignee = target
 		}
 	}
@@ -311,12 +316,7 @@ func (b *builder) buildImportLabels(issue *github.Issue) []string {
 	return xs
 }
 
-func (b *builder) isAssignableUser(name string) bool {
-	u, isMember, _ := b.lookupUser(name)
-	return u != nil && isMember
-}
-
 func (b *builder) isAvailableUser(name string) bool {
-	u, _, _ := b.lookupUser(name)
+	u, _ := b.lookupUser(name)
 	return u != nil
 }

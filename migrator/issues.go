@@ -138,9 +138,9 @@ func (m *migrator) migrateIssue(
 		return nil, err
 	}
 	imp, err := buildImport(
-		m.source, m.target, sourceRepo, targetRepo, commentFilters,
+		m, m.source, m.target, sourceRepo, targetRepo, commentFilters,
 		sourceIssue, sourcePullReq, comments, events,
-		commits, commitDiff, reviews, reviewComments, projects, m.lookupUser,
+		commits, commitDiff, reviews, reviewComments, projects,
 	)
 	if err != nil {
 		return nil, err
