@@ -1,8 +1,6 @@
 package github
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 )
@@ -71,18 +69,12 @@ func HooksToSlice(hs Hooks) ([]*Hook, error) {
 	}
 }
 
-func listHooksPath(repo string) string {
-	return newPath(fmt.Sprintf("/repos/%s/hooks", repo)).
-		query("per_page", "100").
-		String()
-}
-
 // ListHooks lists the hooks.
 func (c *client) ListHooks(repo string) Hooks {
 	hs := make(chan interface{})
 	go func() {
 		defer close(hs)
-		path := c.url(listHooksPath(repo))
+		path := c.url(fmt.Sprintf("/repos/%s/hooks?per_page=100", repo))
 		for {
 			var xs []*Hook
 			next, err := c.getList(path, &xs)
@@ -102,34 +94,13 @@ func (c *client) ListHooks(repo string) Hooks {
 	return Hooks(hs)
 }
 
-func getHookPath(repo string, hookID int) string {
-	return newPath(fmt.Sprintf("/repos/%s/hooks/%d", repo, hookID)).
-		String()
-}
-
-type hookOrError struct {
-	Hook
-	Message string `json:"message"`
-}
-
 // GetHook gets the hook.
 func (c *client) GetHook(repo string, hookID int) (*Hook, error) {
-	res, err := c.get(c.url(getHookPath(repo, hookID)))
-	if err != nil {
-		return nil, err
+	var r Hook
+	if err := c.get(c.url(fmt.Sprintf("/repos/%s/hooks/%d", repo, hookID)), &r); err != nil {
+		return nil, fmt.Errorf("GetHook %s: %w", fmt.Sprintf("%s/hooks/%d", repo, hookID), err)
 	}
-	defer res.Body.Close()
-
-	var r hookOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("GetHook %s: %s", fmt.Sprintf("%s/hooks/%d", repo, hookID), r.Message)
-	}
-
-	return &r.Hook, nil
+	return &r, nil
 }
 
 // CreateHookParams represents the paramter for CreateHook API.
@@ -140,35 +111,14 @@ type CreateHookParams struct {
 	Config *HookConfig `json:"config"`
 }
 
-func createHookPath(repo string) string {
-	return newPath(fmt.Sprintf("/repos/%s/hooks", repo)).
-		String()
-}
-
 // CreateHook creates a hook.
 func (c *client) CreateHook(repo string, params *CreateHookParams) (*Hook, error) {
 	params.Name = "web"
-	bs, err := json.Marshal(params)
-	if err != nil {
-		return nil, err
+	var r Hook
+	if err := c.post(c.url(fmt.Sprintf("/repos/%s/hooks", repo)), params, &r); err != nil {
+		return nil, fmt.Errorf("CreateHook %s: %w", fmt.Sprintf("%s/hooks", repo), err)
 	}
-	body := bytes.NewReader(bs)
-	res, err := c.post(c.url(createHookPath(repo)), body)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	var r hookOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("CreateHook %s: %s", fmt.Sprintf("%s/hooks", repo), r.Message)
-	}
-
-	return &r.Hook, nil
+	return &r, nil
 }
 
 // UpdateHookParams represents the paramter for UpdateHook API.
@@ -178,32 +128,11 @@ type UpdateHookParams struct {
 	Config *HookConfig `json:"config"`
 }
 
-func updateHookPath(repo string, hookID int) string {
-	return newPath(fmt.Sprintf("/repos/%s/hooks/%d", repo, hookID)).
-		String()
-}
-
 // UpdateHook updates the hook.
 func (c *client) UpdateHook(repo string, hookID int, params *UpdateHookParams) (*Hook, error) {
-	bs, err := json.Marshal(params)
-	if err != nil {
-		return nil, err
+	var r Hook
+	if err := c.patch(c.url(fmt.Sprintf("/repos/%s/hooks/%d", repo, hookID)), params, &r); err != nil {
+		return nil, fmt.Errorf("UpdateHook %s: %w", fmt.Sprintf("%s/hooks/%d", repo, hookID), err)
 	}
-	body := bytes.NewReader(bs)
-	res, err := c.patch(c.url(updateHookPath(repo, hookID)), body)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	var r hookOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("UpdateHook %s: %s", fmt.Sprintf("%s/hooks/%d", repo, hookID), r.Message)
-	}
-
-	return &r.Hook, nil
+	return &r, nil
 }

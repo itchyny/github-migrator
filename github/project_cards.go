@@ -1,7 +1,6 @@
 package github
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -63,18 +62,12 @@ func ProjectCardsToSlice(ps ProjectCards) ([]*ProjectCard, error) {
 	}
 }
 
-func listProjectCardsPath(columnID int) string {
-	return newPath(fmt.Sprintf("/projects/columns/%d/cards", columnID)).
-		query("per_page", "100").
-		String()
-}
-
 // ListProjectCards lists the project cards.
 func (c *client) ListProjectCards(columnID int) ProjectCards {
 	ps := make(chan interface{})
 	go func() {
 		defer close(ps)
-		path := c.url(listProjectCardsPath(columnID))
+		path := c.url(fmt.Sprintf("/projects/columns/%d/cards?per_page=100", columnID))
 		for {
 			var xs []*ProjectCard
 			next, err := c.getList(path, &xs)
@@ -94,33 +87,12 @@ func (c *client) ListProjectCards(columnID int) ProjectCards {
 	return ProjectCards(ps)
 }
 
-func getProjectCardPath(projectCardID int) string {
-	return newPath(fmt.Sprintf("/projects/columns/cards/%d", projectCardID)).
-		String()
-}
-
-type projectCardOrError struct {
-	ProjectCard
-	Message string `json:"message"`
-}
-
 func (c *client) GetProjectCard(projectCardID int) (*ProjectCard, error) {
-	res, err := c.get(c.url(getProjectCardPath(projectCardID)))
-	if err != nil {
-		return nil, err
+	var r ProjectCard
+	if err := c.get(c.url(fmt.Sprintf("/projects/columns/cards/%d", projectCardID)), &r); err != nil {
+		return nil, fmt.Errorf("GetProjectCard %s: %w", fmt.Sprintf("projects/columns/cards/%d", projectCardID), err)
 	}
-	defer res.Body.Close()
-
-	var r projectCardOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("GetProjectCard %s: %s", fmt.Sprintf("projects/columns/cards/%d", projectCardID), r.Message)
-	}
-
-	return &r.ProjectCard, nil
+	return &r, nil
 }
 
 // CreateProjectCardParams represents the paramter for CreateProjectCard API.
@@ -177,34 +149,13 @@ func (t ProjectCardContentType) GoString() string {
 	return strconv.Quote(t.String())
 }
 
-func createProjectCardPath(columnID int) string {
-	return newPath(fmt.Sprintf("/projects/columns/%d/cards", columnID)).
-		String()
-}
-
 // CreateProjectCard creates a project card.
 func (c *client) CreateProjectCard(columnID int, params *CreateProjectCardParams) (*ProjectCard, error) {
-	bs, err := json.Marshal(params)
-	if err != nil {
-		return nil, err
+	var r ProjectCard
+	if err := c.post(c.url(fmt.Sprintf("/projects/columns/%d/cards", columnID)), params, &r); err != nil {
+		return nil, fmt.Errorf("CreateProjectCard %s: %w", fmt.Sprintf("projects/columns/%d/cards", columnID), err)
 	}
-	body := bytes.NewReader(bs)
-	res, err := c.post(c.url(createProjectCardPath(columnID)), body)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	var r projectCardOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("CreateProjectCard %s: %s", fmt.Sprintf("projects/columns/%d/cards", columnID), r.Message)
-	}
-
-	return &r.ProjectCard, nil
+	return &r, nil
 }
 
 // UpdateProjectCardParams represents the paramter for UpdateProjectCard API.
@@ -213,34 +164,13 @@ type UpdateProjectCardParams struct {
 	Archived bool   `json:"archived,omitempty"`
 }
 
-func updateProjectCardPath(projectCardID int) string {
-	return newPath(fmt.Sprintf("/projects/columns/cards/%d", projectCardID)).
-		String()
-}
-
 // UpdateProjectCard updates the project card.
 func (c *client) UpdateProjectCard(projectCardID int, params *UpdateProjectCardParams) (*ProjectCard, error) {
-	bs, err := json.Marshal(params)
-	if err != nil {
-		return nil, err
+	var r ProjectCard
+	if err := c.patch(c.url(fmt.Sprintf("/projects/columns/cards/%d", projectCardID)), params, &r); err != nil {
+		return nil, fmt.Errorf("UpdateProjectCard %s: %w", fmt.Sprintf("projects/columns/cards/%d", projectCardID), err)
 	}
-	body := bytes.NewReader(bs)
-	res, err := c.patch(c.url(updateProjectCardPath(projectCardID)), body)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	var r projectCardOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("UpdateProjectCard %s: %s", fmt.Sprintf("projects/columns/cards/%d", projectCardID), r.Message)
-	}
-
-	return &r.ProjectCard, nil
+	return &r, nil
 }
 
 // MoveProjectCardParams represents the paramter for MoveProjectCard API.
@@ -249,32 +179,11 @@ type MoveProjectCardParams struct {
 	ColumnID bool   `json:"column_id,omitempty"`
 }
 
-func moveProjectCardPath(projectCardID int) string {
-	return newPath(fmt.Sprintf("/projects/columns/cards/%d/moves", projectCardID)).
-		String()
-}
-
 // MoveProjectCard moves the project card.
 func (c *client) MoveProjectCard(projectCardID int, params *MoveProjectCardParams) (*ProjectCard, error) {
-	bs, err := json.Marshal(params)
-	if err != nil {
-		return nil, err
+	var r ProjectCard
+	if err := c.post(c.url(fmt.Sprintf("/projects/columns/cards/%d/moves", projectCardID)), params, &r); err != nil {
+		return nil, fmt.Errorf("MoveProjectCard %s: %w", fmt.Sprintf("projects/columns/cards/%d/moves", projectCardID), err)
 	}
-	body := bytes.NewReader(bs)
-	res, err := c.post(c.url(moveProjectCardPath(projectCardID)), body)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	var r projectCardOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("MoveProjectCard %s: %s", fmt.Sprintf("projects/columns/cards/%d/moves", projectCardID), r.Message)
-	}
-
-	return &r.ProjectCard, nil
+	return &r, nil
 }

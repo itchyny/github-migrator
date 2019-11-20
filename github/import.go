@@ -1,10 +1,6 @@
 package github
 
-import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-)
+import "fmt"
 
 // Import represents an importing object.
 type Import struct {
@@ -30,11 +26,6 @@ type ImportComment struct {
 	CreatedAt string `json:"created_at"`
 }
 
-func issueImportPath(repo string) string {
-	return newPath(fmt.Sprintf("/repos/%s/import/issues", repo)).
-		String()
-}
-
 // ImportResult represents the result of import.
 type ImportResult struct {
 	ID              int    `json:"id"`
@@ -46,64 +37,20 @@ type ImportResult struct {
 	UpdatedAt       string `json:"updated_at"`
 }
 
-type importResultOrError struct {
-	ImportResult
-	Message string    `json:"message"`
-	Errors  apiErrors `json:"errors"`
-}
-
 // Import imports an importing object.
-func (c *client) Import(repo string, x *Import) (*ImportResult, error) {
-	bs, err := json.Marshal(x)
-	if err != nil {
-		return nil, err
+func (c *client) Import(repo string, params *Import) (*ImportResult, error) {
+	var r ImportResult
+	if err := c.post(c.url(fmt.Sprintf("/repos/%s/import/issues", repo)), params, &r); err != nil {
+		return nil, fmt.Errorf("Import %s: %w", fmt.Sprintf("%s/import/issues", repo), err)
 	}
-	body := bytes.NewReader(bs)
-	res, err := c.post(c.url(issueImportPath(repo)), body)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	var r importResultOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-	if r.Message != "" {
-		return nil, fmt.Errorf("Import %s: %s: %s", fmt.Sprintf("%s/import/issues", repo), r.Message, r.Errors)
-	}
-	if r.Errors != nil {
-		return nil, r.Errors
-	}
-	return &r.ImportResult, nil
-}
-
-func getImportPath(repo string, id int) string {
-	return newPath(fmt.Sprintf("/repos/%s/import/issues/%d", repo, id)).
-		String()
+	return &r, nil
 }
 
 // GetImport gets the importing status.
 func (c *client) GetImport(repo string, id int) (*ImportResult, error) {
-	res, err := c.get(c.url(getImportPath(repo, id)))
-	if err != nil {
-		return nil, err
+	var r ImportResult
+	if err := c.get(c.url(fmt.Sprintf("/repos/%s/import/issues/%d", repo, id)), &r); err != nil {
+		return nil, fmt.Errorf("GetImport %s: %w", fmt.Sprintf("%s/import/issues/%d", repo, id), err)
 	}
-	defer res.Body.Close()
-
-	var r importResultOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-	if r.Message != "" || r.Errors != nil {
-		errorPrefix := "GetImport " + fmt.Sprintf("%s/import/issues/%d", repo, id)
-		if r.Message != "" {
-			if r.Errors == nil {
-				return nil, fmt.Errorf("%s: %s", errorPrefix, r.Message)
-			}
-			return nil, fmt.Errorf("%s: %s: %s", errorPrefix, r.Message, r.Errors)
-		}
-		return nil, fmt.Errorf("%s: %s", errorPrefix, r.Errors.Error())
-	}
-	return &r.ImportResult, nil
+	return &r, nil
 }

@@ -87,17 +87,12 @@ func EventsToSlice(es Events) ([]*Event, error) {
 	}
 }
 
-func listEventsPath(repo string, issueNumber int) string {
-	return newPath(fmt.Sprintf("/repos/%s/issues/%d/events", repo, issueNumber)).
-		String()
-}
-
 // ListEvents lists the events of an issue.
 func (c *client) ListEvents(repo string, issueNumber int) Events {
 	es := make(chan interface{})
 	go func() {
 		defer close(es)
-		path := c.url(listEventsPath(repo, issueNumber))
+		path := c.url(fmt.Sprintf("/repos/%s/issues/%d/events?per_page=100", repo, issueNumber))
 		for {
 			var xs []*Event
 			next, err := c.getList(path, &xs)

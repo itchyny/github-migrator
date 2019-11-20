@@ -58,17 +58,12 @@ func MembersToSlice(ms Members) ([]*Member, error) {
 	}
 }
 
-func listMembersPath(org string) string {
-	return newPath(fmt.Sprintf("/orgs/%s/members", org)).
-		String()
-}
-
 // ListMembers lists the members of the organization.
 func (c *client) ListMembers(org string) Members {
 	ms := make(chan interface{})
 	go func() {
 		defer close(ms)
-		path := c.url(listMembersPath(org))
+		path := c.url(fmt.Sprintf("/orgs/%s/members?per_page=100", org))
 		for {
 			var xs []*Member
 			next, err := c.getList(path, &xs)

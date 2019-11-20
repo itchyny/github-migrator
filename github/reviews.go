@@ -115,17 +115,12 @@ func ReviewsToSlice(rs Reviews) ([]*Review, error) {
 	}
 }
 
-func listReviewsPath(repo string, pullNumber int) string {
-	return newPath(fmt.Sprintf("/repos/%s/pulls/%d/reviews", repo, pullNumber)).
-		String()
-}
-
 // ListReviews lists the reviews.
 func (c *client) ListReviews(repo string, pullNumber int) Reviews {
 	rs := make(chan interface{})
 	go func() {
 		defer close(rs)
-		path := c.url(listReviewsPath(repo, pullNumber))
+		path := c.url(fmt.Sprintf("/repos/%s/pulls/%d/reviews?per_page=100", repo, pullNumber))
 		for {
 			var xs []*Review
 			next, err := c.getList(path, &xs)

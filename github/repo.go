@@ -1,8 +1,6 @@
 package github
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 )
 
@@ -16,33 +14,12 @@ type Repo struct {
 	Private     bool   `json:"private"`
 }
 
-type repoOrError struct {
-	Repo
-	Message string `json:"message"`
-}
-
-func getRepoPath(repo string) string {
-	return newPath(fmt.Sprintf("/repos/%s", repo)).
-		String()
-}
-
 func (c *client) GetRepo(repo string) (*Repo, error) {
-	res, err := c.get(c.url(getRepoPath(repo)))
-	if err != nil {
-		return nil, err
+	var r Repo
+	if err := c.get(c.url(fmt.Sprintf("/repos/%s", repo)), &r); err != nil {
+		return nil, fmt.Errorf("GetRepo %s: %w", repo, err)
 	}
-	defer res.Body.Close()
-
-	var r repoOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("GetRepo %s: %s", repo, r.Message)
-	}
-
-	return &r.Repo, nil
+	return &r, nil
 }
 
 // UpdateRepoParams represents a parameter on updating a repository.
@@ -53,32 +30,11 @@ type UpdateRepoParams struct {
 	Private     bool   `json:"private"`
 }
 
-func updateRepoPath(repo string) string {
-	return newPath(fmt.Sprintf("/repos/%s", repo)).
-		String()
-}
-
 // UpdateRepo updates a repository.
 func (c *client) UpdateRepo(repo string, params *UpdateRepoParams) (*Repo, error) {
-	bs, err := json.Marshal(params)
-	if err != nil {
-		return nil, err
+	var r Repo
+	if err := c.patch(c.url(fmt.Sprintf("/repos/%s", repo)), params, &r); err != nil {
+		return nil, fmt.Errorf("UpdateRepo %s: %w", repo, err)
 	}
-	body := bytes.NewReader(bs)
-	res, err := c.patch(c.url(updateRepoPath(repo)), body)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	var r repoOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("UpdateRepo %s: %s", repo, r.Message)
-	}
-
-	return &r.Repo, nil
+	return &r, nil
 }

@@ -58,17 +58,12 @@ func CommentsToSlice(cs Comments) ([]*Comment, error) {
 	}
 }
 
-func listCommentsPath(repo string, issueNumber int) string {
-	return newPath(fmt.Sprintf("/repos/%s/issues/%d/comments", repo, issueNumber)).
-		String()
-}
-
 // ListComments lists the comments of an issue.
 func (c *client) ListComments(repo string, issueNumber int) Comments {
 	cs := make(chan interface{})
 	go func() {
 		defer close(cs)
-		path := c.url(listCommentsPath(repo, issueNumber))
+		path := c.url(fmt.Sprintf("/repos/%s/issues/%d/comments?per_page=100", repo, issueNumber))
 		for {
 			var xs []*Comment
 			next, err := c.getList(path, &xs)

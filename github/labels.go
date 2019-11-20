@@ -1,8 +1,6 @@
 package github
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 )
@@ -60,17 +58,12 @@ func LabelsToSlice(ls Labels) ([]*Label, error) {
 	}
 }
 
-func listLabelsPath(repo string) string {
-	return newPath(fmt.Sprintf("/repos/%s/labels", repo)).
-		String()
-}
-
 // ListLabels lists the labels of an issue.
 func (c *client) ListLabels(repo string) Labels {
 	ls := make(chan interface{})
 	go func() {
 		defer close(ls)
-		path := c.url(listLabelsPath(repo))
+		path := c.url(fmt.Sprintf("/repos/%s/labels?per_page=100", repo))
 		for {
 			var xs []*Label
 			next, err := c.getList(path, &xs)
@@ -97,28 +90,11 @@ type CreateLabelParams struct {
 	Color       string `json:"color"`
 }
 
-func createLabelsPath(repo string) string {
-	return newPath(fmt.Sprintf("/repos/%s/labels", repo)).
-		String()
-}
-
 func (c *client) CreateLabel(repo string, params *CreateLabelParams) (*Label, error) {
-	bs, err := json.Marshal(params)
-	if err != nil {
-		return nil, err
-	}
-	body := bytes.NewReader(bs)
-	res, err := c.post(c.url(createLabelsPath(repo)), body)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
 	var r Label
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
+	if err := c.post(c.url(fmt.Sprintf("/repos/%s/labels", repo)), params, &r); err != nil {
+		return nil, fmt.Errorf("CreateLabel %s: %w", fmt.Sprintf("%s/labels", repo), err)
 	}
-
 	return &r, nil
 }
 
@@ -129,27 +105,10 @@ type UpdateLabelParams struct {
 	Color       string `json:"color"`
 }
 
-func updateLabelsPath(repo, name string) string {
-	return newPath(fmt.Sprintf("/repos/%s/labels/%s", repo, name)).
-		String()
-}
-
 func (c *client) UpdateLabel(repo, name string, params *UpdateLabelParams) (*Label, error) {
-	bs, err := json.Marshal(params)
-	if err != nil {
-		return nil, err
-	}
-	body := bytes.NewReader(bs)
-	res, err := c.patch(c.url(updateLabelsPath(repo, name)), body)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
 	var r Label
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
+	if err := c.patch(c.url(fmt.Sprintf("/repos/%s/labels/%s", repo, name)), params, &r); err != nil {
+		return nil, fmt.Errorf("UpdateLabel %s: %w", fmt.Sprintf("%s/labels/%s", repo, name), err)
 	}
-
 	return &r, nil
 }

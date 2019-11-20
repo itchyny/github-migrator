@@ -62,17 +62,12 @@ func ReviewCommentsToSlice(cs ReviewComments) ([]*ReviewComment, error) {
 	}
 }
 
-func listReviewCommentsPath(repo string, pullNumber int) string {
-	return newPath(fmt.Sprintf("/repos/%s/pulls/%d/comments", repo, pullNumber)).
-		String()
-}
-
 // ListReviewComments lists the review comments of a pull request.
 func (c *client) ListReviewComments(repo string, pullNumber int) ReviewComments {
 	cs := make(chan interface{})
 	go func() {
 		defer close(cs)
-		path := c.url(listReviewCommentsPath(repo, pullNumber))
+		path := c.url(fmt.Sprintf("/repos/%s/pulls/%d/comments?per_page=100", repo, pullNumber))
 		for {
 			var xs []*ReviewComment
 			next, err := c.getList(path, &xs)

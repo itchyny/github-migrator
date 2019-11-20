@@ -1,7 +1,6 @@
 package github
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -176,33 +175,12 @@ func (c *client) ListProjects(repo string, params *ListProjectsParams) Projects 
 	return Projects(ps)
 }
 
-func getProjectPath(projectID int) string {
-	return newPath(fmt.Sprintf("/projects/%d", projectID)).
-		String()
-}
-
-type projectOrError struct {
-	Project
-	Message string `json:"message"`
-}
-
 func (c *client) GetProject(projectID int) (*Project, error) {
-	res, err := c.get(c.url(getProjectPath(projectID)))
-	if err != nil {
-		return nil, err
+	var r Project
+	if err := c.get(c.url(fmt.Sprintf("/projects/%d", projectID)), &r); err != nil {
+		return nil, fmt.Errorf("GetProject %s: %w", fmt.Sprintf("projects/%d", projectID), err)
 	}
-	defer res.Body.Close()
-
-	var r projectOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("GetProject %s: %s", fmt.Sprintf("projects/%d", projectID), r.Message)
-	}
-
-	return &r.Project, nil
+	return &r, nil
 }
 
 // CreateProjectParams represents the paramter for CreateProject API.
@@ -211,34 +189,13 @@ type CreateProjectParams struct {
 	Body string `json:"body"`
 }
 
-func createProjectPath(repo string) string {
-	return newPath(fmt.Sprintf("/repos/%s/projects", repo)).
-		String()
-}
-
 // CreateProject creates a project.
 func (c *client) CreateProject(repo string, params *CreateProjectParams) (*Project, error) {
-	bs, err := json.Marshal(params)
-	if err != nil {
-		return nil, err
+	var r Project
+	if err := c.post(c.url(fmt.Sprintf("/repos/%s/projects", repo)), params, &r); err != nil {
+		return nil, fmt.Errorf("CreateProject %s: %w", fmt.Sprintf("%s/projects", repo), err)
 	}
-	body := bytes.NewReader(bs)
-	res, err := c.post(c.url(createProjectPath(repo)), body)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	var r projectOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("CreateProject %s: %s", fmt.Sprintf("%s/projects", repo), r.Message)
-	}
-
-	return &r.Project, nil
+	return &r, nil
 }
 
 // UpdateProjectParams represents the paramter for UpdateProject API.
@@ -248,32 +205,11 @@ type UpdateProjectParams struct {
 	State ProjectState `json:"state,omitempty"`
 }
 
-func updateProjectPath(projectID int) string {
-	return newPath(fmt.Sprintf("/projects/%d", projectID)).
-		String()
-}
-
 // UpdateProject updates the project.
 func (c *client) UpdateProject(projectID int, params *UpdateProjectParams) (*Project, error) {
-	bs, err := json.Marshal(params)
-	if err != nil {
-		return nil, err
+	var r Project
+	if err := c.patch(c.url(fmt.Sprintf("/projects/%d", projectID)), params, &r); err != nil {
+		return nil, fmt.Errorf("UpdateProject %s: %w", fmt.Sprintf("projects/%d", projectID), err)
 	}
-	body := bytes.NewReader(bs)
-	res, err := c.patch(c.url(updateProjectPath(projectID)), body)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	var r projectOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("UpdateProject %s: %s", fmt.Sprintf("projects/%d", projectID), r.Message)
-	}
-
-	return &r.Project, nil
+	return &r, nil
 }

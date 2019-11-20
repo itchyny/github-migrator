@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -79,30 +80,6 @@ func (c *client) url(path string) string {
 	return c.endpoint + path
 }
 
-func (c *client) get(path string) (*http.Response, error) {
-	req, err := c.request("GET", path, nil)
-	if err != nil {
-		return nil, err
-	}
-	return c.do(req)
-}
-
-func (c *client) post(path string, body io.Reader) (*http.Response, error) {
-	req, err := c.request("POST", path, body)
-	if err != nil {
-		return nil, err
-	}
-	return c.do(req)
-}
-
-func (c *client) patch(path string, body io.Reader) (*http.Response, error) {
-	req, err := c.request("PATCH", path, body)
-	if err != nil {
-		return nil, err
-	}
-	return c.do(req)
-}
-
 func (c *client) request(method, path string, body io.Reader) (*http.Request, error) {
 	req, err := http.NewRequest(method, path, body)
 	if err != nil {
@@ -126,27 +103,96 @@ func (c *client) do(req *http.Request) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+	if res.StatusCode < 200 || 400 <= res.StatusCode {
+		return nil, getError(res)
+	}
 	return res, nil
 }
 
+func getError(res *http.Response) error {
+	defer res.Body.Close()
+	var r struct {
+		Message string    `json:"message"`
+		Errors  apiErrors `json:"errors"`
+	}
+	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+		return err
+	}
+	if len(r.Errors) == 0 {
+		return errors.New(r.Message)
+	}
+	return fmt.Errorf("%s: %w", r.Message, r.Errors)
+}
+
+func (c *client) get(path string, v interface{}) error {
+	req, err := c.request("GET", path, nil)
+	if err != nil {
+		return err
+	}
+	res, err := c.do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	if err := json.NewDecoder(res.Body).Decode(&v); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *client) post(path string, body, v interface{}) error {
+	bs, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+	req, err := c.request("POST", path, bytes.NewReader(bs))
+	if err != nil {
+		return err
+	}
+	res, err := c.do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	if err := json.NewDecoder(res.Body).Decode(&v); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *client) patch(path string, body, v interface{}) error {
+	bs, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+	req, err := c.request("PATCH", path, bytes.NewReader(bs))
+	if err != nil {
+		return err
+	}
+	res, err := c.do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	if err := json.NewDecoder(res.Body).Decode(&v); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (c *client) getList(path string, v interface{}) (string, error) {
-	res, err := c.get(path)
+	req, err := c.request("GET", path, nil)
+	if err != nil {
+		return "", err
+	}
+	res, err := c.do(req)
 	if err != nil {
 		return "", err
 	}
 	defer res.Body.Close()
-
-	var buf bytes.Buffer
-	if err := json.NewDecoder(io.TeeReader(res.Body, &buf)).Decode(&v); err != nil {
-		var errMessage struct {
-			Message string `json:"message"`
-		}
-		if err := json.NewDecoder(io.MultiReader(&buf, res.Body)).Decode(&errMessage); err == nil {
-			return "", errors.New(errMessage.Message)
-		}
+	if err := json.NewDecoder(res.Body).Decode(&v); err != nil {
 		return "", err
 	}
-
 	return getNext(res.Header), nil
 }
 

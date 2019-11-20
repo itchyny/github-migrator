@@ -73,17 +73,12 @@ func CommitsToSlice(cs Commits) ([]*Commit, error) {
 	}
 }
 
-func listPullReqCommitsPath(repo string, pullNumber int) string {
-	return newPath(fmt.Sprintf("/repos/%s/pulls/%d/commits", repo, pullNumber)).
-		String()
-}
-
 // ListPullReqCommits lists the commits of a pull request.
 func (c *client) ListPullReqCommits(repo string, pullNumber int) Commits {
 	cs := make(chan interface{})
 	go func() {
 		defer close(cs)
-		path := c.url(listPullReqCommitsPath(repo, pullNumber))
+		path := c.url(fmt.Sprintf("/repos/%s/pulls/%d/commits?per_page=100", repo, pullNumber))
 		for {
 			var xs []*Commit
 			next, err := c.getList(path, &xs)

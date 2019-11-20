@@ -293,31 +293,10 @@ func (c *client) ListIssues(repo string, params *ListIssuesParams) Issues {
 	return Issues(is)
 }
 
-func getIssuePath(repo string, issueNumber int) string {
-	return newPath(fmt.Sprintf("/repos/%s/issues/%d", repo, issueNumber)).
-		String()
-}
-
-type issueOrError struct {
-	Issue
-	Message string `json:"message"`
-}
-
 func (c *client) GetIssue(repo string, issueNumber int) (*Issue, error) {
-	res, err := c.get(c.url(getIssuePath(repo, issueNumber)))
-	if err != nil {
-		return nil, err
+	var r Issue
+	if err := c.get(c.url(fmt.Sprintf("/repos/%s/issues/%d", repo, issueNumber)), &r); err != nil {
+		return nil, fmt.Errorf("GetIssue %s: %w", fmt.Sprintf("%s/issues/%d", repo, issueNumber), err)
 	}
-	defer res.Body.Close()
-
-	var r issueOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("GetIssue %s: %s", fmt.Sprintf("%s/issues/%d", repo, issueNumber), r.Message)
-	}
-
-	return &r.Issue, nil
+	return &r, nil
 }

@@ -1,9 +1,6 @@
 package github
 
-import (
-	"encoding/json"
-	"fmt"
-)
+import "fmt"
 
 // User represents a user.
 type User struct {
@@ -11,47 +8,20 @@ type User struct {
 	HTMLURL string `json:"html_url"`
 }
 
-type userOrError struct {
-	User
-	Message string `json:"message"`
-}
-
 // GetLogin ...
 func (c *client) GetLogin() (*User, error) {
-	res, err := c.get(c.url("/user"))
-	if err != nil {
-		return nil, err
+	var r User
+	if err := c.get(c.url("/user"), &r); err != nil {
+		return nil, fmt.Errorf("GetLogin %s: %w", "/user", err)
 	}
-	defer res.Body.Close()
-
-	var r userOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("GetLogin %s: %s", "/user", r.Message)
-	}
-
-	return &r.User, nil
+	return &r, nil
 }
 
 // GetUser ...
 func (c *client) GetUser(name string) (*User, error) {
-	res, err := c.get(c.url(fmt.Sprintf("/users/%s", name)))
-	if err != nil {
-		return nil, err
+	var r User
+	if err := c.get(c.url(fmt.Sprintf("/users/%s", name)), &r); err != nil {
+		return nil, fmt.Errorf("GetUser %s: %w", fmt.Sprintf("/user/%s", name), err)
 	}
-	defer res.Body.Close()
-
-	var r userOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("GetUser %s: %s", fmt.Sprintf("/user/%s", name), r.Message)
-	}
-
-	return &r.User, nil
+	return &r, nil
 }

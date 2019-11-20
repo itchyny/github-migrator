@@ -1,8 +1,6 @@
 package github
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 )
@@ -60,18 +58,12 @@ func ProjectColumnsToSlice(ps ProjectColumns) ([]*ProjectColumn, error) {
 	}
 }
 
-func listProjectColumnsPath(projectID int) string {
-	return newPath(fmt.Sprintf("/projects/%d/columns", projectID)).
-		query("per_page", "100").
-		String()
-}
-
 // ListProjectColumns lists the project columns.
 func (c *client) ListProjectColumns(projectID int) ProjectColumns {
 	ps := make(chan interface{})
 	go func() {
 		defer close(ps)
-		path := c.url(listProjectColumnsPath(projectID))
+		path := c.url(fmt.Sprintf("/projects/%d/columns?per_page=100", projectID))
 		for {
 			var xs []*ProjectColumn
 			next, err := c.getList(path, &xs)
@@ -91,91 +83,28 @@ func (c *client) ListProjectColumns(projectID int) ProjectColumns {
 	return ProjectColumns(ps)
 }
 
-func getProjectColumnPath(projectColumnID int) string {
-	return newPath(fmt.Sprintf("/projects/columns/%d", projectColumnID)).
-		String()
-}
-
-type projectColumnOrError struct {
-	ProjectColumn
-	Message string `json:"message"`
-}
-
 func (c *client) GetProjectColumn(projectColumnID int) (*ProjectColumn, error) {
-	res, err := c.get(c.url(getProjectColumnPath(projectColumnID)))
-	if err != nil {
-		return nil, err
+	var r ProjectColumn
+	if err := c.get(c.url(fmt.Sprintf("/projects/columns/%d", projectColumnID)), &r); err != nil {
+		return nil, fmt.Errorf("GetProjectColumn %s: %w", fmt.Sprintf("projects/columns/%d", projectColumnID), err)
 	}
-	defer res.Body.Close()
-
-	var r projectColumnOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("GetProjectColumn %s: %s", fmt.Sprintf("projects/columns/%d", projectColumnID), r.Message)
-	}
-
-	return &r.ProjectColumn, nil
-}
-
-func createProjectColumnPath(projectID int) string {
-	return newPath(fmt.Sprintf("/projects/%d/columns", projectID)).
-		String()
+	return &r, nil
 }
 
 // CreateProjectColumn creates a project column.
 func (c *client) CreateProjectColumn(projectID int, name string) (*ProjectColumn, error) {
-	bs, err := json.Marshal(map[string]string{"name": name})
-	if err != nil {
+	var r ProjectColumn
+	if err := c.post(c.url(fmt.Sprintf("/projects/%d/columns", projectID)), map[string]string{"name": name}, &r); err != nil {
 		return nil, err
 	}
-	body := bytes.NewReader(bs)
-	res, err := c.post(c.url(createProjectColumnPath(projectID)), body)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	var r projectColumnOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("CreateProjectColumn %s: %s", fmt.Sprintf("projects/%d/columns", projectID), r.Message)
-	}
-
-	return &r.ProjectColumn, nil
-}
-
-func updateProjectColumnPath(projectColumnID int) string {
-	return newPath(fmt.Sprintf("/projects/columns/%d", projectColumnID)).
-		String()
+	return &r, nil
 }
 
 // UpdateProjectColumn updates the project column.
 func (c *client) UpdateProjectColumn(projectColumnID int, name string) (*ProjectColumn, error) {
-	bs, err := json.Marshal(map[string]string{"name": name})
-	if err != nil {
-		return nil, err
+	var r ProjectColumn
+	if err := c.patch(c.url(fmt.Sprintf("/projects/columns/%d", projectColumnID)), map[string]string{"name": name}, &r); err != nil {
+		return nil, fmt.Errorf("UpdateProjectColumn %s: %w", fmt.Sprintf("projects/columns/%d", projectColumnID), err)
 	}
-	body := bytes.NewReader(bs)
-	res, err := c.patch(c.url(updateProjectColumnPath(projectColumnID)), body)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	var r projectColumnOrError
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	if r.Message != "" {
-		return nil, fmt.Errorf("UpdateProjectColumn %s: %s", fmt.Sprintf("projects/columns/%d", projectColumnID), r.Message)
-	}
-
-	return &r.ProjectColumn, nil
+	return &r, nil
 }
