@@ -1,25 +1,27 @@
 package migrator
 
-import "github.com/itchyny/github-migrator/github"
+import (
+	"strings"
 
-func (m *migrator) lookupUser(name string) (*github.User, error) {
+	"github.com/itchyny/github-migrator/github"
+)
+
+// returns the user, isMember (or owner) and error
+func (m *migrator) lookupUser(name string) (*github.User, bool, error) {
+	isOwner := strings.HasPrefix(m.targetRepo.FullName, name+"/")
 	if u, ok := m.userByName[name]; ok {
-		return u, nil
+		return u, isOwner, nil
 	}
 	if err, ok := m.errorUserByName[name]; ok {
-		return nil, err
+		return nil, false, err
 	}
 	members, err := m.listTargetMembers()
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	for _, mem := range members {
 		if mem.Login == name {
-			if m.userByName == nil {
-				m.userByName = make(map[string]*github.User)
-			}
-			m.userByName[name] = mem.ToUser()
-			return mem.ToUser(), nil
+			return mem.ToUser(), true, nil
 		}
 	}
 	u, err := m.target.GetUser(name)
@@ -28,11 +30,11 @@ func (m *migrator) lookupUser(name string) (*github.User, error) {
 			m.errorUserByName = make(map[string]error)
 		}
 		m.errorUserByName[name] = err
-		return nil, err
+		return nil, false, err
 	}
 	if m.userByName == nil {
 		m.userByName = make(map[string]*github.User)
 	}
 	m.userByName[name] = u
-	return u, nil
+	return u, isOwner, nil
 }
