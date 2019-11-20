@@ -50,6 +50,21 @@ func (m *migrator) migrateProjects() error {
 	return nil
 }
 
+func (m *migrator) getProject(id int) (*github.Project, error) {
+	if p, ok := m.projectByIDs[id]; ok {
+		return p, nil
+	}
+	p, err := m.source.GetProject(id)
+	if err != nil {
+		return nil, err
+	}
+	if m.projectByIDs == nil {
+		m.projectByIDs = make(map[int]*github.Project)
+	}
+	m.projectByIDs[id] = p
+	return p, nil
+}
+
 func lookupProject(ps []*github.Project, p *github.Project) *github.Project {
 	for _, q := range ps {
 		if p.Name == q.Name {
@@ -57,20 +72,4 @@ func lookupProject(ps []*github.Project, p *github.Project) *github.Project {
 		}
 	}
 	return nil
-}
-
-func (m *migrator) listTargetProjects() ([]*github.Project, error) {
-	if m.projects != nil {
-		return m.projects, nil
-	}
-	projects, err := github.ProjectsToSlice(m.target.ListProjects())
-	if err != nil {
-		m.projects = []*github.Project{}
-		if strings.Contains(err.Error(), "Projects are disabled for this repository") {
-			return m.projects, nil
-		}
-		return nil, err
-	}
-	m.projects = projects
-	return projects, nil
 }

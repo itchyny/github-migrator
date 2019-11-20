@@ -119,7 +119,7 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 			actions = append(actions,
 				fmt.Sprintf(
 					"merged the pull request<br>\ncommit %s ",
-					b.buildCommitLinkTag(b.target, e.CommitID),
+					b.buildCommitLinkTag(b.targetRepo, e.CommitID),
 				)+b.buildPullRequestRefs(),
 			)
 		case "reopened":
@@ -308,26 +308,11 @@ func quoteLabels(xs []string) string {
 	return strings.Join(ys, " ")
 }
 
-func (b *builder) getProject(id int) (*github.Project, error) {
-	if p, ok := b.projectByIDs[id]; ok {
-		return p, nil
-	}
-	p, err := b.sourceCli.GetProject(id)
-	if err != nil {
-		return nil, err
-	}
-	if b.projectByIDs == nil {
-		b.projectByIDs = make(map[int]*github.Project)
-	}
-	b.projectByIDs[id] = p
-	return p, nil
-}
-
 func (b *builder) lookupMigratedProject(orig *github.Project) *github.Project {
-	if !strings.HasPrefix(orig.HTMLURL, b.source.HTMLURL+"/projects/") {
+	if !strings.HasPrefix(orig.HTMLURL, b.sourceRepo.HTMLURL+"/projects/") {
 		return orig
 	}
-	found := lookupProject(b.projects, orig)
+	found := lookupProject(b.targetProjects, orig)
 	if found != nil {
 		return found
 	}

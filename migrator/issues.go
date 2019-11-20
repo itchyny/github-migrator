@@ -15,20 +15,8 @@ var (
 )
 
 func (m *migrator) migrateIssues() error {
-	sourceRepo, err := m.getSourceRepo()
-	if err != nil {
-		return err
-	}
-	targetRepo, err := m.getTargetRepo()
-	if err != nil {
-		return err
-	}
 	sourceIssues := m.source.ListIssues()
 	targetIssuesBuffer := newIssuesBuffer(m.target.ListIssues())
-	commentFilters := newCommentFilters(
-		newRepoURLFilter(sourceRepo, targetRepo),
-		newUserMappingFilter(m.userMapping),
-	)
 	var lastIssueNumber int
 	for {
 		issue, err := sourceIssues.Next()
@@ -44,13 +32,13 @@ func (m *migrator) migrateIssues() error {
 			if deleted = issue.Number > lastIssueNumber+1; deleted {
 				issue = &github.Issue{
 					Number:    lastIssueNumber + 1,
-					HTMLURL:   fmt.Sprintf("%s/issues/%d", sourceRepo.HTMLURL, lastIssueNumber+1),
+					HTMLURL:   fmt.Sprintf("%s/issues/%d", m.sourceRepo.HTMLURL, lastIssueNumber+1),
 					CreatedAt: issue.CreatedAt,
 					UpdatedAt: issue.CreatedAt,
 					ClosedAt:  issue.CreatedAt,
 				}
 			}
-			result, err := m.migrateIssue(sourceRepo, targetRepo, commentFilters, issue, targetIssuesBuffer, deleted)
+			result, err := m.migrateIssue(issue, targetIssuesBuffer, deleted)
 			if err != nil {
 				return err
 			}
@@ -65,7 +53,6 @@ func (m *migrator) migrateIssues() error {
 }
 
 func (m *migrator) migrateIssue(
-	sourceRepo, targetRepo *github.Repo, commentFilters commentFilters,
 	sourceIssue *github.Issue, targetIssuesBuffer *issuesBuffer, deleted bool,
 ) (*github.ImportResult, error) {
 	fmt.Printf("[=>] migrating an issue: %s\n", sourceIssue.HTMLURL)
@@ -88,7 +75,7 @@ func (m *migrator) migrateIssue(
   <td>This issue was imported from %s, which has already been deleted.</td>
 </tr>
 </table>
-`, buildIssueLinkTag(sourceRepo, sourceIssue)),
+`, buildIssueLinkTag(m.sourceRepo, sourceIssue)),
 				CreatedAt: sourceIssue.CreatedAt,
 				UpdatedAt: sourceIssue.UpdatedAt,
 				Closed:    true,
@@ -133,8 +120,7 @@ func (m *migrator) migrateIssue(
 			return nil, err
 		}
 	}
-	imp, err := buildImport(
-		m, m.source, m.target, sourceRepo, targetRepo, commentFilters,
+	imp, err := m.buildImport(
 		sourceIssue, sourcePullReq, comments, events,
 		commits, commitDiff, reviews, reviewComments,
 	)

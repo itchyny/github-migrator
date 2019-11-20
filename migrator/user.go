@@ -10,12 +10,8 @@ func (m *migrator) isTargetMember(name string) (bool, error) {
 	if strings.HasPrefix(m.targetRepo.FullName, name+"/") {
 		return true, nil
 	}
-	members, err := m.listTargetMembers()
-	if err != nil {
-		return false, err
-	}
-	for _, mem := range members {
-		if mem.Login == name {
+	for _, member := range m.targetMembers {
+		if member.Login == name {
 			return true, nil
 		}
 	}
@@ -23,32 +19,28 @@ func (m *migrator) isTargetMember(name string) (bool, error) {
 }
 
 func (m *migrator) lookupUser(name string) (*github.User, error) {
-	if u, ok := m.userByName[name]; ok {
+	if u, ok := m.userByNames[name]; ok {
 		return u, nil
 	}
-	if err, ok := m.errorUserByName[name]; ok {
+	if err, ok := m.errorUserByNames[name]; ok {
 		return nil, err
 	}
-	members, err := m.listTargetMembers()
-	if err != nil {
-		return nil, err
-	}
-	for _, mem := range members {
-		if mem.Login == name {
-			return mem.ToUser(), nil
+	for _, member := range m.targetMembers {
+		if member.Login == name {
+			return member.ToUser(), nil
 		}
 	}
 	u, err := m.target.GetUser(name)
 	if err != nil {
-		if m.errorUserByName == nil {
-			m.errorUserByName = make(map[string]error)
+		if m.errorUserByNames == nil {
+			m.errorUserByNames = make(map[string]error)
 		}
-		m.errorUserByName[name] = err
+		m.errorUserByNames[name] = err
 		return nil, err
 	}
-	if m.userByName == nil {
-		m.userByName = make(map[string]*github.User)
+	if m.userByNames == nil {
+		m.userByNames = make(map[string]*github.User)
 	}
-	m.userByName[name] = u
+	m.userByNames[name] = u
 	return u, nil
 }

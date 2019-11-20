@@ -7,15 +7,10 @@ import (
 	"time"
 
 	"github.com/itchyny/github-migrator/github"
-	"github.com/itchyny/github-migrator/repo"
 )
 
 type builder struct {
 	*migrator
-	sourceCli      repo.Repo
-	targetCli      repo.Repo
-	source, target *github.Repo
-	commentFilters commentFilters
 	issue          *github.Issue
 	pullReq        *github.PullReq
 	comments       []*github.Comment
@@ -24,24 +19,16 @@ type builder struct {
 	commitDiff     string
 	reviews        []*github.Review
 	reviewComments []*github.ReviewComment
-	projectByIDs   map[int]*github.Project
 }
 
-func buildImport(
-	migrator *migrator,
-	sourceCli, targetCli repo.Repo, sourceRepo, targetRepo *github.Repo, commentFilters commentFilters,
+func (m *migrator) buildImport(
 	issue *github.Issue, pullReq *github.PullReq,
 	comments []*github.Comment, events []*github.Event,
 	commits []*github.Commit, commitDiff string,
 	reviews []*github.Review, reviewComments []*github.ReviewComment,
 ) (*github.Import, error) {
 	return (&builder{
-		migrator:       migrator,
-		sourceCli:      sourceCli,
-		targetCli:      targetCli,
-		source:         sourceRepo,
-		target:         targetRepo,
-		commentFilters: commentFilters,
+		migrator:       m,
 		issue:          issue,
 		pullReq:        pullReq,
 		comments:       comments,
@@ -87,10 +74,10 @@ func (b *builder) buildImportBody() string {
 	}
 	action := fmt.Sprintf("created the original %s<br>\n", b.issue.Type())
 	if b.pullReq != nil {
-		action += b.buildCompareLinkTag(b.target, b.pullReq.Base.SHA, b.pullReq.Head.SHA) +
+		action += b.buildCompareLinkTag(b.targetRepo, b.pullReq.Base.SHA, b.pullReq.Head.SHA) +
 			" " + b.buildPullRequestRefs() + "<br>\n"
 	}
-	action += "imported from " + buildIssueLinkTag(b.source, b.issue)
+	action += "imported from " + buildIssueLinkTag(b.sourceRepo, b.issue)
 	tableRows := [][]string{
 		[]string{
 			b.buildImageTag(b.issue.User, 35),
