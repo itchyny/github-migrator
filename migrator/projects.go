@@ -15,6 +15,9 @@ func (m *migrator) migrateProjects() error {
 		}
 		return err
 	}
+	if len(sourceProjects) == 0 {
+		return nil
+	}
 	targetProjects, err := github.ProjectsToSlice(m.target.ListProjects())
 	if err != nil {
 		return err
