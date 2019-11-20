@@ -56,6 +56,7 @@ func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 		"review_requested":         8,
 		"review_request_removed":   8,
 		"converted_note_to_issue":  9,
+		"added_to_project":         9,
 		"moved_columns_in_project": 9,
 		"removed_from_project":     9,
 	}
@@ -212,6 +213,18 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 					`created this issue from a note in <b><a href="%s">%s</a></b> (<code>%s</code>)`,
 					p.HTMLURL, html.EscapeString(p.Name),
 					html.EscapeString(e.ProjectCard.ColumnName),
+				),
+			)
+		case "added_to_project":
+			p, err := b.getProject(e.ProjectCard.ProjectID)
+			if err != nil {
+				return "", err
+			}
+			actions = append(actions,
+				fmt.Sprintf(
+					`added this to <code>%s</code> in <b><a href="%s">%s</a></b>`,
+					html.EscapeString(e.ProjectCard.ColumnName),
+					p.HTMLURL, html.EscapeString(p.Name),
 				),
 			)
 		case "moved_columns_in_project":
