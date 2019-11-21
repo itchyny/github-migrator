@@ -26,8 +26,8 @@ func (l *Logger) preRequest(r *http.Request) {
 	}
 }
 
-// LoggerOptionPreRequest ...
-func LoggerOptionPreRequest(callback func(*http.Request)) LoggerOption {
+// LoggerPreRequest ...
+func LoggerPreRequest(callback func(*http.Request)) LoggerOption {
 	return func(l *Logger) {
 		l.preRequestCallback = callback
 	}
@@ -39,8 +39,8 @@ func (l *Logger) postRequest(r *http.Response, err error) {
 	}
 }
 
-// LoggerOptionPostRequest ...
-func LoggerOptionPostRequest(callback func(*http.Response, error)) LoggerOption {
+// LoggerPostRequest ...
+func LoggerPostRequest(callback func(*http.Response, error)) LoggerOption {
 	return func(l *Logger) {
 		l.postRequestCallback = callback
 	}

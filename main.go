@@ -42,22 +42,24 @@ func createGitHubClient(tokenEnv, endpointEnv string) (github.Client, error) {
 	}
 	cli := github.New(
 		token, endpoint,
-		github.ClientLogger(github.NewLogger(
-			github.LoggerOptionPreRequest(func(req *http.Request) {
-				fmt.Printf("===> %s: %s\n", req.Method, req.URL)
-			}),
-			github.LoggerOptionPostRequest(func(res *http.Response, err error) {
-				if err != nil {
-					var suffix string
-					if res != nil {
-						suffix = fmt.Sprintf(": %s: %s", res.Request.Method, res.Request.URL)
+		github.ClientLogger(
+			github.NewLogger(
+				github.LoggerPreRequest(func(req *http.Request) {
+					fmt.Printf("===> %s: %s\n", req.Method, req.URL)
+				}),
+				github.LoggerPostRequest(func(res *http.Response, err error) {
+					if err != nil {
+						var suffix string
+						if res != nil {
+							suffix = fmt.Sprintf(": %s: %s", res.Request.Method, res.Request.URL)
+						}
+						fmt.Printf("<=== %s%s\n", err, suffix)
+						return
 					}
-					fmt.Printf("<=== %s%s\n", err, suffix)
-					return
-				}
-				fmt.Printf("<=== %s: %s: %s\n", res.Status, res.Request.Method, res.Request.URL)
-			}),
-		)),
+					fmt.Printf("<=== %s: %s: %s\n", res.Status, res.Request.Method, res.Request.URL)
+				}),
+			),
+		),
 	)
 	user, err := cli.GetLogin()
 	if err != nil {
