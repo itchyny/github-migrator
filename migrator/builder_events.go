@@ -59,6 +59,7 @@ func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 		"review_requested":         9,
 		"review_request_removed":   9,
 		"review_dismissed":         9,
+		"ready_for_review":         9,
 		"converted_note_to_issue":  10,
 		"added_to_project":         10,
 		"moved_columns_in_project": 10,
@@ -238,6 +239,8 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 					),
 				)
 			}
+		case "ready_for_review":
+			actions = append(actions, "marked this pull request as ready for review")
 		case "converted_note_to_issue":
 			p, err := b.getProject(e.ProjectCard.ProjectID)
 			if err != nil {

@@ -685,6 +685,9 @@
               review_id: 100
               dismissal_message: This is nice.
             created_at: 2019-11-18T15:40:00Z
+          - actor: *user2
+            event: ready_for_review
+            created_at: 2019-11-18T15:50:00Z
     compare:
       sha000000...sha111111: |
         diff --git a/README.md b/README.md
@@ -964,6 +967,18 @@
               </tr>
               </table>
             created_at: 2019-11-18T15:40:00Z
+          - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/sample-user-1-2.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1-2 marked this pull request as ready for review
+                </td>
+              </tr>
+              </table>
+            created_at: 2019-11-18T15:50:00Z
           - body: |
               ```diff
               # sample.txt
