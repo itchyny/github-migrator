@@ -53,22 +53,30 @@ type Client interface {
 	UpdateHook(string, int, *UpdateHookParams) (*Hook, error)
 	Import(string, *Import) (*ImportResult, error)
 	GetImport(string, int) (*ImportResult, error)
-	WithLogger(*Logger) Client
 }
 
 // New creates a new GitHub client.
-func New(token, endpoint string) Client {
+func New(token, endpoint string, opts ...ClientOption) Client {
 	cli := &http.Client{Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: endpoint != "https://api.github.com",
 		},
 	}}
-	return &client{token, endpoint, cli, &Logger{}}
+	c := &client{token, endpoint, cli, &Logger{}}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
 
-func (c *client) WithLogger(l *Logger) Client {
-	c.logger = l
-	return c
+// ClientOption is an option of  client.
+type ClientOption func(*client)
+
+// ClientLogger returns a client option to set the logger.
+func ClientLogger(l *Logger) ClientOption {
+	return func(c *client) {
+		c.logger = l
+	}
 }
 
 type client struct {
