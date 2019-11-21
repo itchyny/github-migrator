@@ -49,6 +49,7 @@ func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 		"head_ref_deleted":         4,
 		"head_ref_restored":        4,
 		"head_ref_force_pushed":    5,
+		"base_ref_force_pushed":    5,
 		"locked":                   6,
 		"unlocked":                 6,
 		"pinned":                   7,
@@ -151,11 +152,15 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 					html.EscapeString(b.pullReq.Head.Ref),
 				),
 			)
-		case "head_ref_force_pushed":
+		case "head_ref_force_pushed", "base_ref_force_pushed":
+			ref := b.pullReq.Head.Ref
+			if e.Event == "base_ref_force_pushed" {
+				ref = b.pullReq.Base.Ref
+			}
 			actions = append(actions,
 				fmt.Sprintf(
 					"force-pushed the <code>%s</code> branch",
-					html.EscapeString(b.pullReq.Head.Ref),
+					html.EscapeString(ref),
 				),
 			)
 		case "locked":

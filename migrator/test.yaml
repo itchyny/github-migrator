@@ -627,6 +627,9 @@
             event: head_ref_force_pushed
             created_at: 2019-11-18T12:00:05Z
           - actor: *user2
+            event: base_ref_force_pushed
+            created_at: 2019-11-18T12:00:15Z
+          - actor: *user2
             event: head_ref_deleted
             created_at: 2019-11-18T12:00:10Z
           - actor: *user2
@@ -808,6 +811,18 @@
               </tr>
               </table>
             created_at: 2019-11-18T12:00:05Z
+          - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/sample-user-1-2.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1-2 force-pushed the <code>master</code> branch
+                </td>
+              </tr>
+              </table>
+            created_at: 2019-11-18T12:00:15Z
           - body: |
               <table>
               <tr>
