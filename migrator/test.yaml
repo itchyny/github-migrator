@@ -639,6 +639,12 @@
           - actor: *user2
             event: unlocked
             created_at: 2019-11-18T14:00:00Z
+          - actor: *user2
+            event: pinned
+            created_at: 2019-11-18T14:30:00Z
+          - actor: *user2
+            event: unpinned
+            created_at: 2019-11-18T14:40:00Z
           - actor: *user3
             event: review_requested
             requested_reviewer: *user2
@@ -838,6 +844,30 @@
               </tr>
               </table>
             created_at: 2019-11-18T14:00:00Z
+          - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/sample-user-1-2.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1-2 pinned this issue
+                </td>
+              </tr>
+              </table>
+            created_at: 2019-11-18T14:30:00Z
+          - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/sample-user-1-2.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1-2 unpinned this issue
+                </td>
+              </tr>
+              </table>
+            created_at: 2019-11-18T14:40:00Z
           - body: |
               <table>
               <tr>

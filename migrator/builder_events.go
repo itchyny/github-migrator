@@ -51,14 +51,16 @@ func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 		"head_ref_force_pushed":    5,
 		"locked":                   6,
 		"unlocked":                 6,
-		"assigned":                 7,
-		"unassigned":               7,
-		"review_requested":         8,
-		"review_request_removed":   8,
-		"converted_note_to_issue":  9,
-		"added_to_project":         9,
-		"moved_columns_in_project": 9,
-		"removed_from_project":     9,
+		"pinned":                   7,
+		"unpinned":                 7,
+		"assigned":                 8,
+		"unassigned":               8,
+		"review_requested":         9,
+		"review_request_removed":   9,
+		"converted_note_to_issue":  10,
+		"added_to_project":         10,
+		"moved_columns_in_project": 10,
+		"removed_from_project":     10,
 	}
 	for _, x := range xs {
 		var appended bool
@@ -165,6 +167,8 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 			)
 		case "unlocked":
 			actions = append(actions, "unlocked this conversation")
+		case "pinned", "unpinned":
+			actions = append(actions, e.Event+` this issue`)
 		case "assigned", "unassigned":
 			if len(eg) == 1 && len(e.Assignees) <= 1 && e.Assigner.Login == e.Assignee.Login {
 				if e.Event == "assigned" {
