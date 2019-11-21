@@ -27,6 +27,7 @@ const (
 	ReviewStateChangesRequested
 	ReviewStateCommented
 	ReviewStatePending
+	ReviewStateDismissed
 )
 
 var stringToReviewState = map[string]ReviewState{
@@ -34,6 +35,7 @@ var stringToReviewState = map[string]ReviewState{
 	"CHANGES_REQUESTED": ReviewStateChangesRequested,
 	"COMMENTED":         ReviewStateCommented,
 	"PENDING":           ReviewStatePending,
+	"DISMISSED":         ReviewStateDismissed,
 }
 
 var reviewStateToString = map[ReviewState]string{
@@ -41,6 +43,7 @@ var reviewStateToString = map[ReviewState]string{
 	ReviewStateChangesRequested: "CHANGES_REQUESTED",
 	ReviewStateCommented:        "COMMENTED",
 	ReviewStatePending:          "PENDING",
+	ReviewStateDismissed:        "DISMISSED",
 }
 
 // UnmarshalJSON implements json.Unmarshaler

@@ -171,6 +171,8 @@ func (b *builder) buildImportReviews() []*github.ImportComment {
 			action = "approved"
 		} else if c.State == github.ReviewStateChangesRequested {
 			action = "requested changes"
+		} else if c.State == github.ReviewStateDismissed {
+			action = "commented"
 		} else {
 			continue
 		}
