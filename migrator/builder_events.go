@@ -252,7 +252,7 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 					b.lookupMigratedProject(p).HTMLURL, html.EscapeString(p.Name),
 				),
 			)
-		case "referenced", "mentioned", "comment_deleted", "subscribed", "base_ref_changed":
+		case "referenced", "mentioned", "comment_deleted", "subscribed", "unsubscribed", "base_ref_changed":
 		default:
 			fmt.Printf("%#v\n", e)
 			panic(e.Event)
