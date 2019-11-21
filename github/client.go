@@ -33,6 +33,7 @@ type Client interface {
 	GetDiff(string, string) (string, error)
 	GetCompare(string, string, string) (string, error)
 	ListReviews(string, int) Reviews
+	GetReview(string, int, int) (*Review, error)
 	ListReviewComments(string, int) ReviewComments
 	ListProjects(string, *ListProjectsParams) Projects
 	GetProject(int) (*Project, error)

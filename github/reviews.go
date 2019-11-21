@@ -139,3 +139,12 @@ func (c *client) ListReviews(repo string, pullNumber int) Reviews {
 	}()
 	return Reviews(rs)
 }
+
+// GetReview gets the review.
+func (c *client) GetReview(repo string, pullNumber, reviewID int) (*Review, error) {
+	var r Review
+	if err := c.get(c.url(fmt.Sprintf("/repos/%s/pulls/%d/reviews/%d", repo, pullNumber, reviewID)), &r); err != nil {
+		return nil, fmt.Errorf("GetReview %s: %w", fmt.Sprintf("%s/pulls/%d/reviews/%d", repo, pullNumber, reviewID), err)
+	}
+	return &r, nil
+}

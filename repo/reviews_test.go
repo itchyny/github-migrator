@@ -31,3 +31,19 @@ func TestRepoListReviews(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, got, expected)
 }
+
+func TestRepoGetReview(t *testing.T) {
+	expected := &github.Review{
+		ID:    1,
+		State: github.ReviewStateApproved,
+		Body:  "Example body 1",
+	}
+	repo := New(github.NewMockClient(
+		github.MockGetReview(func(string, int, int) (*github.Review, error) {
+			return expected, nil
+		}),
+	), "example/test")
+	got, err := repo.GetReview(1, 2)
+	assert.Nil(t, err)
+	assert.Equal(t, got, expected)
+}

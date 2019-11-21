@@ -22,6 +22,7 @@ type Repo interface {
 	GetDiff(string) (string, error)
 	GetCompare(string, string) (string, error)
 	ListReviews(int) github.Reviews
+	GetReview(int, int) (*github.Review, error)
 	ListReviewComments(int) github.ReviewComments
 	ListProjects() github.Projects
 	GetProject(int) (*github.Project, error)
