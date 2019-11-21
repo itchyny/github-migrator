@@ -194,6 +194,22 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 			}
 			actions = append(actions, e.Event+" "+b.mentionAll(targets))
 		case "review_requested", "review_request_removed":
+			var actionStr string
+			if e.Event == "review_requested" {
+				actionStr = "requested a review"
+			} else {
+				actionStr = "removed the request for review"
+			}
+			if e.RequestedTeam != nil {
+				actions = append(actions,
+					fmt.Sprintf(
+						`%s from <b>%s</b>`,
+						actionStr,
+						b.commentFilters.apply(e.RequestedTeam.Name),
+					),
+				)
+				break
+			}
 			if len(eg) == 1 && len(e.Reviewers) <= 1 && e.Actor.Login == e.Reviewer.Login {
 				if e.Event == "review_requested" {
 					return "self-requested a review", nil
@@ -207,12 +223,6 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 				}
 			} else {
 				targets = append(targets, e.Reviewer)
-			}
-			var actionStr string
-			if e.Event == "review_requested" {
-				actionStr = "requested a review"
-			} else {
-				actionStr = "removed the request for review"
 			}
 			actions = append(actions, actionStr+" from "+b.mentionAll(targets))
 		case "review_dismissed":

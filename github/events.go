@@ -19,6 +19,7 @@ type Event struct {
 	Assigner        *User                 `json:"assigner"`
 	Reviewer        *User                 `json:"requested_reviewer"`
 	Reviewers       []*User               `json:"requested_reviewers"`
+	RequestedTeam   *EventTeam            `json:"requested_team"`
 	DismissedReview *EventDismissedReview `json:"dismissed_review"`
 	ProjectCard     *EventProjectCard     `json:"project_card"`
 	CreatedAt       string                `json:"created_at"`
@@ -34,6 +35,12 @@ type EventLabel struct {
 type EventRename struct {
 	From string `json:"from"`
 	To   string `json:"to"`
+}
+
+// EventTeam ...
+type EventTeam struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 // EventDismissedReview ...
