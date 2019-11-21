@@ -58,6 +58,7 @@ func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 		"unassigned":               8,
 		"review_requested":         9,
 		"review_request_removed":   9,
+		"review_dismissed":         9,
 		"converted_note_to_issue":  10,
 		"added_to_project":         10,
 		"moved_columns_in_project": 10,
@@ -213,6 +214,30 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 				actionStr = "removed the request for review"
 			}
 			actions = append(actions, actionStr+" from "+b.mentionAll(targets))
+		case "review_dismissed":
+			var target *github.User
+			for _, r := range b.reviews {
+				if r.ID == e.DismissedReview.ReviewID {
+					target = r.User
+					break
+				}
+			}
+			if target != nil {
+				actions = append(actions,
+					fmt.Sprintf(
+						`dismissed @%s's review<br>%s`,
+						b.commentFilters.apply(target.Login),
+						html.EscapeString(e.DismissedReview.DismissalMessage),
+					),
+				)
+			} else {
+				actions = append(actions,
+					fmt.Sprintf(
+						`dismissed a review<br>%s`,
+						html.EscapeString(e.DismissedReview.DismissalMessage),
+					),
+				)
+			}
 		case "converted_note_to_issue":
 			p, err := b.getProject(e.ProjectCard.ProjectID)
 			if err != nil {
