@@ -27,6 +27,7 @@ type migrator struct {
 	projectByIDs           map[int]*github.Project
 	userByNames            map[string]*github.User
 	errorUserByNames       map[string]error
+	issueIDByNumbers       map[int]int
 }
 
 // Migrate the repository.
@@ -50,7 +51,7 @@ func (m *migrator) Migrate() (err error) {
 	if err = m.migrateLabels(); err != nil {
 		return err
 	}
-	// projects should be imported before issues
+	// projects and columns should be imported before issues
 	if err = m.migrateProjects(); err != nil {
 		return err
 	}
@@ -63,6 +64,10 @@ func (m *migrator) Migrate() (err error) {
 		m.targetProjects = projects
 	}
 	if err = m.migrateIssues(); err != nil {
+		return err
+	}
+	// projects cards should be imported after issues
+	if err = m.migrateProjectCards(); err != nil {
 		return err
 	}
 	if err = m.migrateHooks(); err != nil {

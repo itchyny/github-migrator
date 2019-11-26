@@ -62,6 +62,7 @@ func (m *migrator) migrateIssue(
 	}
 	if targetIssue != nil {
 		fmt.Printf("[--] skipping: %s (already exists)\n", targetIssue.HTMLURL)
+		m.cacheIssueID(targetIssue.Number, targetIssue.ID)
 		return nil, nil
 	}
 	time.Sleep(beforeImportIssueDuration)
@@ -158,4 +159,26 @@ func (m *migrator) waitImportIssue(id int, issue *github.Issue) error {
 			return errors.New("reached maximum retry count")
 		}
 	}
+}
+
+func (m *migrator) cacheIssueID(number, id int) {
+	if m.issueIDByNumbers == nil {
+		m.issueIDByNumbers = make(map[int]int)
+	}
+	m.issueIDByNumbers[number] = id
+}
+
+func (m *migrator) getTargetIssueID(number int) (int, error) {
+	if id, ok := m.issueIDByNumbers[number]; ok {
+		return id, nil
+	}
+	issue, err := m.target.GetIssue(number)
+	if err != nil {
+		return 0, err
+	}
+	if m.issueIDByNumbers == nil {
+		m.issueIDByNumbers = make(map[int]int)
+	}
+	m.issueIDByNumbers[number] = issue.ID
+	return issue.ID, nil
 }

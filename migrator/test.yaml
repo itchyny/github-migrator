@@ -1308,7 +1308,7 @@
         state: open
 
 -
-  name: project columns
+  name: project columns and cards
 
   source:
     repo:
@@ -1321,15 +1321,31 @@
         columns:
           - id: 1
             name: column 1
+            cards:
+              - note: card 1
+              - note: card 2
+              - content_url: http://localhost/example/source/issues/1
+              - content_url: http://localhost/example/source/pulls/2
           - id: 2
             name: column 2
+            cards:
+              - content_url: http://localhost/example/source/pulls/2
+              - note: card 2
+              - content_url: http://localhost/example/source/issues/1
           - id: 3
             name: column 3
+            cards:
+              - note: card 1
 
   target:
     repo:
       name: target
       full_name: example/target
+    issues:
+      - number: 1
+        id: 100
+      - number: 2
+        id: 200
     projects:
       - id: 1
         name: project 1
@@ -1337,8 +1353,21 @@
         columns:
           - id: 2
             name: column 2
+            cards:
+              - note: card 2
+              - content_url: http://localhost/example/target/issues/1
     create_project_columns:
       - id: 1
         name: column 1
       - id: 3
         name: column 3
+    create_project_cards:
+      - content_id: 200
+        content_type: Issue
+      - content_id: 100
+        content_type: Issue
+      - note: card 2
+      - note: card 1
+      - content_id: 200
+        content_type: Issue
+      - note: card 1

@@ -40,14 +40,20 @@ type testRepo struct {
 	Imports  []*github.Import `json:"imports"`
 	Projects []*struct {
 		*github.Project
-		Columns []*github.ProjectColumn `json:"columns"`
+		Columns []*testProjectColumn `json:"columns"`
 	} `json:"projects"`
-	CreateProjects       []*github.Project       `json:"create_projects"`
-	UpdateProjects       []*github.Project       `json:"update_projects"`
-	CreateProjectColumns []*github.ProjectColumn `json:"create_project_columns"`
-	Hooks                []*github.Hook          `json:"hooks"`
-	CreateHooks          []*github.Hook          `json:"create_hooks"`
-	UpdateHooks          []*github.Hook          `json:"update_hooks"`
+	CreateProjects       []*github.Project                 `json:"create_projects"`
+	UpdateProjects       []*github.Project                 `json:"update_projects"`
+	CreateProjectColumns []*github.ProjectColumn           `json:"create_project_columns"`
+	CreateProjectCards   []*github.CreateProjectCardParams `json:"create_project_cards"`
+	Hooks                []*github.Hook                    `json:"hooks"`
+	CreateHooks          []*github.Hook                    `json:"create_hooks"`
+	UpdateHooks          []*github.Hook                    `json:"update_hooks"`
+}
+
+type testProjectColumn struct {
+	*github.ProjectColumn
+	Cards []*github.ProjectCard `json:"cards"`
 }
 
 func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
@@ -109,12 +115,20 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			}
 		})(0)),
 
-		github.MockListIssues(func(_ string, _ *github.ListIssuesParams) github.Issues {
+		github.MockListIssues(func(string, *github.ListIssuesParams) github.Issues {
 			xs := make([]*github.Issue, len(r.Issues))
 			for i, s := range r.Issues {
 				xs[i] = &s.PullReq.Issue
 			}
 			return github.IssuesFromSlice(xs)
+		}),
+		github.MockGetIssue(func(_ string, issueNumber int) (*github.Issue, error) {
+			for _, i := range r.Issues {
+				if i.Number == issueNumber {
+					return &i.PullReq.Issue, nil
+				}
+			}
+			panic(fmt.Sprintf("unexpected issue number: %d", issueNumber))
 		}),
 		github.MockListComments(func(_ string, issueNumber int) github.Comments {
 			assert.True(t, !isTarget)
@@ -179,7 +193,7 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 			panic(fmt.Sprintf("unexpected pull request number: %d", pullNumber))
 		}),
 
-		github.MockListProjects(func(_ string, _ *github.ListProjectsParams) github.Projects {
+		github.MockListProjects(func(string, *github.ListProjectsParams) github.Projects {
 			return github.ProjectsFromSlice(projects)
 		}),
 		github.MockGetProject(func(projectID int) (*github.Project, error) {
@@ -217,7 +231,11 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 		github.MockListProjectColumns(func(projectID int) github.ProjectColumns {
 			for _, p := range r.Projects {
 				if p.ID == projectID {
-					return github.ProjectColumnsFromSlice(p.Columns)
+					cs := make([]*github.ProjectColumn, len(p.Columns))
+					for i, c := range p.Columns {
+						cs[i] = c.ProjectColumn
+					}
+					return github.ProjectColumnsFromSlice(cs)
 				}
 			}
 			return github.ProjectColumnsFromSlice([]*github.ProjectColumn{})
@@ -225,10 +243,40 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 		github.MockCreateProjectColumn((func(i int) func(int, string) (*github.ProjectColumn, error) {
 			return func(projectID int, name string) (*github.ProjectColumn, error) {
 				defer func() { i++ }()
+				for _, p := range r.Projects {
+					if p.ID == projectID {
+						p.Columns = append(p.Columns, &testProjectColumn{
+							ProjectColumn: &github.ProjectColumn{
+								ID:   -1,
+								Name: name,
+							},
+						})
+					}
+				}
 				assert.True(t, isTarget)
 				require.Greater(t, len(r.CreateProjectColumns), i)
 				assert.Equal(t, r.CreateProjectColumns[i].Name, name)
 				return r.CreateProjectColumns[i], nil
+			}
+		})(0)),
+
+		github.MockListProjectCards(func(columnID int) github.ProjectCards {
+			for _, p := range r.Projects {
+				for _, c := range p.Columns {
+					if c.ID == columnID {
+						return github.ProjectCardsFromSlice(c.Cards)
+					}
+				}
+			}
+			return github.ProjectCardsFromSlice([]*github.ProjectCard{})
+		}),
+		github.MockCreateProjectCard((func(i int) func(int, *github.CreateProjectCardParams) (*github.ProjectCard, error) {
+			return func(projectID int, params *github.CreateProjectCardParams) (*github.ProjectCard, error) {
+				defer func() { i++ }()
+				assert.True(t, isTarget)
+				require.Greater(t, len(r.CreateProjectCards), i)
+				assert.Equal(t, r.CreateProjectCards[i], params)
+				return nil, nil
 			}
 		})(0)),
 

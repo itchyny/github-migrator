@@ -9,6 +9,7 @@ import (
 
 // Issue represents an issue.
 type Issue struct {
+	ID          int               `json:"id"`
 	Number      int               `json:"number"`
 	Title       string            `json:"title"`
 	State       IssueState        `json:"state"`

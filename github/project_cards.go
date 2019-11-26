@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 )
 
 // ProjectCard represents a project card.
@@ -16,6 +17,18 @@ type ProjectCard struct {
 	ContentURL string `json:"content_url"`
 	CreatedAt  string `json:"created_at"`
 	UpdatedAt  string `json:"updated_at"`
+}
+
+// GetIssueNumber ...
+func (c *ProjectCard) GetIssueNumber() int {
+	if i := strings.LastIndexByte(c.ContentURL, '/'); i >= 0 {
+		j, err := strconv.Atoi(c.ContentURL[i+1:])
+		if err != nil {
+			return -1
+		}
+		return j
+	}
+	return -1
 }
 
 // ProjectCards represents a collection of project cards.
@@ -97,9 +110,9 @@ func (c *client) GetProjectCard(projectCardID int) (*ProjectCard, error) {
 
 // CreateProjectCardParams represents the paramter for CreateProjectCard API.
 type CreateProjectCardParams struct {
-	Note        string                 `json:"note"`
-	ContentID   int                    `json:"content_id"`
-	ContentType ProjectCardContentType `json:"content_type"`
+	Note        string                 `json:"note,omitempty"`
+	ContentID   int                    `json:"content_id,omitempty"`
+	ContentType ProjectCardContentType `json:"content_type,omitempty"`
 }
 
 // ProjectCardContentType ...
