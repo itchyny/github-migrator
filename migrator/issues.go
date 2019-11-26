@@ -154,7 +154,7 @@ func (m *migrator) waitImportIssue(id int, issue *github.Issue) error {
 			fmt.Printf("[??] checking status: %s (importing %s)\n", res.Status, issue.HTMLURL)
 		}
 		retry++
-		if retry >= 5 {
+		if retry >= 10 {
 			return errors.New("reached maximum retry count")
 		}
 	}
