@@ -37,6 +37,10 @@ type Repo interface {
 	CreateProjectCard(int, *github.CreateProjectCardParams) (*github.ProjectCard, error)
 	UpdateProjectCard(int, *github.UpdateProjectCardParams) (*github.ProjectCard, error)
 	MoveProjectCard(int, *github.MoveProjectCardParams) (*github.ProjectCard, error)
+	ListMilestones(*github.ListMilestonesParams) github.Milestones
+	GetMilestone(int) (*github.Milestone, error)
+	CreateMilestone(*github.CreateMilestoneParams) (*github.Milestone, error)
+	UpdateMilestone(int, *github.UpdateMilestoneParams) (*github.Milestone, error)
 	ListHooks() github.Hooks
 	GetHook(int) (*github.Hook, error)
 	CreateHook(*github.CreateHookParams) (*github.Hook, error)

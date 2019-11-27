@@ -36,6 +36,10 @@ type MockClient struct {
 	createProjectCardCallback   func(int, *CreateProjectCardParams) (*ProjectCard, error)
 	updateProjectCardCallback   func(int, *UpdateProjectCardParams) (*ProjectCard, error)
 	moveProjectCardCallback     func(int, *MoveProjectCardParams) (*ProjectCard, error)
+	listMilestonesCallback      func(string, *ListMilestonesParams) Milestones
+	getMilestoneCallback        func(string, int) (*Milestone, error)
+	createMilestoneCallback     func(string, *CreateMilestoneParams) (*Milestone, error)
+	updateMilestoneCallback     func(string, int, *UpdateMilestoneParams) (*Milestone, error)
 	listHooksCallback           func(string) Hooks
 	getHookCallback             func(string, int) (*Hook, error)
 	createHookCallback          func(string, *CreateHookParams) (*Hook, error)
@@ -563,6 +567,66 @@ func (c *MockClient) MoveProjectCard(projectCardID int, params *MoveProjectCardP
 func MockMoveProjectCard(callback func(int, *MoveProjectCardParams) (*ProjectCard, error)) MockClientOption {
 	return func(c *MockClient) {
 		c.moveProjectCardCallback = callback
+	}
+}
+
+// ListMilestones ...
+func (c *MockClient) ListMilestones(repo string, params *ListMilestonesParams) Milestones {
+	if c.listMilestonesCallback != nil {
+		return c.listMilestonesCallback(repo, params)
+	}
+	panic("MockClient#ListMilestones")
+}
+
+// MockListMilestones ...
+func MockListMilestones(callback func(string, *ListMilestonesParams) Milestones) MockClientOption {
+	return func(c *MockClient) {
+		c.listMilestonesCallback = callback
+	}
+}
+
+// GetMilestone ...
+func (c *MockClient) GetMilestone(repo string, milestoneNumber int) (*Milestone, error) {
+	if c.getMilestoneCallback != nil {
+		return c.getMilestoneCallback(repo, milestoneNumber)
+	}
+	panic("MockClient#GetMilestone")
+}
+
+// MockGetMilestone ...
+func MockGetMilestone(callback func(string, int) (*Milestone, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.getMilestoneCallback = callback
+	}
+}
+
+// CreateMilestone ...
+func (c *MockClient) CreateMilestone(repo string, params *CreateMilestoneParams) (*Milestone, error) {
+	if c.createMilestoneCallback != nil {
+		return c.createMilestoneCallback(repo, params)
+	}
+	panic("MockClient#CreateMilestone")
+}
+
+// MockCreateMilestone ...
+func MockCreateMilestone(callback func(string, *CreateMilestoneParams) (*Milestone, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.createMilestoneCallback = callback
+	}
+}
+
+// UpdateMilestone ...
+func (c *MockClient) UpdateMilestone(repo string, milestoneNumber int, params *UpdateMilestoneParams) (*Milestone, error) {
+	if c.updateMilestoneCallback != nil {
+		return c.updateMilestoneCallback(repo, milestoneNumber, params)
+	}
+	panic("MockClient#UpdateMilestone")
+}
+
+// MockUpdateMilestone ...
+func MockUpdateMilestone(callback func(string, int, *UpdateMilestoneParams) (*Milestone, error)) MockClientOption {
+	return func(c *MockClient) {
+		c.updateMilestoneCallback = callback
 	}
 }
 

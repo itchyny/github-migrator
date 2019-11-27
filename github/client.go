@@ -48,6 +48,10 @@ type Client interface {
 	CreateProjectCard(int, *CreateProjectCardParams) (*ProjectCard, error)
 	UpdateProjectCard(int, *UpdateProjectCardParams) (*ProjectCard, error)
 	MoveProjectCard(int, *MoveProjectCardParams) (*ProjectCard, error)
+	ListMilestones(string, *ListMilestonesParams) Milestones
+	GetMilestone(string, int) (*Milestone, error)
+	CreateMilestone(string, *CreateMilestoneParams) (*Milestone, error)
+	UpdateMilestone(string, int, *UpdateMilestoneParams) (*Milestone, error)
 	ListHooks(string) Hooks
 	GetHook(string, int) (*Hook, error)
 	CreateHook(string, *CreateHookParams) (*Hook, error)
