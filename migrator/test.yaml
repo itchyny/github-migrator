@@ -1371,3 +1371,58 @@
       - content_id: 200
         content_type: Issue
       - note: card 1
+
+-
+  name: milestones
+
+  source:
+    repo:
+      name: source
+      full_name: example/source
+    milestones:
+      - number: 1
+        title: milestone 1
+        state: open
+      - number: 2
+        title: milestone 2
+        description: description 2
+        state: closed
+      - number: 3
+        title: milestone 3
+        description: description 3
+        state: open
+      - number: 4
+        title: milestone 4
+        description: description 4
+        state: open
+
+  target:
+    repo:
+      name: target
+      full_name: example/target
+    milestones:
+      - number: 1
+        title: milestone 1
+        state: open
+      - number: 3
+        title: milestone 2
+        description: description 2
+        state: open
+      - number: 2
+        title: milestone 3
+        description: description
+        state: open
+    update_milestones:
+      - number: 3
+        title: milestone 2
+        description: description 2
+        state: closed
+      - number: 2
+        title: milestone 3
+        description: description 3
+        state: open
+    create_milestones:
+      - number: 4
+        title: milestone 4
+        description: description 4
+        state: open

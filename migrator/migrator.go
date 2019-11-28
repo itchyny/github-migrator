@@ -63,6 +63,10 @@ func (m *migrator) Migrate() (err error) {
 	} else {
 		m.targetProjects = projects
 	}
+	// milestones should be imported before issues
+	if err = m.migrateMilestones(); err != nil {
+		return err
+	}
 	if err = m.migrateIssues(); err != nil {
 		return err
 	}

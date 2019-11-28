@@ -46,6 +46,9 @@ type testRepo struct {
 	UpdateProjects       []*github.Project                 `json:"update_projects"`
 	CreateProjectColumns []*github.ProjectColumn           `json:"create_project_columns"`
 	CreateProjectCards   []*github.CreateProjectCardParams `json:"create_project_cards"`
+	Milestones           []*github.Milestone               `json:"milestones"`
+	CreateMilestones     []*github.Milestone               `json:"create_milestones"`
+	UpdateMilestones     []*github.Milestone               `json:"update_milestones"`
 	Hooks                []*github.Hook                    `json:"hooks"`
 	CreateHooks          []*github.Hook                    `json:"create_hooks"`
 	UpdateHooks          []*github.Hook                    `json:"update_hooks"`
@@ -60,6 +63,10 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 	projects := make([]*github.Project, len(r.Projects))
 	for i, p := range r.Projects {
 		projects[i] = p.Project
+	}
+	milestones := make([]*github.Milestone, len(r.Milestones))
+	for i, m := range r.Milestones {
+		milestones[i] = m
 	}
 	return repo.New(github.NewMockClient(
 
@@ -277,6 +284,34 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 				require.Greater(t, len(r.CreateProjectCards), i)
 				assert.Equal(t, r.CreateProjectCards[i], params)
 				return nil, nil
+			}
+		})(0)),
+
+		github.MockListMilestones(func(string, *github.ListMilestonesParams) github.Milestones {
+			return github.MilestonesFromSlice(milestones)
+		}),
+		github.MockCreateMilestone((func(i int) func(string, *github.CreateMilestoneParams) (*github.Milestone, error) {
+			return func(_ string, params *github.CreateMilestoneParams) (*github.Milestone, error) {
+				defer func() { i++ }()
+				assert.True(t, isTarget)
+				require.Greater(t, len(r.CreateMilestones), i)
+				assert.Equal(t, r.CreateMilestones[i].Title, params.Title)
+				assert.Equal(t, r.CreateMilestones[i].Description, params.Description)
+				assert.Equal(t, r.CreateMilestones[i].State, params.State)
+				milestones = append(milestones, r.CreateMilestones[i])
+				return r.CreateMilestones[i], nil
+			}
+		})(0)),
+		github.MockUpdateMilestone((func(i int) func(string, int, *github.UpdateMilestoneParams) (*github.Milestone, error) {
+			return func(_ string, milestoneNumber int, params *github.UpdateMilestoneParams) (*github.Milestone, error) {
+				defer func() { i++ }()
+				assert.True(t, isTarget)
+				require.Greater(t, len(r.UpdateMilestones), i)
+				assert.Equal(t, r.UpdateMilestones[i].Number, milestoneNumber)
+				assert.Equal(t, r.UpdateMilestones[i].Title, params.Title)
+				assert.Equal(t, r.UpdateMilestones[i].Description, params.Description)
+				assert.Equal(t, r.UpdateMilestones[i].State, params.State)
+				return r.UpdateMilestones[i], nil
 			}
 		})(0)),
 
