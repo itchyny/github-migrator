@@ -45,7 +45,7 @@ func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 		"reopened":                 1,
 		"labeled":                  2,
 		"unlabeled":                2,
-		"rename":                   3,
+		"renamed":                  3,
 		"head_ref_deleted":         4,
 		"head_ref_restored":        4,
 		"head_ref_force_pushed":    5,
