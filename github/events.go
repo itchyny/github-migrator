@@ -22,6 +22,7 @@ type Event struct {
 	RequestedTeam   *EventTeam            `json:"requested_team"`
 	DismissedReview *EventDismissedReview `json:"dismissed_review"`
 	ProjectCard     *EventProjectCard     `json:"project_card"`
+	Milestone       *EventMilestone       `json:"milestone"`
 	CreatedAt       string                `json:"created_at"`
 }
 
@@ -56,6 +57,11 @@ type EventProjectCard struct {
 	ProjectID          int    `json:"project_id"`
 	ColumnName         string `json:"column_name"`
 	PreviousColumnName string `json:"previous_column_name"`
+}
+
+// EventMilestone ...
+type EventMilestone struct {
+	Title string `json:"title"`
 }
 
 // Events represents a collection of events.

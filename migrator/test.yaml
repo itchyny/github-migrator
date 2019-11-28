@@ -1403,6 +1403,17 @@
         user: *user1
         milestone: *milestone
         created_at: 2019-11-18T12:00:00Z
+        events:
+          - actor: *user1
+            event: milestoned
+            milestone:
+              title: milestone 3
+            created_at: 2019-11-18T13:00:00Z
+          - actor: *user1
+            event: demilestoned
+            milestone:
+              title: milestone 3
+            created_at: 2019-11-18T14:00:00Z
 
   target:
     repo:
@@ -1420,6 +1431,7 @@
         title: milestone 3
         description: description
         state: open
+        html_url: http://localhost/example/target/milestones/2
     update_milestones:
       - number: 3
         title: milestone 2
@@ -1453,4 +1465,28 @@
           created_at: 2019-11-18T12:00:00Z
           closed: false
           labels: []
-        comments: []
+        comments:
+          - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/github.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1 added this to the <b><a href="http://localhost/example/target/milestones/2">milestone 3</a></b> milestone
+                </td>
+              </tr>
+              </table>
+            created_at: 2019-11-18T13:00:00Z
+          - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/github.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1 removed this from the <b><a href="http://localhost/example/target/milestones/2">milestone 3</a></b> milestone
+                </td>
+              </tr>
+              </table>
+            created_at: 2019-11-18T14:00:00Z

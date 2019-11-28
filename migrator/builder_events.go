@@ -64,7 +64,9 @@ func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 		"added_to_project":         10,
 		"moved_columns_in_project": 10,
 		"removed_from_project":     10,
-		"deployed":                 11,
+		"milestoned":               11,
+		"demilestoned":             11,
+		"deployed":                 12,
 	}
 	for _, x := range xs {
 		var appended bool
@@ -300,11 +302,25 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 					b.lookupMigratedProject(p).HTMLURL, html.EscapeString(p.Name),
 				),
 			)
+		case "milestoned", "demilestoned":
+			var actionStr string
+			if e.Event == "milestoned" {
+				actionStr = "added this to"
+			} else {
+				actionStr = "removed this from"
+			}
+			actions = append(actions,
+				fmt.Sprintf(
+					`%s the <b><a href="%s">%s</a></b> milestone`,
+					actionStr,
+					b.milestoneByTitle[e.Milestone.Title].HTMLURL,
+					html.EscapeString(e.Milestone.Title),
+				),
+			)
 		case "deployed":
 			actions = append(actions, `deployed this`)
 		case "referenced", "mentioned", "comment_deleted",
-			"subscribed", "unsubscribed", "base_ref_changed",
-			"milestoned", "demilestoned":
+			"subscribed", "unsubscribed", "base_ref_changed":
 		default:
 			fmt.Printf("%#v\n", e)
 			panic(e.Event)
