@@ -23,6 +23,7 @@ type Issue struct {
 	ClosedBy    *User             `json:"closed_by,omitempty"`
 	Labels      []*Label          `json:"labels"`
 	PullRequest *IssuePullRequest `json:"pull_request"`
+	Milestone   *Milestone        `json:"milestone"`
 }
 
 // IssueState ...

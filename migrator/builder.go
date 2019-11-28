@@ -60,6 +60,11 @@ func (b *builder) build() (*github.Import, error) {
 			importIssue.Assignee = target
 		}
 	}
+	if b.issue.Milestone != nil {
+		if l, ok := b.milestoneByTitle[b.issue.Milestone.Title]; ok {
+			importIssue.Milestone = l.Number
+		}
+	}
 	comments, err := b.buildImportComments()
 	if err != nil {
 		return nil, err

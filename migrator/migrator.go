@@ -28,6 +28,7 @@ type migrator struct {
 	userByNames            map[string]*github.User
 	errorUserByNames       map[string]error
 	issueIDByNumbers       map[int]int
+	milestoneByTitle       map[string]*github.Milestone
 }
 
 // Migrate the repository.

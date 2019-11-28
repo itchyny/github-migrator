@@ -47,6 +47,18 @@ func (m *migrator) migrateMilestones() error {
 			}
 		}
 	}
+	targetMilestones, err = github.MilestonesToSlice(
+		m.target.ListMilestones(&github.ListMilestonesParams{
+			State: github.ListMilestonesParamStateAll,
+		}),
+	)
+	if err != nil {
+		return err
+	}
+	m.milestoneByTitle = make(map[string]*github.Milestone)
+	for _, l := range targetMilestones {
+		m.milestoneByTitle[l.Title] = l
+	}
 	return nil
 }
 

@@ -45,13 +45,15 @@ export GITHUB_MIGRATOR_USER_MAPPING=user-before1:user-after1,user-before2:user-a
 - Projects
   - Projects, columns and cards
   - Note that column automations are not migrated (cannot be set via API)
+- Milestones
+  - Milestone titles, description and due date
+  - Connect issues to milestones
 - Webhooks
   - Webhook URL, content type and events the hooks is trigger for.
 - All the other things will be lost
   - Emoji reactions to issue and pull request comments
   - Diffs (split) view of pull requests
   - Wiki
-  - Milestones (will be implemented in the near future)
   - Default branch, Protection rules
   - Notifications, Integrations
 
