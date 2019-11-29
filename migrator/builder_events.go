@@ -319,11 +319,6 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 			)
 		case "deployed":
 			actions = append(actions, `deployed this`)
-		case "referenced", "mentioned", "comment_deleted",
-			"subscribed", "unsubscribed", "base_ref_changed":
-		default:
-			fmt.Printf("%#v\n", e)
-			panic(e.Event)
 		}
 	}
 
