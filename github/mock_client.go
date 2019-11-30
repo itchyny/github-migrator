@@ -40,6 +40,7 @@ type MockClient struct {
 	getMilestoneCallback        func(string, int) (*Milestone, error)
 	createMilestoneCallback     func(string, *CreateMilestoneParams) (*Milestone, error)
 	updateMilestoneCallback     func(string, int, *UpdateMilestoneParams) (*Milestone, error)
+	deleteMilestoneCallback     func(string, int) error
 	listHooksCallback           func(string) Hooks
 	getHookCallback             func(string, int) (*Hook, error)
 	createHookCallback          func(string, *CreateHookParams) (*Hook, error)
@@ -627,6 +628,21 @@ func (c *MockClient) UpdateMilestone(repo string, milestoneNumber int, params *U
 func MockUpdateMilestone(callback func(string, int, *UpdateMilestoneParams) (*Milestone, error)) MockClientOption {
 	return func(c *MockClient) {
 		c.updateMilestoneCallback = callback
+	}
+}
+
+// DeleteMilestone ...
+func (c *MockClient) DeleteMilestone(repo string, milestoneNumber int) error {
+	if c.deleteMilestoneCallback != nil {
+		return c.deleteMilestoneCallback(repo, milestoneNumber)
+	}
+	panic("MockClient#DeleteMilestone")
+}
+
+// MockDeleteMilestone ...
+func MockDeleteMilestone(callback func(string, int) error) MockClientOption {
+	return func(c *MockClient) {
+		c.deleteMilestoneCallback = callback
 	}
 }
 

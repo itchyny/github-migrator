@@ -52,6 +52,7 @@ type Client interface {
 	GetMilestone(string, int) (*Milestone, error)
 	CreateMilestone(string, *CreateMilestoneParams) (*Milestone, error)
 	UpdateMilestone(string, int, *UpdateMilestoneParams) (*Milestone, error)
+	DeleteMilestone(string, int) error
 	ListHooks(string) Hooks
 	GetHook(string, int) (*Hook, error)
 	CreateHook(string, *CreateHookParams) (*Hook, error)
@@ -191,6 +192,19 @@ func (c *client) patch(path string, body, v interface{}) error {
 	if err := json.NewDecoder(res.Body).Decode(&v); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (c *client) delete(path string) error {
+	req, err := c.request("DELETE", path, nil)
+	if err != nil {
+		return err
+	}
+	res, err := c.do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
 	return nil
 }
 

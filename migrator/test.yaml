@@ -1388,11 +1388,11 @@
         title: milestone 2
         description: description 2
         state: closed
-      - number: 3
+      - number: 4
         title: milestone 3
         description: description 3
         state: open
-      - number: 4
+      - number: 5
         title: milestone 4
         description: description 4
         state: open
@@ -1448,6 +1448,9 @@
         state: open
     create_milestones:
       - number: 4
+        title: "[Deleted milestone]"
+        state: closed
+      - number: 5
         title: milestone 4
         description: description 4
         state: open

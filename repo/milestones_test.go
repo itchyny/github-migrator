@@ -73,3 +73,13 @@ func TestRepoUpdateMilestone(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, got, expected)
 }
+
+func TestRepoDeleteMilestone(t *testing.T) {
+	repo := New(github.NewMockClient(
+		github.MockDeleteMilestone(func(string, int) error {
+			return nil
+		}),
+	), "example/test")
+	err := repo.DeleteMilestone(1)
+	assert.Nil(t, err)
+}

@@ -258,3 +258,11 @@ func (c *client) UpdateMilestone(repo string, milestoneNumber int, params *Updat
 	}
 	return &r, nil
 }
+
+// DeleteMilestone deletes the milestone.
+func (c *client) DeleteMilestone(repo string, milestoneNumber int) error {
+	if err := c.delete(c.url(fmt.Sprintf("/repos/%s/milestones/%d", repo, milestoneNumber))); err != nil {
+		return fmt.Errorf("DeleteMilestone %s: %w", fmt.Sprintf("%s/milestones/%d", repo, milestoneNumber), err)
+	}
+	return nil
+}

@@ -314,6 +314,11 @@ func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
 				return r.UpdateMilestones[i], nil
 			}
 		})(0)),
+		github.MockDeleteMilestone((func(i int) func(string, int) error {
+			return func(string, int) error {
+				return nil
+			}
+		})(0)),
 
 		github.MockListHooks(func(string) github.Hooks {
 			return github.HooksFromSlice(r.Hooks)

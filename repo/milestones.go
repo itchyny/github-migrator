@@ -21,3 +21,8 @@ func (r *repo) CreateMilestone(params *github.CreateMilestoneParams) (*github.Mi
 func (r *repo) UpdateMilestone(milestoneNumber int, params *github.UpdateMilestoneParams) (*github.Milestone, error) {
 	return r.cli.UpdateMilestone(r.path, milestoneNumber, params)
 }
+
+// DeleteMilestone deletes the milestone.
+func (r *repo) DeleteMilestone(milestoneNumber int) error {
+	return r.cli.DeleteMilestone(r.path, milestoneNumber)
+}

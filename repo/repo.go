@@ -41,6 +41,7 @@ type Repo interface {
 	GetMilestone(int) (*github.Milestone, error)
 	CreateMilestone(*github.CreateMilestoneParams) (*github.Milestone, error)
 	UpdateMilestone(int, *github.UpdateMilestoneParams) (*github.Milestone, error)
+	DeleteMilestone(int) error
 	ListHooks() github.Hooks
 	GetHook(int) (*github.Hook, error)
 	CreateHook(*github.CreateHookParams) (*github.Hook, error)

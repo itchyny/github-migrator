@@ -23,8 +23,27 @@ func (m *migrator) migrateMilestones() error {
 	if err != nil {
 		return err
 	}
+	var largestMilestoneNumber int
+	for _, l := range targetMilestones {
+		if largestMilestoneNumber < l.Number {
+			largestMilestoneNumber = l.Number
+		}
+	}
 	for _, l := range sourceMilestones {
 		fmt.Printf("[=>] migrating a milestone: %s\n", l.Title)
+		for l.Number > largestMilestoneNumber+1 {
+			n, err := m.target.CreateMilestone(&github.CreateMilestoneParams{
+				Title: "[Deleted milestone]",
+				State: github.MilestoneStateClosed,
+			})
+			if err != nil {
+				return err
+			}
+			largestMilestoneNumber = n.Number
+			if err := m.target.DeleteMilestone(n.Number); err != nil {
+				return err
+			}
+		}
 		n := lookupMilestone(targetMilestones, l)
 		if n == nil {
 			fmt.Printf("[>>] creating a new milestone: %s\n", l.Title)
@@ -34,6 +53,7 @@ func (m *migrator) migrateMilestones() error {
 			}); err != nil {
 				return err
 			}
+			largestMilestoneNumber = n.Number
 		}
 		if l.Description != n.Description || l.State != n.State || l.DueOn != n.DueOn {
 			fmt.Printf("[|>] updating an existing milestone: %s\n", l.Title)
