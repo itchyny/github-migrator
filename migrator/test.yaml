@@ -1414,6 +1414,11 @@
             milestone:
               title: milestone 3
             created_at: 2019-11-18T14:00:00Z
+          - actor: *user1
+            event: milestoned
+            milestone:
+              title: milestone 5
+            created_at: 2019-11-18T15:00:00Z
 
   target:
     repo:
@@ -1490,3 +1495,15 @@
               </tr>
               </table>
             created_at: 2019-11-18T14:00:00Z
+          - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/github.png" width="35">
+                </td>
+                <td>
+                  @sample-user-1 added this to the <b>milestone 5</b> milestone
+                </td>
+              </tr>
+              </table>
+            created_at: 2019-11-18T15:00:00Z

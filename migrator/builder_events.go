@@ -309,14 +309,24 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 			} else {
 				actionStr = "removed this from"
 			}
-			actions = append(actions,
-				fmt.Sprintf(
-					`%s the <b><a href="%s">%s</a></b> milestone`,
-					actionStr,
-					b.milestoneByTitle[e.Milestone.Title].HTMLURL,
-					html.EscapeString(e.Milestone.Title),
-				),
-			)
+			if m := b.milestoneByTitle[e.Milestone.Title]; m != nil {
+				actions = append(actions,
+					fmt.Sprintf(
+						`%s the <b><a href="%s">%s</a></b> milestone`,
+						actionStr,
+						m.HTMLURL,
+						html.EscapeString(e.Milestone.Title),
+					),
+				)
+			} else {
+				actions = append(actions,
+					fmt.Sprintf(
+						`%s the <b>%s</b> milestone`,
+						actionStr,
+						html.EscapeString(e.Milestone.Title),
+					),
+				)
+			}
 		case "deployed":
 			actions = append(actions, `deployed this`)
 		}
