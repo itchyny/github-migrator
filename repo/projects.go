@@ -23,3 +23,8 @@ func (r *repo) CreateProject(params *github.CreateProjectParams) (*github.Projec
 func (r *repo) UpdateProject(projectID int, params *github.UpdateProjectParams) (*github.Project, error) {
 	return r.cli.UpdateProject(projectID, params)
 }
+
+// DeleteProject deletes the project.
+func (r *repo) DeleteProject(projectID int) error {
+	return r.cli.DeleteProject(projectID)
+}

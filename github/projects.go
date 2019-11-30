@@ -213,3 +213,11 @@ func (c *client) UpdateProject(projectID int, params *UpdateProjectParams) (*Pro
 	}
 	return &r, nil
 }
+
+// DeleteProject deletes the project.
+func (c *client) DeleteProject(projectID int) error {
+	if err := c.delete(c.url(fmt.Sprintf("/projects/%d", projectID))); err != nil {
+		return fmt.Errorf("DeleteProject %s: %w", fmt.Sprintf("/projects/%d", projectID), err)
+	}
+	return nil
+}

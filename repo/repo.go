@@ -28,6 +28,7 @@ type Repo interface {
 	GetProject(int) (*github.Project, error)
 	CreateProject(*github.CreateProjectParams) (*github.Project, error)
 	UpdateProject(int, *github.UpdateProjectParams) (*github.Project, error)
+	DeleteProject(int) error
 	ListProjectColumns(int) github.ProjectColumns
 	GetProjectColumn(int) (*github.ProjectColumn, error)
 	CreateProjectColumn(int, string) (*github.ProjectColumn, error)

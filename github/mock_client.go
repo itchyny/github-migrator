@@ -27,6 +27,7 @@ type MockClient struct {
 	getProjectCallback          func(int) (*Project, error)
 	createProjectCallback       func(string, *CreateProjectParams) (*Project, error)
 	updateProjectCallback       func(int, *UpdateProjectParams) (*Project, error)
+	deleteProjectCallback       func(int) error
 	listProjectColumnsCallback  func(int) ProjectColumns
 	getProjectColumnCallback    func(int) (*ProjectColumn, error)
 	createProjectColumnCallback func(int, string) (*ProjectColumn, error)
@@ -433,6 +434,21 @@ func (c *MockClient) UpdateProject(projectID int, params *UpdateProjectParams) (
 func MockUpdateProject(callback func(int, *UpdateProjectParams) (*Project, error)) MockClientOption {
 	return func(c *MockClient) {
 		c.updateProjectCallback = callback
+	}
+}
+
+// DeleteProject ...
+func (c *MockClient) DeleteProject(projectID int) error {
+	if c.deleteProjectCallback != nil {
+		return c.deleteProjectCallback(projectID)
+	}
+	panic("MockClient#DeleteProject")
+}
+
+// MockDeleteProject ...
+func MockDeleteProject(callback func(int) error) MockClientOption {
+	return func(c *MockClient) {
+		c.deleteProjectCallback = callback
 	}
 }
 

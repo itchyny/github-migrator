@@ -84,3 +84,13 @@ func TestRepoUpdateProject(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, got, expected)
 }
+
+func TestRepoDeleteProject(t *testing.T) {
+	repo := New(github.NewMockClient(
+		github.MockDeleteProject(func(int) error {
+			return nil
+		}),
+	), "example/test")
+	err := repo.DeleteProject(1)
+	assert.Nil(t, err)
+}

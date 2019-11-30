@@ -22,8 +22,26 @@ func (m *migrator) migrateProjects() error {
 	if err != nil {
 		return err
 	}
+	var largestProjectNumber int
+	for _, l := range targetProjects {
+		if largestProjectNumber < l.Number {
+			largestProjectNumber = l.Number
+		}
+	}
 	for _, p := range sourceProjects {
 		fmt.Printf("[=>] migrating a project: %s\n", p.Name)
+		for p.Number > largestProjectNumber+1 {
+			q, err := m.target.CreateProject(&github.CreateProjectParams{
+				Name: "[Deleted project]",
+			})
+			if err != nil {
+				return err
+			}
+			largestProjectNumber = q.Number
+			if err := m.target.DeleteProject(q.ID); err != nil {
+				return err
+			}
+		}
 		q := lookupProject(targetProjects, p)
 		if q == nil {
 			fmt.Printf("[>>] creating a new project: %s\n", p.Name)
@@ -32,6 +50,7 @@ func (m *migrator) migrateProjects() error {
 			}); err != nil {
 				return err
 			}
+			largestProjectNumber = q.Number
 		}
 		if p.Body != q.Body || p.State != q.State {
 			fmt.Printf("[|>] updating an existing project: %s\n", p.Name)
