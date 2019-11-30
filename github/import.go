@@ -29,13 +29,14 @@ type ImportComment struct {
 
 // ImportResult represents the result of import.
 type ImportResult struct {
-	ID              int    `json:"id"`
-	Status          string `json:"status"`
-	URL             string `json:"url"`
-	ImportIssuesURL string `json:"import_issues_url"`
-	RepositoryURL   string `json:"repository_url"`
-	CreatedAt       string `json:"created_at"`
-	UpdatedAt       string `json:"updated_at"`
+	ID              int       `json:"id"`
+	Status          string    `json:"status"`
+	URL             string    `json:"url"`
+	ImportIssuesURL string    `json:"import_issues_url"`
+	RepositoryURL   string    `json:"repository_url"`
+	CreatedAt       string    `json:"created_at"`
+	UpdatedAt       string    `json:"updated_at"`
+	Errors          apiErrors `json:"errors"`
 }
 
 // Import imports an importing object.

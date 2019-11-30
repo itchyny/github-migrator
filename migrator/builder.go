@@ -19,6 +19,7 @@ type builder struct {
 	commitDiff     string
 	reviews        []*github.Review
 	reviewComments []*github.ReviewComment
+	skipAssignee   bool
 }
 
 func (m *migrator) buildImport(
@@ -26,6 +27,7 @@ func (m *migrator) buildImport(
 	comments []*github.Comment, events []*github.Event,
 	commits []*github.Commit, commitDiff string,
 	reviews []*github.Review, reviewComments []*github.ReviewComment,
+	skipAssignee bool,
 ) (*github.Import, error) {
 	return (&builder{
 		migrator:       m,
@@ -37,6 +39,7 @@ func (m *migrator) buildImport(
 		commitDiff:     commitDiff,
 		reviews:        reviews,
 		reviewComments: reviewComments,
+		skipAssignee:   skipAssignee,
 	}).build()
 }
 
@@ -50,7 +53,7 @@ func (b *builder) build() (*github.Import, error) {
 		ClosedAt:  b.issue.ClosedAt,
 		Labels:    b.buildImportLabels(b.issue),
 	}
-	if b.issue.Assignee != nil {
+	if !b.skipAssignee && b.issue.Assignee != nil {
 		target := b.commentFilters.apply(b.issue.Assignee.Login)
 		isMember, err := b.isTargetMember(target)
 		if err != nil {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/itchyny/github-migrator/github"
@@ -38,13 +39,24 @@ func (m *migrator) migrateIssues() error {
 					ClosedAt:  issue.CreatedAt,
 				}
 			}
-			result, err := m.migrateIssue(issue, targetIssuesBuffer, deleted)
+			result, err := m.migrateIssue(issue, targetIssuesBuffer, deleted, false)
 			if err != nil {
 				return err
 			}
 			if result != nil {
 				if err := m.waitImportIssue(result.ID, issue); err != nil {
-					return fmt.Errorf("importing %s failed: %w", issue.HTMLURL, err)
+					if !strings.Contains(err.Error(), "Issue.assignee") {
+						return fmt.Errorf("importing %s failed: %w", issue.HTMLURL, err)
+					}
+					result, err := m.migrateIssue(issue, targetIssuesBuffer, deleted, true)
+					if err != nil {
+						return err
+					}
+					if result != nil {
+						if err := m.waitImportIssue(result.ID, issue); err != nil {
+							return fmt.Errorf("importing %s failed: %w", issue.HTMLURL, err)
+						}
+					}
 				}
 			}
 		}
@@ -53,7 +65,7 @@ func (m *migrator) migrateIssues() error {
 }
 
 func (m *migrator) migrateIssue(
-	sourceIssue *github.Issue, targetIssuesBuffer *issuesBuffer, deleted bool,
+	sourceIssue *github.Issue, targetIssuesBuffer *issuesBuffer, deleted, skipAssignee bool,
 ) (*github.ImportResult, error) {
 	fmt.Printf("[=>] migrating an issue: %s\n", sourceIssue.HTMLURL)
 	targetIssue, err := targetIssuesBuffer.get(sourceIssue.Number)
@@ -124,6 +136,7 @@ func (m *migrator) migrateIssue(
 	imp, err := m.buildImport(
 		sourceIssue, sourcePullReq, comments, events,
 		commits, commitDiff, reviews, reviewComments,
+		skipAssignee,
 	)
 	if err != nil {
 		return nil, err
@@ -150,6 +163,9 @@ func (m *migrator) waitImportIssue(id int, issue *github.Issue) error {
 			return nil
 		case "failed":
 			fmt.Printf("[!!] checking status: %s (importing %s)\n", res.Status, issue.HTMLURL)
+			if len(res.Errors) != 0 {
+				return fmt.Errorf("failed status: %w", res.Errors)
+			}
 			return errors.New("failed status")
 		default:
 			fmt.Printf("[??] checking status: %s (importing %s)\n", res.Status, issue.HTMLURL)
