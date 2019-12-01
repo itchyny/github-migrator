@@ -99,7 +99,7 @@ func (m *migrator) migrateProjectCardsInColumn(sourceID, targetID int) error {
 			}
 		} else {
 			params = &github.CreateProjectCardParams{
-				Note: c.Note,
+				Note: m.commentFilters.apply(c.Note),
 			}
 		}
 		if _, err := m.target.CreateProjectCard(targetID, params); err != nil {
