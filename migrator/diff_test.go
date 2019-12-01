@@ -54,7 +54,7 @@ index 1234567..89abcde 100644
 +++ b/README.md
 @@ -1,6 +1,16 @@
 # README
-` + strings.Repeat("\n", 70000),
+` + strings.Repeat("\n", 20000),
 			expected: `diff --git a/README.md b/README.md
 index 1234567..89abcde 100644
 Too large diff
@@ -67,7 +67,7 @@ index 1234567..89abcde 100644
 +++ b/README.md
 @@ -1,6 +1,16 @@
 # README
-` + strings.Repeat("\n", 70000) + `
+` + strings.Repeat("\n", 20000) + `
 +added
 diff --git a/CHANGELOG.md b/CHANGELOG.md
 index 1234567..89abcde 100644
@@ -90,6 +90,26 @@ index 1234567..89abcde 100644
 -deleted
 +added
 `,
+		},
+		{
+			src: strings.Repeat(`diff --git a/README.md b/README.md
+index 1234567..89abcde 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,16 @@
+# README
+`+strings.Repeat("\n", 5000)+`
++added
+`, 20),
+			expected: strings.Repeat(`diff --git a/README.md b/README.md
+index 1234567..89abcde 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,16 @@
+# README
+`+strings.Repeat("\n", 5000)+`
++added
+`, 20)[:60000] + "\n\nToo large diff\n",
 		},
 	}
 	for _, tc := range testCases {

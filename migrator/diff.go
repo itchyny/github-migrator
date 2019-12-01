@@ -5,7 +5,10 @@ import (
 	"strings"
 )
 
-const truncateLength = 16384
+const (
+	truncateLength      = 10000
+	totalTruncateLength = 60000
+)
 
 // Since import fails on too large diff, truncate it.
 // You may wonder building the diff from the api (without vnd.github.v3.diff header),
@@ -56,7 +59,11 @@ func truncateDiff(diff string) string {
 		s.WriteString(diff[:i])
 		diff = diff[i:]
 	}
-	return s.String()
+	str := s.String()
+	if len(str) > totalTruncateLength {
+		str = str[:totalTruncateLength] + "\n\nToo large diff\n"
+	}
+	return str
 }
 
 var backquoteRe = regexp.MustCompile("((?:^|\n) *)```")
