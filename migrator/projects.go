@@ -43,21 +43,21 @@ func (m *migrator) migrateProjects() error {
 			}
 		}
 		q := lookupProject(targetProjects, p)
+		body := m.commentFilters.apply(p.Body)
 		if q == nil {
 			fmt.Printf("[>>] creating a new project: %s\n", p.Name)
 			if q, err = m.target.CreateProject(&github.CreateProjectParams{
-				Name: p.Name, Body: p.Body,
+				Name: p.Name, Body: body,
 			}); err != nil {
 				return err
 			}
 			largestProjectNumber = q.Number
 		}
-		if p.Body != q.Body || p.State != q.State {
+		if body != q.Body || p.State != q.State {
 			fmt.Printf("[|>] updating an existing project: %s\n", p.Name)
 			if q, err = m.target.UpdateProject(q.ID, &github.UpdateProjectParams{
 				// Do not update name.
-				Body:  p.Body,
-				State: p.State,
+				Body: body, State: p.State,
 			}); err != nil {
 				return err
 			}
