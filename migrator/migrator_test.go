@@ -18,6 +18,8 @@ import (
 func init() {
 	beforeImportIssueDuration = 0
 	waitImportIssueInitialDuration = 0
+	waitProjectColumnDuration = 0
+	waitProjectCardDuration = 0
 }
 
 type testRepo struct {

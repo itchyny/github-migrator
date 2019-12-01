@@ -3,9 +3,12 @@ package migrator
 import (
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/itchyny/github-migrator/github"
 )
+
+var waitProjectColumnDuration = 100 * time.Millisecond
 
 func (m *migrator) migrateProjectColumns(sourceID, targetID int) error {
 	sourceColumns := m.source.ListProjectColumns(sourceID)
@@ -31,6 +34,7 @@ func (m *migrator) migrateProjectColumns(sourceID, targetID int) error {
 				return err
 			}
 		}
+		time.Sleep(waitProjectColumnDuration)
 	}
 }
 

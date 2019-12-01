@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/itchyny/github-migrator/github"
 )
+
+var waitProjectCardDuration = 100 * time.Millisecond
 
 func (m *migrator) migrateProjectCards() error {
 	sourceProjects, err := github.ProjectsToSlice(m.source.ListProjects())
@@ -102,6 +105,7 @@ func (m *migrator) migrateProjectCardsInColumn(sourceID, targetID int) error {
 		if _, err := m.target.CreateProjectCard(targetID, params); err != nil {
 			return err
 		}
+		time.Sleep(waitProjectCardDuration)
 	}
 	return nil
 }
