@@ -152,6 +152,9 @@ func (m *migrator) waitImportIssue(id int, issue *github.Issue) error {
 		time.Sleep(duration)
 		if retry > 1 {
 			duration *= 2
+			if duration > 10*time.Second {
+				duration = 10 * time.Second
+			}
 		}
 		res, err := m.target.GetImport(id)
 		if err != nil {
