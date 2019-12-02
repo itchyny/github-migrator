@@ -51,6 +51,7 @@ export GITHUB_MIGRATOR_USER_MAPPING=user-before1:user-after1,user-before2:user-a
 - Webhooks
   - Webhook URL, content type and events the hooks is trigger for.
 - All the other things will be lost
+  - Images posted to issue and pull request comments.
   - Emoji reactions to issue and pull request comments
   - Diffs (split) view of pull requests
   - Wiki
