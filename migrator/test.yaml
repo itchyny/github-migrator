@@ -536,6 +536,8 @@
         state: closed
         body: |
           Example body 3
+          ![sample](http://localhost/storage/sample)
+          <img alt="image" src="http://localhost/storage/sample" width="300">
         html_url: http://localhost/example/source/pull/1
         user: *user3
         assignee: *user3
@@ -797,6 +799,8 @@
 
 
             Example body 3
+            ![sample](http://localhost/storage/sample)
+            <img alt="image" src="http://localhost/storage/sample" width="300">
           assignee: ""
           closed: true
           labels: []
@@ -1090,6 +1094,70 @@
   user_mapping:
     bob: charlie
     sample-user-2: sample-user-1-2
+
+-
+  name: image links
+
+  source:
+    repo:
+      name: source
+      full_name: example/source
+      html_url: http://localhost1/example/source
+    issues:
+      - number: 1
+        title: Example title 1
+        body: |
+          Example body 1
+          ![](http://localhost1/storage/sample)
+          ![sample](http://localhost1/storage/sample)
+          ![SAMPLE](HTTP://LOCALHOST1/STORAGE/SAMPLE)
+          <img src="http://localhost1/storage/sample">
+          <img alt="image" src="http://localhost1/storage/sample" width="300">
+          |![](http://localhost1/storage/sample1)|<img src="http://localhost1/storage/sample2">|![](http://localhost1/storage/sample3)|
+          ![](http://localhost2/storage/sample)
+          <a href="http://localhost1/storage/sample">![](http://localhost1/storage/sample)</a>
+          <a href="http://localhost1/storage/sample"><img src="http://localhost1/storage/sample"></a>
+        html_url: http://localhost/example/source/issues/1
+        state: open
+        user: *user1
+        created_at: 2019-11-18T12:00:00Z
+
+  target:
+    repo:
+      name: target
+      full_name: example/target
+      html_url: http://localhost2/example/target
+    imports:
+      - issue:
+          title: Example title 1
+          body: |
+            <table>
+            <tr>
+              <td width="60">
+                <img src="https://github.com/github.png" width="35">
+              </td>
+              <td>
+                @sample-user-1 created the original issue<br>
+                imported from <a href="http://localhost/example/source/issues/1">example/source#1</a>
+              </td>
+            </tr>
+            </table>
+
+
+            Example body 1
+            <a href="http://localhost1/storage/sample">![](http://localhost1/storage/sample)</a>
+            <a href="http://localhost1/storage/sample">![sample](http://localhost1/storage/sample)</a>
+            <a href="HTTP://LOCALHOST1/STORAGE/SAMPLE">![SAMPLE](HTTP://LOCALHOST1/STORAGE/SAMPLE)</a>
+            <a href="http://localhost1/storage/sample"><img src="http://localhost1/storage/sample"></a>
+            <a href="http://localhost1/storage/sample"><img alt="image" src="http://localhost1/storage/sample" width="300"></a>
+            |<a href="http://localhost1/storage/sample1">![](http://localhost1/storage/sample1)</a>|<a href="http://localhost1/storage/sample2"><img src="http://localhost1/storage/sample2"></a>|<a href="http://localhost1/storage/sample3">![](http://localhost1/storage/sample3)</a>|
+            ![](http://localhost2/storage/sample)
+            <a href="http://localhost1/storage/sample"><a href="http://localhost1/storage/sample">![](http://localhost1/storage/sample)</a></a>
+            <a href="http://localhost1/storage/sample"><a href="http://localhost1/storage/sample"><img src="http://localhost1/storage/sample"></a></a>
+          created_at: 2019-11-18T12:00:00Z
+          closed: false
+          labels: []
+        comments: []
 
 -
   name: deleted issues
