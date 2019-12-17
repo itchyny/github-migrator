@@ -58,10 +58,6 @@ export GITHUB_MIGRATOR_USER_MAPPING=user-before1:user-after1,user-before2:user-a
   - Default branch, Protection rules
   - Notifications, Integrations
 
-## Disclaimer
-This tool is still under construction.
-I assume no responsibility according to what happens using this tool.
-
 ## Bug Tracker
 Report bug at [Issues・itchyny/github-migrator - GitHub](https://github.com/itchyny/github-migrator/issues).
 
