@@ -2,6 +2,8 @@
 This tool migrates a GitHub repository to another.
 This is especially useful to move a repository from GitHub Enterprise to github.com.
 
+![](https://user-images.githubusercontent.com/375258/71414326-cda1b480-2699-11ea-9de9-411e954bdb70.jpg)
+
 ## Usage
 ```bash
 export GITHUB_MIGRATOR_SOURCE_API_TOKEN=xxx
