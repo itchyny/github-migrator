@@ -239,7 +239,7 @@ type CreateMilestoneParams struct {
 	Title       string         `json:"title"`
 	Description string         `json:"description"`
 	State       MilestoneState `json:"state"`
-	DueOn       string         `json:"due_on"`
+	DueOn       string         `json:"due_on,omitempty"`
 }
 
 // CreateMilestone creates a milestone.
