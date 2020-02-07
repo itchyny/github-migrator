@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"sort"
 	"strconv"
 )
 
@@ -108,6 +109,9 @@ func ProjectsToSlice(ps Projects) ([]*Project, error) {
 			if err != io.EOF {
 				return nil, err
 			}
+			sort.Slice(xs, func(i, j int) bool {
+				return xs[i].Number < xs[j].Number
+			})
 			return xs, nil
 		}
 		xs = append(xs, p)
