@@ -2,6 +2,7 @@ package migrator
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/itchyny/github-migrator/github"
 )
@@ -55,7 +56,7 @@ func (m *migrator) migrateMilestones() error {
 			}
 			largestMilestoneNumber = n.Number
 		}
-		if l.Description != n.Description || l.State != n.State || l.DueOn != n.DueOn {
+		if l.Description != n.Description || l.State != n.State || normalizeTimeToPST(l.DueOn) != normalizeTimeToPST(n.DueOn) {
 			fmt.Printf("[|>] updating an existing milestone: %s\n", l.Title)
 			if n, err = m.target.UpdateMilestone(n.Number, &github.UpdateMilestoneParams{
 				Title:       l.Title,
@@ -89,4 +90,17 @@ func lookupMilestone(ps []*github.Milestone, l *github.Milestone) *github.Milest
 		}
 	}
 	return nil
+}
+
+// https://github.community/t5/How-to-use-Git-and-GitHub/Milestone-quot-Due-On-quot-field-defaults-to-7-00-when-set-by-v3/m-p/6922
+func normalizeTimeToPST(s string) string {
+	t, err := time.Parse(time.RFC3339, s)
+	if err != nil {
+		return s
+	}
+	pst, err := time.LoadLocation("America/Los_Angeles")
+	if err != nil {
+		return s
+	}
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, pst).In(time.UTC).Format(time.RFC3339)
 }
