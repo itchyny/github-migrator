@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/tomnomnom/linkheader"
 )
@@ -96,6 +97,34 @@ func (c *client) url(path string) string {
 	return c.endpoint + path
 }
 
+func (c *client) do(method, path string, body interface{}) (*http.Response, error) {
+	var retryCnt int
+	for {
+		res, retry, err := c.doOnce(method, path, body)
+		if err == nil || !retry || retryCnt >= 10 {
+			return res, err
+		}
+		retryCnt++
+		time.Sleep(time.Minute)
+	}
+}
+
+func (c *client) doOnce(method, path string, body interface{}) (*http.Response, bool, error) {
+	var b io.Reader
+	if body != nil {
+		bs, err := json.Marshal(body)
+		if err != nil {
+			return nil, false, err
+		}
+		b = bytes.NewReader(bs)
+	}
+	req, err := c.request(method, path, b)
+	if err != nil {
+		return nil, false, err
+	}
+	return c.doReq(req)
+}
+
 func (c *client) request(method, path string, body io.Reader) (*http.Request, error) {
 	req, err := http.NewRequest(method, path, body)
 	if err != nil {
@@ -112,17 +141,17 @@ func (c *client) request(method, path string, body io.Reader) (*http.Request, er
 	return req, nil
 }
 
-func (c *client) do(req *http.Request) (*http.Response, error) {
+func (c *client) doReq(req *http.Request) (*http.Response, bool, error) {
 	c.logger.preRequest(req)
 	res, err := c.client.Do(req)
 	c.logger.postRequest(res, err)
 	if err != nil {
-		return nil, err
+		return nil, true, err
 	}
 	if res.StatusCode < 200 || 400 <= res.StatusCode {
-		return nil, getError(res)
+		return nil, 500 <= res.StatusCode, getError(res)
 	}
-	return res, nil
+	return res, false, nil
 }
 
 func getError(res *http.Response) error {
@@ -141,11 +170,7 @@ func getError(res *http.Response) error {
 }
 
 func (c *client) get(path string, v interface{}) error {
-	req, err := c.request("GET", path, nil)
-	if err != nil {
-		return err
-	}
-	res, err := c.do(req)
+	res, err := c.do("GET", path, nil)
 	if err != nil {
 		return err
 	}
@@ -157,15 +182,7 @@ func (c *client) get(path string, v interface{}) error {
 }
 
 func (c *client) post(path string, body, v interface{}) error {
-	bs, err := json.Marshal(body)
-	if err != nil {
-		return err
-	}
-	req, err := c.request("POST", path, bytes.NewReader(bs))
-	if err != nil {
-		return err
-	}
-	res, err := c.do(req)
+	res, err := c.do("POST", path, body)
 	if err != nil {
 		return err
 	}
@@ -177,15 +194,7 @@ func (c *client) post(path string, body, v interface{}) error {
 }
 
 func (c *client) patch(path string, body, v interface{}) error {
-	bs, err := json.Marshal(body)
-	if err != nil {
-		return err
-	}
-	req, err := c.request("PATCH", path, bytes.NewReader(bs))
-	if err != nil {
-		return err
-	}
-	res, err := c.do(req)
+	res, err := c.do("PATCH", path, body)
 	if err != nil {
 		return err
 	}
@@ -197,11 +206,7 @@ func (c *client) patch(path string, body, v interface{}) error {
 }
 
 func (c *client) delete(path string) error {
-	req, err := c.request("DELETE", path, nil)
-	if err != nil {
-		return err
-	}
-	res, err := c.do(req)
+	res, err := c.do("DELETE", path, nil)
 	if err != nil {
 		return err
 	}
@@ -210,11 +215,7 @@ func (c *client) delete(path string) error {
 }
 
 func (c *client) getList(path string, v interface{}) (string, error) {
-	req, err := c.request("GET", path, nil)
-	if err != nil {
-		return "", err
-	}
-	res, err := c.do(req)
+	res, err := c.do("GET", path, nil)
 	if err != nil {
 		return "", err
 	}

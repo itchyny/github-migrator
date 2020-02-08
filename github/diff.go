@@ -20,7 +20,7 @@ func (c *client) getDiff(name, path string) (string, error) {
 		return "", err
 	}
 	req.Header.Add("Accept", "application/vnd.github.v3.diff")
-	res, err := c.do(req)
+	res, _, err := c.doReq(req)
 	if err != nil {
 		return "", fmt.Errorf("%s %s: %w", name, strings.TrimPrefix(path, "/repos/"), err)
 	}
