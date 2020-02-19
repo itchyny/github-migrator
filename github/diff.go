@@ -2,9 +2,12 @@ package github
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"strings"
 )
+
+const maxDiffSize = 1 * 1024 * 1024
 
 func (c *client) GetDiff(repo string, sha string) (string, error) {
 	return c.getDiff("GetDiff", fmt.Sprintf("/repos/%s/commits/%s", repo, sha))
@@ -26,7 +29,7 @@ func (c *client) getDiff(name, path string) (string, error) {
 	}
 	defer res.Body.Close()
 
-	bs, err := ioutil.ReadAll(res.Body)
+	bs, err := ioutil.ReadAll(&io.LimitedReader{res.Body, maxDiffSize})
 	if err != nil {
 		return "", err
 	}
