@@ -117,7 +117,13 @@ func (b *builder) buildDiffDetails() string {
 func (b *builder) buildCommitDetails() string {
 	summary := plural(b.pullReq.Commits, "commit")
 	var commitRows [][]string
-	for _, c := range b.commits {
+	for i, c := range b.commits {
+		if i > 90 && len(b.commits) > 100 {
+			commitRows = append(commitRows, []string{
+				fmt.Sprintf("more %d commits", len(b.commits)-i),
+			})
+			break
+		}
 		var dateString string
 		committer := c.Committer
 		if committer == nil {
