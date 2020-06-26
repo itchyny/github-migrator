@@ -99,13 +99,20 @@ func (c *client) url(path string) string {
 
 func (c *client) do(method, path string, body interface{}) (*http.Response, error) {
 	var retryCnt int
+	duration := time.Minute
 	for {
 		res, retry, err := c.doOnce(method, path, body)
-		if err == nil || !retry || retryCnt >= 10 {
+		if err == nil || !retry || retryCnt >= 7 {
 			return res, err
 		}
 		retryCnt++
-		time.Sleep(time.Minute)
+		if retryCnt > 2 {
+			duration *= 2
+			if duration > 10*time.Minute {
+				duration = 10 * time.Minute
+			}
+		}
+		time.Sleep(duration)
 	}
 }
 
