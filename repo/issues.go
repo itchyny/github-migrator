@@ -15,3 +15,8 @@ func (r *repo) ListIssues() github.Issues {
 func (r *repo) GetIssue(issueNumber int) (*github.Issue, error) {
 	return r.cli.GetIssue(r.path, issueNumber)
 }
+
+// AddAssignees assigns users to the issue.
+func (r *repo) AddAssignees(issueNumber int, assignees []string) error {
+	return r.cli.AddAssignees(r.path, issueNumber, assignees)
+}

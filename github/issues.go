@@ -17,6 +17,7 @@ type Issue struct {
 	HTMLURL     string            `json:"html_url"`
 	User        *User             `json:"user"`
 	Assignee    *User             `json:"assignee"`
+	Assignees   []*User           `json:"assignees"`
 	CreatedAt   string            `json:"created_at"`
 	UpdatedAt   string            `json:"updated_at"`
 	ClosedAt    string            `json:"closed_at,omitempty"`
@@ -301,4 +302,13 @@ func (c *client) GetIssue(repo string, issueNumber int) (*Issue, error) {
 		return nil, fmt.Errorf("GetIssue %s: %w", fmt.Sprintf("%s/issues/%d", repo, issueNumber), err)
 	}
 	return &r, nil
+}
+
+func (c *client) AddAssignees(repo string, issueNumber int, assignees []string) error {
+	var r Issue
+	params := map[string][]string{"assignees": assignees}
+	if err := c.post(c.url(fmt.Sprintf("/repos/%s/issues/%d/assignees", repo, issueNumber)), params, &r); err != nil {
+		return fmt.Errorf("AddAssignees %s: %w", fmt.Sprintf("%s/issues/%d/assignees", repo, issueNumber), err)
+	}
+	return nil
 }

@@ -13,6 +13,7 @@ type MockClient struct {
 	updateLabelCallback         func(string, string, *UpdateLabelParams) (*Label, error)
 	listIssuesCallback          func(string, *ListIssuesParams) Issues
 	getIssueCallback            func(string, int) (*Issue, error)
+	addAssigneesCallback        func(string, int, []string) error
 	listCommentsCallback        func(string, int) Comments
 	listEventsCallback          func(string, int) Events
 	listPullReqsCallback        func(string, *ListPullReqsParams) PullReqs
@@ -224,6 +225,21 @@ func (c *MockClient) GetIssue(repo string, issueNumber int) (*Issue, error) {
 func MockGetIssue(callback func(string, int) (*Issue, error)) MockClientOption {
 	return func(c *MockClient) {
 		c.getIssueCallback = callback
+	}
+}
+
+// AddAssignees ...
+func (c *MockClient) AddAssignees(repo string, issueNumber int, assignees []string) error {
+	if c.addAssigneesCallback != nil {
+		return c.addAssigneesCallback(repo, issueNumber, assignees)
+	}
+	panic("MockClient#AddAssignees")
+}
+
+// MockAddAssignees ...
+func MockAddAssignees(callback func(string, int, []string) error) MockClientOption {
+	return func(c *MockClient) {
+		c.addAssigneesCallback = callback
 	}
 }
 

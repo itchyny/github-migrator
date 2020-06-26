@@ -14,6 +14,7 @@ type Repo interface {
 	UpdateLabel(string, *github.UpdateLabelParams) (*github.Label, error)
 	ListIssues() github.Issues
 	GetIssue(int) (*github.Issue, error)
+	AddAssignees(int, []string) error
 	ListComments(int) github.Comments
 	ListEvents(int) github.Events
 	ListPullReqs() github.PullReqs
