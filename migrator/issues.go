@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	beforeImportIssueDuration      = 1 * time.Second
-	waitImportIssueInitialDuration = 3 * time.Second
+	beforeImportIssueDuration      = 500 * time.Millisecond
+	waitImportIssueInitialDuration = 1 * time.Second
 )
 
 func (m *migrator) migrateIssues() error {
