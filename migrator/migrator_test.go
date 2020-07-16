@@ -61,7 +61,7 @@ type testProjectColumn struct {
 	Cards []*github.ProjectCard `json:"cards"`
 }
 
-func (r *testRepo) build(t *testing.T, isTarget bool) repo.Repo {
+func (r *testRepo) build(t *testing.T, isTarget bool) *repo.Repo {
 	projects := make([]*github.Project, len(r.Projects))
 	for i, p := range r.Projects {
 		projects[i] = p.Project

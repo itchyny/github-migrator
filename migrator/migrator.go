@@ -13,12 +13,12 @@ type Migrator interface {
 }
 
 // New creates a new Migrator.
-func New(source, target repo.Repo, userMapping map[string]string) Migrator {
+func New(source, target *repo.Repo, userMapping map[string]string) Migrator {
 	return &migrator{source: source, target: target, userMapping: userMapping}
 }
 
 type migrator struct {
-	source, target         repo.Repo
+	source, target         *repo.Repo
 	userMapping            map[string]string
 	sourceRepo, targetRepo *github.Repo
 	commentFilters         commentFilters
