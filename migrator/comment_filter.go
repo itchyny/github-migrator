@@ -30,29 +30,52 @@ func newRepoURLFilter(sourceRepo, targetRepo *github.Repo) commentFilter {
 	})
 }
 
-func newUserMappingFilter(userMapping map[string]string) commentFilter {
+func newUserMappingFilter(userMapping map[string]string, targetRepo *github.Repo) commentFilter {
 	if len(userMapping) == 0 {
 		return commentFilter(func(src string) string {
 			return src
 		})
 	}
-	var usersPattern strings.Builder
-	usersPattern.WriteString(`\b(`)
-	var i int
-	for k := range userMapping {
-		if i > 0 {
-			usersPattern.WriteByte('|')
-		}
-		usersPattern.WriteString(k)
-		i++
+	froms := make([]string, 0, len(userMapping))
+	tos := make([]string, 0, len(userMapping))
+	userMappingRev := make(map[string]string, len(userMapping))
+	for k, v := range userMapping {
+		froms = append(froms, k)
+		tos = append(tos, v)
+		userMappingRev[v] = k
 	}
-	usersPattern.WriteString(`)\b`)
-	re := regexp.MustCompile(usersPattern.String())
+	re1 := regexp.MustCompile(buildPattern(froms))
+	re2 := regexp.MustCompile(buildPattern(tos))
+	re3 := regexp.MustCompile(`https?://[-.a-zA-Z0-9/_%]*` + buildPattern(tos))
+	targetURL, _ := url.Parse(targetRepo.HTMLURL)
 	return commentFilter(func(src string) string {
-		return re.ReplaceAllStringFunc(src, func(from string) string {
+		src = re1.ReplaceAllStringFunc(src, func(from string) string {
 			return userMapping[from]
 		})
+		src = re3.ReplaceAllStringFunc(src, func(url string) string {
+			if strings.Contains(url, "://"+targetURL.Host+"/") {
+				return url
+			}
+			return re2.ReplaceAllStringFunc(url, func(to string) string {
+				return userMappingRev[to]
+			})
+		})
+		return src
 	})
+}
+
+func buildPattern(xs []string) string {
+	var pattern strings.Builder
+	pattern.WriteString(`\b(`)
+	for i, x := range xs {
+		if i > 0 {
+			pattern.WriteByte('|')
+		}
+		pattern.WriteString(regexp.QuoteMeta(x))
+		i++
+	}
+	pattern.WriteString(`)\b`)
+	return pattern.String()
 }
 
 type commentFilters []commentFilter

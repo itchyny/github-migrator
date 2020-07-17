@@ -623,6 +623,9 @@
               +foo
             body: |
               @bob Thanks.
+              http://localhost/bob
+              http://example.com/bob
+              https://localhost-bob.example.com/bob
             user: *user3
           - id: 300
             path: sample.txt
@@ -1057,6 +1060,9 @@
 
 
               @charlie Thanks.
+              http://localhost/charlie
+              http://example.com/bob
+              https://localhost-bob.example.com/bob
           - body: |
               ```diff
               # sample.txt

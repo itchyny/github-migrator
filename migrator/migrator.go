@@ -41,7 +41,7 @@ func (m *migrator) Migrate() (err error) {
 	}
 	m.commentFilters = newCommentFilters(
 		newRepoURLFilter(m.sourceRepo, m.targetRepo),
-		newUserMappingFilter(m.userMapping),
+		newUserMappingFilter(m.userMapping, m.targetRepo),
 	)
 	if m.targetMembers, err = github.MembersToSlice(m.target.ListMembers()); err != nil {
 		return err
