@@ -36,15 +36,22 @@ func newUserMappingFilter(userMapping map[string]string) commentFilter {
 			return src
 		})
 	}
-	return commentFilter(func(src string) string {
-		for k, v := range userMapping {
-			r, err := regexp.Compile(`\b` + k + `\b`)
-			if err != nil {
-				continue
-			}
-			src = r.ReplaceAllString(src, v)
+	var usersPattern strings.Builder
+	usersPattern.WriteString(`\b(`)
+	var i int
+	for k := range userMapping {
+		if i > 0 {
+			usersPattern.WriteByte('|')
 		}
-		return src
+		usersPattern.WriteString(k)
+		i++
+	}
+	usersPattern.WriteString(`)\b`)
+	re := regexp.MustCompile(usersPattern.String())
+	return commentFilter(func(src string) string {
+		return re.ReplaceAllStringFunc(src, func(from string) string {
+			return userMapping[from]
+		})
 	})
 }
 
