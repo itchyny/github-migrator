@@ -139,6 +139,9 @@
               Ref: http://localhost/example/source/issues/1.
             html_url: http://localhost/example/source/issues/2#issuecomment-2
             user: *user2
+          - body: |
+              Example comment body 3
+            html_url: http://localhost/example/source/issues/2#issuecomment-2
         events:
           - actor: *user1
             event: labeled
@@ -331,6 +334,20 @@
 
               Example comment body 2
               Ref: http://localhost/example/target/issues/1.
+          - body: |
+              <table>
+              <tr>
+                <td width="60">
+                  <img src="https://github.com/ghost.png" width="35">
+                </td>
+                <td>
+                  @ghost commented
+                </td>
+              </tr>
+              </table>
+
+
+              Example comment body 3
           - body: |
               <table>
               <tr>

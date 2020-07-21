@@ -89,7 +89,7 @@ func (b *builder) buildImportBody() string {
 	tableRows := [][]string{
 		[]string{
 			b.buildImageTag(b.issue.User, 35),
-			fmt.Sprintf("@%s %s", b.commentFilters.apply(b.issue.User.Login), action),
+			fmt.Sprintf("@%s %s", b.getUserLogin(b.issue.User), action),
 		},
 	}
 	if len(b.commitDiff) > 0 {
@@ -232,12 +232,12 @@ func (b *builder) buildUserActionBody(user *github.User, action, body string) st
 	}
 	return b.buildTable(2, []string{
 		b.buildImageTag(user, 35),
-		fmt.Sprintf("@%s %s", b.commentFilters.apply(user.Login), action),
+		fmt.Sprintf("@%s %s", b.getUserLogin(user), action),
 	}) + suffix
 }
 
 func (b *builder) buildImageTag(user *github.User, width int) string {
-	target := b.commentFilters.apply(user.Login)
+	target := b.getUserLogin(user)
 	if !b.isAvailableUser(target) {
 		target = "github"
 	}
@@ -317,6 +317,16 @@ func (b *builder) buildImportLabels(issue *github.Issue) []string {
 }
 
 func (b *builder) isAvailableUser(name string) bool {
+	if name == "ghost" {
+		return true
+	}
 	u, _ := b.lookupUser(name)
 	return u != nil
+}
+
+func (b *builder) getUserLogin(user *github.User) string {
+	if user == nil {
+		return "ghost"
+	}
+	return b.commentFilters.apply(user.Login)
 }
