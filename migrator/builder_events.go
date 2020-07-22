@@ -70,7 +70,7 @@ func groupEventsByCreated(xs []*github.Event) [][]*github.Event {
 		"deployed":                 12,
 	}
 	for _, x := range xs {
-		if _, ok := eventGroupTypes[x.Event]; !ok {
+		if _, ok := eventGroupTypes[x.Event]; !ok || getEventUser(x) == nil {
 			continue
 		}
 		var appended bool
