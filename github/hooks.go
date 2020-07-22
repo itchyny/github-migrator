@@ -79,7 +79,9 @@ func (c *client) ListHooks(repo string) Hooks {
 			var xs []*Hook
 			next, err := c.getList(path, &xs)
 			if err != nil {
-				hs <- fmt.Errorf("ListHooks %s: %w", repo, err)
+				if err.Error() != "Not Found" {
+					hs <- fmt.Errorf("ListHooks %s: %w", repo, err)
+				}
 				break
 			}
 			for _, x := range xs {
