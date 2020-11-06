@@ -66,7 +66,7 @@ type Client interface {
 }
 
 // New creates a new GitHub client.
-func New(token, endpoint string, proxy string, opts ...ClientOption) Client {
+func New(token, endpoint, proxy string, opts ...ClientOption) Client {
 	cli := &http.Client{Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: endpoint != "https://api.github.com",
