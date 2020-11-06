@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/tomnomnom/linkheader"
@@ -65,12 +66,18 @@ type Client interface {
 }
 
 // New creates a new GitHub client.
-func New(token, endpoint string, opts ...ClientOption) Client {
+func New(token, endpoint string, proxy string, opts ...ClientOption) Client {
 	cli := &http.Client{Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: endpoint != "https://api.github.com",
 		},
 	}}
+	if proxy != "" {
+		proxyURL, _ := url.Parse(proxy)
+		cli = &http.Client{Transport: &http.Transport{
+			Proxy: http.ProxyURL(proxyURL),
+		}}
+	}
 	c := &client{token, endpoint, cli, &Logger{}}
 	for _, opt := range opts {
 		opt(c)

@@ -10,6 +10,7 @@ export GITHUB_MIGRATOR_SOURCE_API_TOKEN=xxx
 export GITHUB_MIGRATOR_SOURCE_API_ENDPOINT=http://localhost/api/v3 # This might be the endpoint of GitHub Enterprise
 export GITHUB_MIGRATOR_TARGET_API_TOKEN=yyy
 # export GITHUB_MIGRATOR_TARGET_API_ENDPOINT=https://api.github.com # No need to specify the endpoint of github.com
+# export GITHUB_MIGRATOR_TARGET_PROXY_URL=http://proxyIp:proxyPort # If you need proxy URL
 go run . [old-owner]/[source] [new-owner]/[target]
 ```
 Be sure to use this tool before pushing the git tree to the new origin (otherwise the links in the merged commits are lost).

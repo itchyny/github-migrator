@@ -31,7 +31,7 @@ func run(args []string) error {
 	return mig.Migrate()
 }
 
-func createGitHubClient(tokenEnv, endpointEnv string) (github.Client, error) {
+func createGitHubClient(tokenEnv, endpointEnv string, proxyEnv string) (github.Client, error) {
 	token := os.Getenv(tokenEnv)
 	if token == "" {
 		return nil, fmt.Errorf("GitHub token not found (specify %s)", tokenEnv)
@@ -40,8 +40,12 @@ func createGitHubClient(tokenEnv, endpointEnv string) (github.Client, error) {
 	if endpoint == "" {
 		endpoint = "https://api.github.com"
 	}
+	proxy := os.Getenv(proxyEnv)
+	if proxyEnv == "" {
+		proxy = ""
+	}
 	cli := github.New(
-		token, endpoint,
+		token, endpoint, proxy,
 		github.ClientLogger(
 			github.NewLogger(
 				github.LoggerPreRequest(func(req *http.Request) {
@@ -73,6 +77,7 @@ func createMigrator(sourcePath, targetPath string) (migrator.Migrator, error) {
 	sourceCli, err := createGitHubClient(
 		"GITHUB_MIGRATOR_SOURCE_API_TOKEN",
 		"GITHUB_MIGRATOR_SOURCE_API_ENDPOINT",
+		"GITHUB_MIGRATOR_SOURCE_PROXY_URL",
 	)
 	if err != nil {
 		return nil, err
@@ -80,6 +85,7 @@ func createMigrator(sourcePath, targetPath string) (migrator.Migrator, error) {
 	targetCli, err := createGitHubClient(
 		"GITHUB_MIGRATOR_TARGET_API_TOKEN",
 		"GITHUB_MIGRATOR_TARGET_API_ENDPOINT",
+		"GITHUB_MIGRATOR_TARGET_PROXY_URL",
 	)
 	if err != nil {
 		return nil, err
