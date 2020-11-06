@@ -73,10 +73,11 @@ func New(token, endpoint, proxy string, opts ...ClientOption) Client {
 		},
 	}}
 	if proxy != "" {
-		proxyURL, _ := url.Parse(proxy)
-		cli = &http.Client{Transport: &http.Transport{
-			Proxy: http.ProxyURL(proxyURL),
-		}}
+		proxyURL, err := url.Parse(proxy)
+		if err != nil {
+			panic(err)
+		}
+		cli.Transport.(*http.Transport).Proxy = http.ProxyURL(proxyURL)
 	}
 	c := &client{token, endpoint, cli, &Logger{}}
 	for _, opt := range opts {
