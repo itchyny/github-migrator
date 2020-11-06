@@ -41,9 +41,6 @@ func createGitHubClient(tokenEnv, endpointEnv, proxyEnv string) (github.Client, 
 		endpoint = "https://api.github.com"
 	}
 	proxy := os.Getenv(proxyEnv)
-	if proxyEnv == "" {
-		proxy = ""
-	}
 	cli := github.New(
 		token, endpoint, proxy,
 		github.ClientLogger(
