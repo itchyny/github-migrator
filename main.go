@@ -31,7 +31,7 @@ func run(args []string) error {
 	return mig.Migrate()
 }
 
-func createGitHubClient(tokenEnv, endpointEnv string, proxyEnv string) (github.Client, error) {
+func createGitHubClient(tokenEnv, endpointEnv, proxyEnv string) (github.Client, error) {
 	token := os.Getenv(tokenEnv)
 	if token == "" {
 		return nil, fmt.Errorf("GitHub token not found (specify %s)", tokenEnv)
