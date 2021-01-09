@@ -1,2 +1,5 @@
 /github-migrator
 /*.sh
+*.exe
+*.test
+*.out
