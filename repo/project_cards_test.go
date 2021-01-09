@@ -10,11 +10,11 @@ import (
 
 func TestRepoListProjectCards(t *testing.T) {
 	expected := []*github.ProjectCard{
-		&github.ProjectCard{
+		{
 			ID:   1,
 			Note: "Test project card 1",
 		},
-		&github.ProjectCard{
+		{
 			ID:   2,
 			Note: "Test project card 2",
 		},

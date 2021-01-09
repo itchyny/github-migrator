@@ -87,7 +87,7 @@ func (b *builder) buildImportBody() string {
 	}
 	action += "imported from " + buildIssueLinkTag(b.sourceRepo, b.issue)
 	tableRows := [][]string{
-		[]string{
+		{
 			b.buildImageTag(b.issue.User, 35),
 			fmt.Sprintf("@%s %s", b.getUserLogin(b.issue.User), action),
 		},

@@ -10,11 +10,11 @@ import (
 
 func TestRepoListProjectColumns(t *testing.T) {
 	expected := []*github.ProjectColumn{
-		&github.ProjectColumn{
+		{
 			ID:   1,
 			Name: "Test project column 1",
 		},
-		&github.ProjectColumn{
+		{
 			ID:   2,
 			Name: "Test project column 2",
 		},

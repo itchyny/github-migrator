@@ -10,11 +10,11 @@ import (
 
 func TestRepoListPullReqCommits(t *testing.T) {
 	expected := []*github.Commit{
-		&github.Commit{
+		{
 			HTMLURL: "http://localhost/example/test/commit/xxx",
 			SHA:     "xxx",
 		},
-		&github.Commit{
+		{
 			HTMLURL: "http://localhost/example/test/commit/yyy",
 			SHA:     "yyy",
 		},

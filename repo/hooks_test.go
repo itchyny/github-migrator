@@ -10,11 +10,11 @@ import (
 
 func TestRepoListHooks(t *testing.T) {
 	expected := []*github.Hook{
-		&github.Hook{
+		{
 			ID:   10,
 			Name: "Test hook 1",
 		},
-		&github.Hook{
+		{
 			ID:   10,
 			Name: "Test hook 1",
 		},

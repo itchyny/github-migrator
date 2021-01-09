@@ -10,11 +10,11 @@ import (
 
 func TestRepoListMilestones(t *testing.T) {
 	expected := []*github.Milestone{
-		&github.Milestone{
+		{
 			ID:    10,
 			Title: "Test milestone 1",
 		},
-		&github.Milestone{
+		{
 			ID:    10,
 			Title: "Test milestone 1",
 		},

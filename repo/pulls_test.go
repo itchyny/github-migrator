@@ -10,7 +10,7 @@ import (
 
 func TestRepoListPullReqs(t *testing.T) {
 	expected := []*github.PullReq{
-		&github.PullReq{
+		{
 			Issue: github.Issue{
 				Number:  1,
 				Title:   "Example title 1",
@@ -21,7 +21,7 @@ func TestRepoListPullReqs(t *testing.T) {
 			Merged: false,
 			Draft:  true,
 		},
-		&github.PullReq{
+		{
 			Issue: github.Issue{
 				Number:  2,
 				Title:   "Example title 2",
