@@ -72,7 +72,6 @@ func buildPattern(xs []string) string {
 			pattern.WriteByte('|')
 		}
 		pattern.WriteString(regexp.QuoteMeta(x))
-		i++
 	}
 	pattern.WriteString(`)\b`)
 	return pattern.String()

@@ -30,7 +30,7 @@ func (m *migrator) migrateProjectColumns(sourceID, targetID int) error {
 		d := lookupProjectColumn(targetColumns, c)
 		if d == nil {
 			fmt.Printf("[>>] creating a new project column: %s\n", c.Name)
-			if d, err = m.target.CreateProjectColumn(targetID, c.Name); err != nil {
+			if _, err = m.target.CreateProjectColumn(targetID, c.Name); err != nil {
 				return err
 			}
 		}
