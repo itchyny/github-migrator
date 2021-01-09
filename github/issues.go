@@ -154,7 +154,7 @@ func IssuesToSlice(is Issues) ([]*Issue, error) {
 	}
 }
 
-// ListIssuesParams represents the paramter for ListIssues API.
+// ListIssuesParams represents the parameter for ListIssues API.
 type ListIssuesParams struct {
 	Filter    ListIssuesParamFilter
 	State     ListIssuesParamState

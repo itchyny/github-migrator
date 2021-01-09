@@ -73,7 +73,7 @@ func PullReqsToSlice(ps PullReqs) ([]*PullReq, error) {
 	}
 }
 
-// ListPullReqsParams represents the paramter for ListPullReqs API.
+// ListPullReqsParams represents the parameter for ListPullReqs API.
 type ListPullReqsParams struct {
 	State     ListPullReqsParamState
 	Head      string

@@ -118,7 +118,7 @@ func ProjectsToSlice(ps Projects) ([]*Project, error) {
 	}
 }
 
-// ListProjectsParams represents the paramter for ListProjects API.
+// ListProjectsParams represents the parameter for ListProjects API.
 type ListProjectsParams struct {
 	State ListProjectsParamState
 }
@@ -187,7 +187,7 @@ func (c *client) GetProject(projectID int) (*Project, error) {
 	return &r, nil
 }
 
-// CreateProjectParams represents the paramter for CreateProject API.
+// CreateProjectParams represents the parameter for CreateProject API.
 type CreateProjectParams struct {
 	Name string `json:"name"`
 	Body string `json:"body"`
@@ -202,7 +202,7 @@ func (c *client) CreateProject(repo string, params *CreateProjectParams) (*Proje
 	return &r, nil
 }
 
-// UpdateProjectParams represents the paramter for UpdateProject API.
+// UpdateProjectParams represents the parameter for UpdateProject API.
 type UpdateProjectParams struct {
 	Name  string       `json:"name,omitempty"`
 	Body  string       `json:"body,omitempty"`

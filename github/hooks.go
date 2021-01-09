@@ -105,7 +105,7 @@ func (c *client) GetHook(repo string, hookID int) (*Hook, error) {
 	return &r, nil
 }
 
-// CreateHookParams represents the paramter for CreateHook API.
+// CreateHookParams represents the parameter for CreateHook API.
 type CreateHookParams struct {
 	Name   string      `json:"name"`
 	Active bool        `json:"active"`
@@ -123,7 +123,7 @@ func (c *client) CreateHook(repo string, params *CreateHookParams) (*Hook, error
 	return &r, nil
 }
 
-// UpdateHookParams represents the paramter for UpdateHook API.
+// UpdateHookParams represents the parameter for UpdateHook API.
 type UpdateHookParams struct {
 	Active bool        `json:"active"`
 	Events []string    `json:"events"`

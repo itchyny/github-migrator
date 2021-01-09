@@ -108,7 +108,7 @@ func (c *client) GetProjectCard(projectCardID int) (*ProjectCard, error) {
 	return &r, nil
 }
 
-// CreateProjectCardParams represents the paramter for CreateProjectCard API.
+// CreateProjectCardParams represents the parameter for CreateProjectCard API.
 type CreateProjectCardParams struct {
 	Note        string                 `json:"note,omitempty"`
 	ContentID   int                    `json:"content_id,omitempty"`
@@ -171,7 +171,7 @@ func (c *client) CreateProjectCard(columnID int, params *CreateProjectCardParams
 	return &r, nil
 }
 
-// UpdateProjectCardParams represents the paramter for UpdateProjectCard API.
+// UpdateProjectCardParams represents the parameter for UpdateProjectCard API.
 type UpdateProjectCardParams struct {
 	Note     string `json:"note,omitempty"`
 	Archived bool   `json:"archived,omitempty"`
@@ -186,7 +186,7 @@ func (c *client) UpdateProjectCard(projectCardID int, params *UpdateProjectCardP
 	return &r, nil
 }
 
-// MoveProjectCardParams represents the paramter for MoveProjectCard API.
+// MoveProjectCardParams represents the parameter for MoveProjectCard API.
 type MoveProjectCardParams struct {
 	Position string `json:"position"`
 	ColumnID bool   `json:"column_id,omitempty"`

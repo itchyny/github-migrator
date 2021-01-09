@@ -83,7 +83,7 @@ func (c *client) ListLabels(repo string) Labels {
 	return Labels(ls)
 }
 
-// CreateLabelParams represents the paramter for CreateLabel API.
+// CreateLabelParams represents the parameter for CreateLabel API.
 type CreateLabelParams struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -98,7 +98,7 @@ func (c *client) CreateLabel(repo string, params *CreateLabelParams) (*Label, er
 	return &r, nil
 }
 
-// UpdateLabelParams represents the paramter for UpdateLabel API.
+// UpdateLabelParams represents the parameter for UpdateLabel API.
 type UpdateLabelParams struct {
 	Name        string `json:"new_name"`
 	Description string `json:"description"`

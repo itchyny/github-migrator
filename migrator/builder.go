@@ -139,7 +139,7 @@ func (b *builder) buildCommitDetails() string {
 		commitRows = append(commitRows, []string{
 			html.EscapeString(c.Commit.Message) + "<br>\n" +
 				b.buildImageTag(committer, 16) +
-				fmt.Sprintf(" @%s comitted%s", b.commentFilters.apply(committer.Login), dateString) +
+				fmt.Sprintf(" @%s committed%s", b.commentFilters.apply(committer.Login), dateString) +
 				fmt.Sprintf(` <a href="%s">%s</a>`, b.commentFilters.apply(c.HTMLURL), c.SHA[:7]),
 		})
 	}

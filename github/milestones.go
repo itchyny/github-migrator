@@ -119,7 +119,7 @@ func MilestonesToSlice(ms Milestones) ([]*Milestone, error) {
 	}
 }
 
-// ListMilestonesParams represents the paramter for ListMilestones API.
+// ListMilestonesParams represents the parameter for ListMilestones API.
 type ListMilestonesParams struct {
 	State     ListMilestonesParamState
 	Direction ListMilestonesParamDirection
@@ -234,7 +234,7 @@ func (c *client) GetMilestone(repo string, milestoneNumber int) (*Milestone, err
 	return &r, nil
 }
 
-// CreateMilestoneParams represents the paramter for CreateMilestone API.
+// CreateMilestoneParams represents the parameter for CreateMilestone API.
 type CreateMilestoneParams struct {
 	Title       string         `json:"title"`
 	Description string         `json:"description"`
@@ -251,7 +251,7 @@ func (c *client) CreateMilestone(repo string, params *CreateMilestoneParams) (*M
 	return &r, nil
 }
 
-// UpdateMilestoneParams represents the paramter for UpdateMilestone API.
+// UpdateMilestoneParams represents the parameter for UpdateMilestone API.
 type UpdateMilestoneParams CreateMilestoneParams
 
 // UpdateMilestone updates the milestone.

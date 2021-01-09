@@ -799,21 +799,21 @@
                   <tr>
                     <td>
                       commit message 1<br>
-                      <img src="https://github.com/github.png" width="16"> @sample-user-3 comitted on Sun 10, 2019 <a href="http://localhost/example/target/commit/shaxxxyyx">shaxxxy</a>
+                      <img src="https://github.com/github.png" width="16"> @sample-user-3 committed on Sun 10, 2019 <a href="http://localhost/example/target/commit/shaxxxyyx">shaxxxy</a>
                     </td>
                   </tr>
                   <tr></tr>
                   <tr>
                     <td>
                       commit message 2<br>
-                      <img src="https://github.com/github.png" width="16"> @sample-user-3 comitted on Sun 10, 2019 <a href="http://localhost/example/target/commit/shaxxxyyy">shaxxxy</a>
+                      <img src="https://github.com/github.png" width="16"> @sample-user-3 committed on Sun 10, 2019 <a href="http://localhost/example/target/commit/shaxxxyyy">shaxxxy</a>
                     </td>
                   </tr>
                   <tr></tr>
                   <tr>
                     <td>
                       commit message 3<br>
-                      <img src="https://github.com/sample-user-1-2.png" width="16"> @sample-user-1-2 comitted on Sun 10, 2019 <a href="http://localhost/example/target/commit/shaxxxyyz">shaxxxy</a>
+                      <img src="https://github.com/sample-user-1-2.png" width="16"> @sample-user-1-2 committed on Sun 10, 2019 <a href="http://localhost/example/target/commit/shaxxxyyz">shaxxxy</a>
                     </td>
                   </tr>
                   </table>
