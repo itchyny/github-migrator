@@ -58,7 +58,7 @@ func (m *migrator) migrateMilestones() error {
 		}
 		if l.Description != n.Description || l.State != n.State || normalizeTimeToPST(l.DueOn) != normalizeTimeToPST(n.DueOn) {
 			fmt.Printf("[|>] updating an existing milestone: %s\n", l.Title)
-			if n, err = m.target.UpdateMilestone(n.Number, &github.UpdateMilestoneParams{
+			if _, err = m.target.UpdateMilestone(n.Number, &github.UpdateMilestoneParams{
 				Title:       l.Title,
 				Description: l.Description,
 				State:       l.State,

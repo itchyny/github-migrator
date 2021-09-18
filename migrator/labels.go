@@ -20,7 +20,7 @@ func (m *migrator) migrateLabels() error {
 		fmt.Printf("[=>] migrating a label: %s\n", sourceLabel.Name)
 		var exists bool
 		for _, targetLabel := range targetLabels {
-			if strings.ToLower(sourceLabel.Name) == strings.ToLower(targetLabel.Name) {
+			if strings.EqualFold(sourceLabel.Name, targetLabel.Name) {
 				if sourceLabel.Description != targetLabel.Description ||
 					sourceLabel.Color != targetLabel.Color {
 					fmt.Printf("[|>] updating an existing label: %s\n", targetLabel.Name)

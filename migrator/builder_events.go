@@ -104,12 +104,6 @@ func nearTime(s1, s2 string) bool {
 	return math.Abs(float64(diff)) < float64(10*time.Second)
 }
 
-const (
-	actionClosed = 1 << iota
-	actionMerged
-	actionReopened
-)
-
 func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) {
 	var actions []string
 	var merged bool
@@ -192,9 +186,7 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 			}
 			var targets []*github.User
 			if len(e.Assignees) > 0 {
-				for _, u := range e.Assignees {
-					targets = append(targets, u)
-				}
+				targets = append(targets, e.Assignees...)
 			} else {
 				targets = append(targets, e.Assignee)
 			}
@@ -224,9 +216,7 @@ func (b *builder) buildImportEventGroupBody(eg []*github.Event) (string, error) 
 			}
 			var targets []*github.User
 			if len(e.Reviewers) > 0 {
-				for _, u := range e.Reviewers {
-					targets = append(targets, u)
-				}
+				targets = append(targets, e.Reviewers...)
 			} else {
 				targets = append(targets, e.Reviewer)
 			}
