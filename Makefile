@@ -1,6 +1,5 @@
 BIN := github-migrator
 GOBIN ?= $(shell go env GOPATH)/bin
-export GO111MODULE=on
 
 .PHONY: all
 all: build
