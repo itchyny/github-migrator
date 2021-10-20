@@ -3,7 +3,6 @@ package github
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"strings"
 )
 
@@ -29,7 +28,7 @@ func (c *client) getDiff(name, path string) (string, error) {
 	}
 	defer res.Body.Close()
 
-	bs, err := ioutil.ReadAll(&io.LimitedReader{R: res.Body, N: maxDiffSize})
+	bs, err := io.ReadAll(&io.LimitedReader{R: res.Body, N: maxDiffSize})
 	if err != nil {
 		return "", err
 	}
