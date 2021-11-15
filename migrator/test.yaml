@@ -1556,7 +1556,7 @@
         state: open
     create_milestones:
       - number: 4
-        title: "[Deleted milestone]"
+        title: "[Deleted milestone 4]"
         state: closed
       - number: 5
         title: milestone 4
