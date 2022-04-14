@@ -67,9 +67,8 @@ func (r *testRepo) build(t *testing.T, isTarget bool) *repo.Repo {
 		projects[i] = p.Project
 	}
 	milestones := make([]*github.Milestone, len(r.Milestones))
-	for i, m := range r.Milestones {
-		milestones[i] = m
-	}
+	copy(milestones, r.Milestones)
+
 	return repo.New(github.NewMockClient(
 
 		github.MockGetUser(func(name string) (*github.User, error) {
