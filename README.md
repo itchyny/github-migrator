@@ -22,7 +22,7 @@ export GITHUB_MIGRATOR_USER_MAPPING=user-before1:user-after1,user-before2:user-a
 ```
 
 ## Requirements
-- Go 1.16+
+- Go 1.17+
 - API tokens to access the source and target repositories.
 
 ## Features
